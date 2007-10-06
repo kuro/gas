@@ -129,7 +129,7 @@ void test_size_write(const char* fname, size_t val)
     printf("***\ntesting size write: %lx store to %s\n", val, fname);
 
     int fd;
-    fd = open(fname, O_RDWR | O_CREAT, 0600);
+    fd = open(fname, O_RDWR|O_CREAT|O_TRUNC, 0600);
     write_size(fd, val);
     close(fd);
     fflush(stdout);

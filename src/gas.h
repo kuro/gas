@@ -52,4 +52,8 @@ void gas_update (chunk* c);
 void gas_set_attribute_string_pair(chunk* c, char *key, char *value);
 void gas_add_child(chunk* parent, chunk* child);
 
+void gas_write (chunk* self, int fd);
+void gas_write_encoded_num (int fd, size_t value);
+chunk* gas_read (int fd);
+
 // vim: sw=4 fdm=marker
