@@ -12,6 +12,8 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <errno.h>
+#include <linux/types.h>
+
 
 void gas_print (chunk* c);
 
@@ -24,7 +26,8 @@ size_t encoded_size (size_t value)
     int i, coded_length;
 
     for (i = 1; 1; i++) {
-        if (value < (1 << (7*i-1))) {
+        if (value < ((1 << (7*i-1))-1)) {
+        //if (value < (1 << (7*i-1))) {
             break;
         }
     }
@@ -48,7 +51,7 @@ size_t encoded_size (size_t value)
     } while (0)
 
 /* cons/decons {{{*/
-chunk* gas_new (size_t id_size, void *id)
+chunk* gas_new (size_t id_size, const void *id)
 {
     chunk *c;
 
@@ -65,7 +68,7 @@ chunk* gas_new (size_t id_size, void *id)
 }
 
 
-chunk* gas_new_named (char *id)
+chunk* gas_new_named (const char *id)
 {
     return gas_new(strlen(id), id);
 }
@@ -96,11 +99,16 @@ void gas_destroy (chunk* c)
 /*}}}*/
 /* access {{{*/
 
-void gas_set_id (chunk* c, size_t id_size, void *id)
+void gas_set_id (chunk* c, size_t id_size, const void *id)
 {
     copy_to_field(id);
 }
 
+char* gas_get_id_as_string (chunk* c)
+{
+    assert(((char*)c->id)[c->id_size] == '\0');
+    return (char*)c->id;
+}
 
 #define copy_to_attribute(field)                                            \
     do {                                                                    \
@@ -111,8 +119,8 @@ void gas_set_id (chunk* c, size_t id_size, void *id)
     } while (0)
 
 void gas_set_attribute (chunk* c,
-                              size_t key_size, void *key,
-                              size_t value_size, void *value)
+                              size_t key_size, const void *key,
+                              size_t value_size, const void *value)
 {
     c->nb_attributes++;
 
@@ -126,19 +134,22 @@ void gas_set_attribute (chunk* c,
 }
 
 
-void gas_set_attribute_string_pair(chunk* c,
-                                         char *key,
-                                         char *value)
+void gas_set_attribute_string_pair(chunk* c, const char *key, const char *value)
 {
     gas_set_attribute(c, strlen(key), key, strlen(value), value);
 }
 
 
-void gas_set_payload (chunk* c, size_t payload_size, void *payload)
+void gas_set_payload (chunk* c, size_t payload_size, const void *payload)
 {
     copy_to_field(payload);
 }
 
+char* gas_get_payload_as_string (chunk* c)
+{
+    assert(((char*)c->payload)[c->payload_size] == '\0');
+    return c->payload;
+}
 
 void gas_add_child(chunk* parent, chunk* child)
 {
@@ -151,6 +162,12 @@ void gas_add_child(chunk* parent, chunk* child)
     parent->children[parent->nb_children - 1] = child;
     child->parent = parent;
 }
+
+size_t gas_nb_children (chunk *c)
+{
+    return c->nb_children;
+}
+
 /*}}}*/
 /* management {{{*/
 /**
@@ -210,7 +227,8 @@ void gas_write_encoded_num (int fd, size_t value)
     uint8_t byte, mask;
 
     for (i = 1; 1; i++) {
-        if (value < (1 << (7*i-1))) {
+        if (value < ((1 << (7*i-1))-1)) {
+        //if (value < (1 << (7*i-1))) {
             break;
         }
     }
@@ -349,6 +367,103 @@ chunk* gas_read (int fd)
     }
     return c;
 }
+
+int gas_cmp (size_t a_len, const uint8_t *a, size_t b_len, const uint8_t *b)
+{
+    int result;
+    unsigned int i = 0;
+    while (1) {
+        if (i == a_len) {
+            result = (a_len == b_len) ? 0 : -1;
+            break;
+        }
+        if (i == b_len) {
+            result = (a_len == b_len) ? 0 : 1;
+            break;
+        }
+        if (a[i] < b[i]) {
+            result = -1;
+            break;
+        }
+        if (a[i] > b[i]) {
+            result = 1;
+            break;
+        }
+        i++;
+    }
+    return result;
+}
+
+/**
+ * @return signed index
+ * @retval -1 failure, attribute not found
+ */
+ssize_t gas_index_of_attribute (chunk* c, size_t key_size, const void* key)
+{
+    ssize_t i;
+    attribute* a;
+    for (i = 0; i < c->nb_attributes; i++ ) {
+        a = &c->attributes[i];
+        if (gas_cmp(a->key_size, a->key, key_size, key) == 0) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+int gas_has_attribute (chunk* c, size_t key_size, void* key)
+{
+    return gas_index_of_attribute(c, key_size, key) == -1 ? 0 : 1;
+}
+
+chunk* gas_get_child_at (chunk* c, size_t index)
+{
+    if (index >= c->nb_children) {
+        return NULL;
+    }
+    return c->children[index];
+}
+
+/**
+ * @note This method does not allocate or copy value data.
+ * @return request status
+ * @retval 0 failure
+ * @retval 1 success
+ */
+int gas_get_attribute (chunk* c,
+                        size_t key_size, const void* key,
+                        size_t* value_size, void** value)
+{
+    ssize_t index = gas_index_of_attribute(c, key_size, key);
+    if (index == -1) {
+        *value_size = 0;
+        *value = NULL;
+        return 0;
+    }
+
+    attribute* a = &c->attributes[index];
+    *value_size = a->value_size;
+    *value = a->value;
+    return 1;
+}
+
+char* gas_get_attribute_string_pair (chunk* c, const char* key)
+{
+    int status;
+    size_t value_size;
+    char *value;
+
+    status = gas_get_attribute(c, strlen(key), key, &value_size, (void**)&value);
+
+    if (status == 0) {
+        return NULL;
+    }
+    // should already be null terminated
+    assert(value[value_size] == '\0');
+
+    return value;
+}
+
 /*}}}*/
 
 /* temporary string based debugging {{{ */
@@ -373,7 +488,9 @@ void gas_print (chunk* c)
             );
     }
     indent(); printf("payload of size %ld:\n", c->payload_size);
-    printf("---\n%s\n---\n", (char*)c->payload);
+    if (c->payload_size > 0) {
+        printf("---\n%s\n^^^\n", (char*)c->payload);
+    }
 
     level++;
     for (i = 0; i < c->nb_children; i++) {
