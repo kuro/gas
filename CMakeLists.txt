@@ -1,9 +1,9 @@
 project(Gas C)
 
+include(CPack)
+
 set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS on)
 enable_testing()
-
-add_definitions(-Wall -Werror)
 
 subdirs(src test)
 

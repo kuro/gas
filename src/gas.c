@@ -17,26 +17,27 @@
 
 void gas_print (chunk* c);
 
-inline
 size_t encoded_size (size_t value)
 {
 #if FIXED
     return sizeof(uint32_t);
 #else
     int i, coded_length;
+    int zero_count;
+    int zero_bytes;
 
     for (i = 1; 1; i++) {
         if (value < ((1 << (7*i-1))-1)) {
-        //if (value < (1 << (7*i-1))) {
+        /*if (value < (1 << (7*i-1))) { */
             break;
         }
     }
-    coded_length = i;  // not including header
-    //printf("coded_length: %d\n", coded_length);
+    coded_length = i;  /* not including header */
+    /*printf("coded_length: %d\n", coded_length); */
 
-    int zero_count = coded_length - 1;
-    int zero_bytes = zero_count / 8;
-    //int zero_bits = zero_count % 8;
+    zero_count = coded_length - 1;
+    zero_bytes = zero_count / 8;
+    /*int zero_bits = zero_count % 8; */
 
     return coded_length + zero_bytes;
 #endif
@@ -122,13 +123,16 @@ void gas_set_attribute (chunk* c,
                               size_t key_size, const void *key,
                               size_t value_size, const void *value)
 {
+    attribute* tmp;
+    attribute *a;
+
     c->nb_attributes++;
 
-    attribute* tmp = realloc(c->attributes, c->nb_attributes*sizeof(attribute));
+    tmp = realloc(c->attributes, c->nb_attributes*sizeof(attribute));
     assert(tmp);
     c->attributes = tmp;
 
-    attribute *a = &c->attributes[c->nb_attributes-1];
+    a = &c->attributes[c->nb_attributes-1];
     copy_to_attribute(key);
     copy_to_attribute(value);
 }
@@ -153,9 +157,11 @@ char* gas_get_payload_as_string (chunk* c)
 
 void gas_add_child(chunk* parent, chunk* child)
 {
+    chunk** tmp;
+
     parent->nb_children++;
 
-    chunk** tmp = realloc(parent->children, parent->nb_children*sizeof(chunk*));
+    tmp = realloc(parent->children, parent->nb_children*sizeof(chunk*));
     assert(tmp);
     parent->children = tmp;
 
@@ -180,10 +186,10 @@ void gas_update (chunk* c)
     size_t sum;
 
     sum = 0;
-    // id
+    /* id*/
     sum += encoded_size(c->id_size);
     sum += c->id_size;
-    // attributes
+    /* attributes */
     sum += encoded_size(c->nb_attributes);
     for (i = 0; i < c->nb_attributes; i++) {
         sum += encoded_size(c->attributes[i].key_size);
@@ -191,10 +197,10 @@ void gas_update (chunk* c)
         sum += encoded_size(c->attributes[i].value_size);
         sum += c->attributes[i].value_size;
     }
-    // payload
+    /* payload */
     sum += encoded_size(c->payload_size);
     sum += c->payload_size;
-    // children
+    /* children */
     sum += encoded_size(c->nb_children);
     for (i = 0; i < c->nb_children; i++) {
         chunk* child = c->children[i];
@@ -202,11 +208,11 @@ void gas_update (chunk* c)
         sum += child->size;
     }
 
-    // @todo what about summing own size?
-    // this is just a best guess, and i don't like it
+    /* @todo what about summing own size? */
+    /* this is just a best guess, and i don't like it */
     sum += encoded_size(sum + 2);
 
-    //printf("size: %ld\n", sum);
+    /*printf("size: %ld\n", sum); */
     c->size = sum;
     fflush(stdout);
 }
@@ -220,24 +226,25 @@ void gas_write_encoded_num (int fd, size_t value)
     uint32_t tmp = htonl(value);
     write(fd, &tmp, sizeof(tmp));
 #else
-    //printf("%ld\n", value);
-    //printf("0x%lx\n", value);
+    /*printf("%ld\n", value); */
+    /*printf("0x%lx\n", value); */
 
     int i, coded_length;
     uint8_t byte, mask;
+    int zero_count, zero_bytes, zero_bits;
 
     for (i = 1; 1; i++) {
         if (value < ((1 << (7*i-1))-1)) {
-        //if (value < (1 << (7*i-1))) {
+        /*if (value < (1 << (7*i-1))) { */
             break;
         }
     }
-    coded_length = i;  // not including header
-    //printf("coded_length: %d\n", coded_length);
+    coded_length = i;  /* not including header */
+    /*printf("coded_length: %d\n", coded_length); */
 
-    int zero_count = coded_length - 1;
-    int zero_bytes = zero_count / 8;
-    int zero_bits = zero_count % 8;
+    zero_count = coded_length - 1;
+    zero_bytes = zero_count / 8;
+    zero_bits = zero_count % 8;
 
     byte = 0x0;
     for (i = 0; i < zero_bytes; i++) {
@@ -246,17 +253,17 @@ void gas_write_encoded_num (int fd, size_t value)
 
     mask = 0x80;
     mask >>= zero_bits;
-    //printf("mask: 0x%x\n", mask);
+    /*printf("mask: 0x%x\n", mask); */
 
-    // write the first masked byte
+    /* write the first masked byte */
     byte = mask | ((value >> ((coded_length-1)*8)) & 0xff);
-    //printf("first: 0x%x\n", byte);
+    /*printf("first: 0x%x\n", byte); */
     write(fd, &byte, 1);
 
-    // write remaining bytes
+    /* write remaining bytes */
     for (i = coded_length - 2; i >= 0; i--) {
         byte = ((value >> (i*8)) & 0xff);
-        //printf("next byte: 0x%x\n", byte);
+        /*printf("next byte: 0x%x\n", byte); */
         write(fd, &byte, 1);
     }
 
@@ -274,8 +281,9 @@ size_t gas_read_encoded_num (int fd)
     size_t retval;
     int i, bytes_read, zero_byte_count, first_bit_set;
     uint8_t byte, mask = 0x00;
+    size_t additional_bytes_to_read;
 
-    // find first non 0x00 byte
+    /* find first non 0x00 byte */
     for (zero_byte_count = 0; 1; zero_byte_count++) {
         bytes_read = read(fd, &byte, 1);
         if (bytes_read != 1) {
@@ -286,7 +294,7 @@ size_t gas_read_encoded_num (int fd)
             break;
     }
 
-    // process initial byte
+    /* process initial byte */
     for (first_bit_set = 7; first_bit_set >= 0; first_bit_set--)
         if (byte & (1L << first_bit_set))
             break;
@@ -295,9 +303,9 @@ size_t gas_read_encoded_num (int fd)
     for (i = 0; i < first_bit_set; i++)
         mask |= (1L << i);
 
-    size_t additional_bytes_to_read = (7-first_bit_set) + (7*zero_byte_count);
+    additional_bytes_to_read = (7-first_bit_set) + (7*zero_byte_count);
 
-    // at this point, i have enough information to construct retval
+    /* at this point, i have enough information to construct retval */
     retval = mask & byte;
     for (i = 0; i < additional_bytes_to_read; i++) {
         bytes_read = read(fd, &byte, 1);
@@ -321,17 +329,17 @@ void gas_write (chunk* self, int fd)
 {
     int i;
 
-    // this chunk's size
+    /* this chunk's size */
     gas_write_encoded_num(fd, self->size);
     write_field(id);
-    // attributes
+    /* attributes */
     gas_write_encoded_num(fd, self->nb_attributes);
     for (i = 0; i < self->nb_attributes; i++) {
         write_field(attributes[i].key);
         write_field(attributes[i].value);
     }
     write_field(payload);
-    // children
+    /* children */
     gas_write_encoded_num(fd, self->nb_children);
     for (i = 0; i < self->nb_children; i++) {
         gas_write(self->children[i], fd);
@@ -434,14 +442,16 @@ int gas_get_attribute (chunk* c,
                         size_t key_size, const void* key,
                         size_t* value_size, void** value)
 {
+    attribute* a;
     ssize_t index = gas_index_of_attribute(c, key_size, key);
+
     if (index == -1) {
         *value_size = 0;
         *value = NULL;
         return 0;
     }
 
-    attribute* a = &c->attributes[index];
+    a = &c->attributes[index];
     *value_size = a->value_size;
     *value = a->value;
     return 1;
@@ -458,7 +468,7 @@ char* gas_get_attribute_string_pair (chunk* c, const char* key)
     if (status == 0) {
         return NULL;
     }
-    // should already be null terminated
+    /* should already be null terminated */
     assert(value[value_size] == '\0');
 
     return value;
@@ -501,4 +511,4 @@ void gas_print (chunk* c)
 
 /* }}} */
 
-// vim: sw=4 fdm=marker
+/* vim: sw=4 fdm=marker : */
