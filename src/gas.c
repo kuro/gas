@@ -10,21 +10,25 @@
 #include <string.h>
 #include <assert.h>
 #include <stdio.h>
-#include <unistd.h>
 #include <errno.h>
+
+#ifndef _MSC_VER
+#include <unistd.h>
 #include <linux/types.h>
+#else
+#include <basetsd.h>
+typedef char uint8_t;
+typedef long ssize_t;
+#endif
 
-
+/* function prototypes {{{*/
 void gas_print (chunk* c);
-
+/*}}}*/
+/* helper functions and macros {{{*/
 size_t encoded_size (size_t value)
 {
-#if FIXED
-    return sizeof(uint32_t);
-#else
     int i, coded_length;
-    int zero_count;
-    int zero_bytes;
+	int zero_count, zero_bytes;
 
     for (i = 1; 1; i++) {
         if (value < ((1 << (7*i-1))-1)) {
@@ -40,7 +44,6 @@ size_t encoded_size (size_t value)
     /*int zero_bits = zero_count % 8; */
 
     return coded_length + zero_bytes;
-#endif
 }
 
 #define copy_to_field(field)                                                \
@@ -50,6 +53,7 @@ size_t encoded_size (size_t value)
         memcpy(c->field, field, field##_size);                              \
         ((uint8_t*)c->field)[field##_size] = 0;                             \
     } while (0)
+/*}}}*/
 
 /* cons/decons {{{*/
 chunk* gas_new (size_t id_size, const void *id)
@@ -123,8 +127,7 @@ void gas_set_attribute (chunk* c,
                               size_t key_size, const void *key,
                               size_t value_size, const void *value)
 {
-    attribute* tmp;
-    attribute *a;
+	attribute* tmp, *a;
 
     c->nb_attributes++;
 
@@ -219,13 +222,9 @@ void gas_update (chunk* c)
 /*}}}*/
 /* io {{{*/
 
-#include <arpa/inet.h>
+//#include <arpa/inet.h>
 void gas_write_encoded_num (int fd, size_t value)
 {
-#if FIXED
-    uint32_t tmp = htonl(value);
-    write(fd, &tmp, sizeof(tmp));
-#else
     /*printf("%ld\n", value); */
     /*printf("0x%lx\n", value); */
 
@@ -268,16 +267,10 @@ void gas_write_encoded_num (int fd, size_t value)
     }
 
     fflush(stdout);
-#endif
 }
 
 size_t gas_read_encoded_num (int fd)
 {
-#if FIXED
-    uint32_t retval;
-    read(fd, &tmp, sizeof(tmp));
-    tmp = ntohl(tmp);
-#else
     size_t retval;
     int i, bytes_read, zero_byte_count, first_bit_set;
     uint8_t byte, mask = 0x00;
@@ -315,7 +308,6 @@ size_t gas_read_encoded_num (int fd)
         }
         retval = (retval << 8) | byte;
     }
-#endif
     return retval;
 }
 
