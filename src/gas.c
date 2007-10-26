@@ -31,8 +31,8 @@ size_t encoded_size (size_t value)
 	int zero_count, zero_bytes;
 
     for (i = 1; 1; i++) {
-        if (value < ((1 << (7*i-1))-1)) {
-        /*if (value < (1 << (7*i-1))) { */
+        /*if (value < (unsigned int)pow(2, 7*i)-2) {*/
+        if (value < ((1L << (7L*i))-1L)) {
             break;
         }
     }
@@ -187,6 +187,7 @@ void gas_update (chunk* c)
     int i;
 
     size_t sum;
+    size_t a, b;
 
     sum = 0;
     /* id*/
@@ -208,12 +209,21 @@ void gas_update (chunk* c)
     for (i = 0; i < c->nb_children; i++) {
         chunk* child = c->children[i];
         gas_update(child);
+        sum += encoded_size(child->size);
         sum += child->size;
     }
 
+#if 0
+    a = sum;
+    //b = encoded_size(encoded_size(a) + encoded_size(b));
+    b = encoded_size(encoded_size(a) + 10);
+    sum = a + b;
+
     /* @todo what about summing own size? */
     /* this is just a best guess, and i don't like it */
-    sum += encoded_size(sum + 2);
+    //sum += encoded_size(sum + 2);
+#endif
+
 
     /*printf("size: %ld\n", sum); */
     c->size = sum;
@@ -222,28 +232,40 @@ void gas_update (chunk* c)
 /*}}}*/
 /* io {{{*/
 
-//#include <arpa/inet.h>
+#include <math.h>
+
 void gas_write_encoded_num (int fd, size_t value)
 {
     /*printf("%ld\n", value); */
     /*printf("0x%lx\n", value); */
 
-    int i, coded_length;
+    size_t i, coded_length;
     uint8_t byte, mask;
-    int zero_count, zero_bytes, zero_bits;
+    size_t zero_count, zero_bytes, zero_bits;
+    ssize_t si;  // a signed i
 
     for (i = 1; 1; i++) {
-        if (value < ((1 << (7*i-1))-1)) {
-        /*if (value < (1 << (7*i-1))) { */
+        /*if (value < (unsigned int)pow(2, 7*i)-2) {*/
+        if (value < ((1L << (7L*i))-1L)) {
+            break;
+        }
+        if ((i * 7L) > (sizeof(size_t) * 8L)) {
+            // warning, close to overflow
+            //i--;
             break;
         }
     }
     coded_length = i;  /* not including header */
-    /*printf("coded_length: %d\n", coded_length); */
+    //printf("coded_length: %ld\n", i);
 
     zero_count = coded_length - 1;
     zero_bytes = zero_count / 8;
     zero_bits = zero_count % 8;
+
+    //printf("zero_count: %ld\n", zero_count);
+    //printf("zero_bytes: %ld\n", zero_bytes);
+    //printf("zero_bits: %ld\n", zero_bits);
+    //fflush(stdout);
 
     byte = 0x0;
     for (i = 0; i < zero_bytes; i++) {
@@ -255,13 +277,29 @@ void gas_write_encoded_num (int fd, size_t value)
     /*printf("mask: 0x%x\n", mask); */
 
     /* write the first masked byte */
-    byte = mask | ((value >> ((coded_length-1)*8)) & 0xff);
+    if ((coded_length - 1) <= sizeof(size_t)) {
+//        printf("0x%lx\n", mask);
+//        printf("value            0x%lx\n", value);
+//        printf("hard shift value 0x%lx\n", value >> 8);
+//        printf("coded length: %d\n", coded_length);
+//        printf("shift amount: %ld\n", (coded_length-1L)*8L);
+//        printf("shifted 0x%lx\n", ((value >> ((coded_length-1L)*8L))));
+        byte = mask | ((value >> ((coded_length-zero_bytes-1)*8)) & 0xff);
+//        printf("byte: 0x%lx\n", byte);
+    } else {
+        byte = mask;
+    }
     /*printf("first: 0x%x\n", byte); */
     write(fd, &byte, 1);
 
-    /* write remaining bytes */
-    for (i = coded_length - 2; i >= 0; i--) {
-        byte = ((value >> (i*8)) & 0xff);
+    /*
+     * write remaining bytes
+     * from coded length, subtract 1 byte because we count down to zero
+     * subtract an addition byte because one was already or'ed with the mask
+     * @todo figure out why zero_bytes is subtracted
+     */
+    for (si = coded_length - 2 - zero_bytes; si >= 0; si--) {
+        byte = ((value >> (si*8)) & 0xff);
         /*printf("next byte: 0x%x\n", byte); */
         write(fd, &byte, 1);
     }
@@ -291,7 +329,7 @@ size_t gas_read_encoded_num (int fd)
     for (first_bit_set = 7; first_bit_set >= 0; first_bit_set--)
         if (byte & (1L << first_bit_set))
             break;
-    assert(first_bit_set > 0);
+    //assert(first_bit_set > 0);
 
     for (i = 0; i < first_bit_set; i++)
         mask |= (1L << i);
@@ -503,4 +541,4 @@ void gas_print (chunk* c)
 
 /* }}} */
 
-/* vim: sw=4 fdm=marker : */
+/* vim: set sw=4 fdm=marker : */

@@ -8,6 +8,12 @@
 
 #include <stdlib.h>
 
+enum
+{
+    GAS_FALSE,
+    GAS_TRUE
+};
+
 /* types {{{*/
 typedef struct _attribute attribute;
 typedef struct _chunk chunk;
@@ -43,6 +49,9 @@ chunk* gas_get_child_at (chunk* c, size_t index);
 void gas_write (chunk* self, int fd);
 void gas_write_encoded_num (int fd, size_t value);
 chunk* gas_read (int fd);
+
+void gas_write_encoded_num (int fd, size_t value);
+size_t gas_read_encoded_num (int fd);
 /* }}}*/
 
 /* attribute {{{*/
