@@ -8,6 +8,11 @@
 
 #include <stdlib.h>
 
+typedef unsigned char GASubyte;
+typedef unsigned long GASunum;
+typedef long GASnum;
+typedef int GASenum;
+
 enum
 {
     GAS_FALSE,
@@ -20,46 +25,45 @@ typedef struct _chunk chunk;
 /* }}}*/
 
 /* construction {{{*/
-chunk* gas_new (size_t id_size, const void *id);
+chunk* gas_new (GASunum id_size, const void *id);
 chunk* gas_new_named (const char *id);
 void gas_destroy (chunk* c);
 /* }}}*/
 /* access {{{*/
-void gas_set_id (chunk* c, size_t size, const void *id);
-char* gas_get_id_as_string (chunk* c);
+void gas_set_id (chunk* c, GASunum size, const void *id);
+char* gas_get_id_s (chunk* c);
 void gas_set_attribute (chunk* c,
-                        size_t key_size, const void *key,
-                        size_t value_size, const void *value);
-void gas_set_payload (chunk* c, size_t payload_size, const void *payload);
-char* gas_get_payload_as_string (chunk* c);
+                        GASunum key_size, const void *key,
+                        GASunum value_size, const void *value);
+void gas_set_payload (chunk* c, GASunum payload_size, const void *payload);
+//GASunum gas_get_payload (chunk* c, void* payload);
+char* gas_get_payload_s (chunk* c);
 void gas_update (chunk* c);
 
-void gas_set_attribute_string_pair(chunk* c, const char *key, const char *value);
-int gas_has_attribute (chunk* c, size_t key_size, void* key);
+void gas_set_attribute_s (chunk* c,
+                          const char *key,
+                          GASunum value_size, const void *value);
+void gas_set_attribute_ss(chunk* c, const char *key, const char *value);
+int gas_has_attribute (chunk* c, GASunum key_size, void* key);
 int gas_get_attribute (chunk* c,
-                        size_t key_size, const void* key,
-                        size_t* value_size, void** value);
-char* gas_get_attribute_string_pair (chunk* c, const char* key);
+                       GASunum key_size, const void* key,
+                       GASunum* value_size, void* value);
+int gas_get_attribute_s (chunk* c,
+                         const char* key,
+                         GASunum* value_size, void* value);
+char* gas_get_attribute_ss (chunk* c, const char* key);
 
 void gas_add_child(chunk* parent, chunk* child);
-size_t gas_nb_children (chunk *c);
-chunk* gas_get_child_at (chunk* c, size_t index);
-/* }}}*/
-/* io {{{*/
-void gas_write (chunk* self, int fd);
-void gas_write_encoded_num (int fd, size_t value);
-chunk* gas_read (int fd);
-
-void gas_write_encoded_num (int fd, size_t value);
-size_t gas_read_encoded_num (int fd);
+GASunum gas_nb_children (chunk *c);
+chunk* gas_get_child_at (chunk* c, GASunum index);
 /* }}}*/
 
 /* attribute {{{*/
 struct _attribute
 {
-    size_t key_size;
+    GASunum key_size;
     void *key;
-    size_t value_size;
+    GASunum value_size;
     void *value;
 };
 /* }}}*/
@@ -68,20 +72,32 @@ struct _chunk
 {
     chunk* parent;
 
-    size_t size;
+    GASunum size;
 
-    size_t id_size;
+    GASunum id_size;
     void *id;
 
-    size_t nb_attributes;
+    GASunum nb_attributes;
     attribute* attributes;
 
-    size_t payload_size;
+    GASunum payload_size;
     void *payload;
 
-    size_t nb_children;
+    GASunum nb_children;
     chunk** children;
 };
 /* }}}*/
 
-/* vim: sw=4 fdm=marker: */
+// fd io {{{
+void gas_write_fd (chunk* self, int fd);
+void gas_write_encoded_num_fd (int fd, GASunum value);
+chunk* gas_read_fd (int fd);
+
+void gas_write_encoded_num_fd (int fd, GASunum value);
+GASunum gas_read_encoded_num_fd (int fd);
+// }}}
+
+long gas_buf_write_encoded_num (GASubyte* buf, GASunum value);
+long gas_buf_write (chunk* self, GASubyte* buf);
+
+/* vim: set sw=4 fdm=marker: */
