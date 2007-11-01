@@ -4,7 +4,8 @@
  * @brief gas definition
  */
 
-#pragma once
+#ifndef GAS_H
+#define GAS_H
 
 #include <stdlib.h>
 
@@ -36,9 +37,11 @@ void gas_set_attribute (chunk* c,
                         GASunum key_size, const void *key,
                         GASunum value_size, const void *value);
 void gas_set_payload (chunk* c, GASunum payload_size, const void *payload);
+void gas_set_payload_s (chunk* c, const char* payload);
 /*GASunum gas_get_payload (chunk* c, void* payload);*/
 char* gas_get_payload_s (chunk* c);
 void gas_update (chunk* c);
+GASunum gas_total_size (chunk* c);
 
 void gas_set_attribute_s (chunk* c,
                           const char *key,
@@ -96,8 +99,11 @@ chunk* gas_read_fd (int fd);
 void gas_write_encoded_num_fd (int fd, GASunum value);
 GASunum gas_read_encoded_num_fd (int fd);
 /*}}}*/
-
+/* buffer io {{{*/
 long gas_buf_write_encoded_num (GASubyte* buf, GASunum value);
 long gas_buf_write (chunk* self, GASubyte* buf);
+/*}}}*/
+
+#endif  // GAS_H defined
 
 /* vim: set sw=4 fdm=marker: */

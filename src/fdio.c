@@ -1,26 +1,30 @@
 
+/**
+ * @file fdio.c
+ *
+ * @brief File descriptor based io.
+ */
+
 #include "gas.h"
 
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
 #include <stdio.h>
 #include <errno.h>
-#include <unistd.h>
 
 /* gas_write_encoded_num_fd() {{{*/
-void gas_write_encoded_num_fd (int fd, size_t value)
+void gas_write_encoded_num_fd (int fd, GASunum value)
 {
-    size_t i, coded_length;
+    GASunum i, coded_length;
     GASubyte byte, mask;
-    size_t zero_count, zero_bytes, zero_bits;
-    ssize_t si;  /* a signed i */
+    GASunum zero_count, zero_bytes, zero_bits;
+    GASnum si;  /* a signed i */
 
     for (i = 1; 1; i++) {
         if (value < ((1L << (7L*i))-1L)) {
             break;
         }
-        if ((i * 7L) > (sizeof(size_t) * 8L)) {
+        if ((i * 7L) > (sizeof(GASunum) * 8L)) {
             /* warning, close to overflow */
             /* i--; */
             break;
@@ -41,7 +45,7 @@ void gas_write_encoded_num_fd (int fd, size_t value)
     mask >>= zero_bits;
 
     /* write the first masked byte */
-    if ((coded_length - 1) <= sizeof(size_t)) {
+    if ((coded_length - 1) <= sizeof(GASunum)) {
         byte = mask | ((value >> ((coded_length-zero_bytes-1)*8)) & 0xff);
     } else {
         byte = mask;
@@ -61,12 +65,12 @@ void gas_write_encoded_num_fd (int fd, size_t value)
 }
 /*}}}*/
 /* gas_read_encoded_num_fd() {{{*/
-size_t gas_read_encoded_num_fd (int fd)
+GASunum gas_read_encoded_num_fd (int fd)
 {
-    size_t retval;
+    GASunum retval;
     int i, bytes_read, zero_byte_count, first_bit_set;
     GASubyte byte, mask = 0x00;
-    size_t additional_bytes_to_read;
+    GASunum additional_bytes_to_read;
 
     /* find first non 0x00 byte */
     for (zero_byte_count = 0; 1; zero_byte_count++) {

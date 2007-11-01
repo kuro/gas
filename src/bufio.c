@@ -1,8 +1,8 @@
 
 #include "gas.h"
-
 #include <string.h>
 
+/* gas_buf_write_encoded_num() {{{*/
 long gas_buf_write_encoded_num (GASubyte* buf, GASunum value)
 {
     GASunum off = 0;
@@ -59,12 +59,12 @@ long gas_buf_write_encoded_num (GASubyte* buf, GASunum value)
 
     return off;
 }
-
-
+/*}}}*/
+/* gas_buf_write() {{{*/
 #define write_field(field)                                                  \
     do {                                                                    \
         off += gas_buf_write_encoded_num(buf+off, self->field##_size);      \
-        memcpy(buf+off, &self->field, self->field##_size);                  \
+        memcpy(buf+off, self->field, self->field##_size);                  \
         off += self->field##_size; \
     } while(0)
 long gas_buf_write (chunk* self, GASubyte* buf)
@@ -90,5 +90,6 @@ long gas_buf_write (chunk* self, GASubyte* buf)
 
     return off;
 }
+/*}}}*/
 
 /* vim: set sw=4 fdm=marker : */

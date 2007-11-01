@@ -7,8 +7,13 @@
 #include "gas.h"
 
 #include <string.h>
-#include <assert.h>
 #include <stdio.h>
+
+#ifdef UNIX
+#include <assert.h>
+#else
+#define assert(expr) do {} while (0)
+#endif
 
 /* helper functions {{{*/
 /* gas_cmp() {{{*/
@@ -278,6 +283,12 @@ void gas_set_payload (chunk* c, GASunum payload_size, const void *payload)
     copy_to_field(payload);
 }
 /*}}}*/
+/* gas_set_payload_s() {{{*/
+void gas_set_payload_s (chunk* c, const char* payload)
+{
+    gas_set_payload(c, strlen(payload), payload);
+}
+/*}}}*/
 /* gas_get_payload_s() {{{*/
 char* gas_get_payload_s (chunk* c)
 {
@@ -369,6 +380,16 @@ void gas_update (chunk* c)
     /*printf("size: %ld\n", sum); */
     c->size = sum;
     /*fflush(stdout);*/
+}
+/*}}}*/
+/* gas_total_size() {{{*/
+/**
+ * @brief Returns the total size of the chunk, including initial encoded size.
+ * @warning The result is only valid after an update.
+ */
+GASunum gas_total_size (chunk* c)
+{
+    return c->size + encoded_size(c->size);
 }
 /*}}}*/
 /*}}}*/
