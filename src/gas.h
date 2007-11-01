@@ -104,6 +104,6 @@ long gas_buf_write_encoded_num (GASubyte* buf, GASunum value);
 long gas_buf_write (chunk* self, GASubyte* buf);
 /*}}}*/
 
-#endif  // GAS_H defined
+#endif  /* GAS_H defined */
 
 /* vim: set sw=4 fdm=marker: */

@@ -64,8 +64,8 @@ long gas_buf_write_encoded_num (GASubyte* buf, GASunum value)
 #define write_field(field)                                                  \
     do {                                                                    \
         off += gas_buf_write_encoded_num(buf+off, self->field##_size);      \
-        memcpy(buf+off, self->field, self->field##_size);                  \
-        off += self->field##_size; \
+        memcpy(buf+off, self->field, self->field##_size);                   \
+        off += self->field##_size;                                          \
     } while(0)
 long gas_buf_write (chunk* self, GASubyte* buf)
 {

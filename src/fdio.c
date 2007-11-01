@@ -12,6 +12,10 @@
 #include <stdio.h>
 #include <errno.h>
 
+#if UNIX
+#include <unistd.h>
+#endif
+
 /* gas_write_encoded_num_fd() {{{*/
 void gas_write_encoded_num_fd (int fd, GASunum value)
 {
@@ -109,8 +113,8 @@ GASunum gas_read_encoded_num_fd (int fd)
 /* gas_write_fd() {{{*/
 #define write_field(field)                                                  \
     do {                                                                    \
-        gas_write_encoded_num_fd(fd, self->field##_size);                      \
-        write(fd, self->field, self->field##_size);                         \
+        gas_write_encoded_num_fd(fd, self->field##_size);                   \
+        write(fd, self->field, self->field##_size);                        \
     } while(0)
 
 void gas_write_fd (chunk* self, int fd)
