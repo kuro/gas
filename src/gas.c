@@ -220,7 +220,7 @@ int gas_get_attribute (chunk* c,
         if (value_size != NULL) {
             *value_size = 0;
         }
-        //*value = NULL;
+        /* *value = NULL;*/
         return GAS_FALSE;
     }
 
@@ -228,7 +228,7 @@ int gas_get_attribute (chunk* c,
     if (value_size != NULL) {
         *value_size = a->value_size;
     }
-    //*value = a->value;
+    /* *value = a->value;*/
     memcpy(value, a->value, a->value_size);
     return GAS_TRUE;
 }

@@ -7,7 +7,8 @@ set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS on)
 # warning management {{{
 add_definitions(-Wall)
 
-if (NOT ${MSVC})
+if (NOT MSVC)
+    message(STATUS "Hardcore checks enabled")
     add_definitions(-Werror)
     add_definitions(-pedantic -ansi)
 endif ()

@@ -9,15 +9,15 @@ long gas_buf_write_encoded_num (GASubyte* buf, GASunum value)
     GASunum i, coded_length;
     GASubyte byte, mask;
     GASunum zero_count, zero_bytes, zero_bits;
-    long si;  // a signed i
+    long si;  /* a signed i */
 
     for (i = 1; 1; i++) {
         if (value < ((1L << (7L*i))-1L)) {
             break;
         }
         if ((i * 7L) > (sizeof(GASunum) * 8L)) {
-            // warning, close to overflow
-            //i--;
+            /* warning, close to overflow */
+            /*i--;*/
             break;
         }
     }
@@ -64,7 +64,7 @@ long gas_buf_write_encoded_num (GASubyte* buf, GASunum value)
 #define write_field(field)                                                  \
     do {                                                                    \
         off += gas_buf_write_encoded_num(buf+off, self->field##_size);      \
-        memcpy(buf+off, self->field, self->field##_size);                   \
+        memcpy(buf+off, &self->field, self->field##_size);                  \
         off += self->field##_size; \
     } while(0)
 long gas_buf_write (chunk* self, GASubyte* buf)

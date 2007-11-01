@@ -36,7 +36,7 @@ void gas_set_attribute (chunk* c,
                         GASunum key_size, const void *key,
                         GASunum value_size, const void *value);
 void gas_set_payload (chunk* c, GASunum payload_size, const void *payload);
-//GASunum gas_get_payload (chunk* c, void* payload);
+/*GASunum gas_get_payload (chunk* c, void* payload);*/
 char* gas_get_payload_s (chunk* c);
 void gas_update (chunk* c);
 
@@ -88,14 +88,14 @@ struct _chunk
 };
 /* }}}*/
 
-// fd io {{{
+/* fd io {{{*/
 void gas_write_fd (chunk* self, int fd);
 void gas_write_encoded_num_fd (int fd, GASunum value);
 chunk* gas_read_fd (int fd);
 
 void gas_write_encoded_num_fd (int fd, GASunum value);
 GASunum gas_read_encoded_num_fd (int fd);
-// }}}
+/*}}}*/
 
 long gas_buf_write_encoded_num (GASubyte* buf, GASunum value);
 long gas_buf_write (chunk* self, GASubyte* buf);

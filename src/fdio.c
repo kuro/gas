@@ -14,15 +14,15 @@ void gas_write_encoded_num_fd (int fd, size_t value)
     size_t i, coded_length;
     GASubyte byte, mask;
     size_t zero_count, zero_bytes, zero_bits;
-    ssize_t si;  // a signed i
+    ssize_t si;  /* a signed i */
 
     for (i = 1; 1; i++) {
         if (value < ((1L << (7L*i))-1L)) {
             break;
         }
         if ((i * 7L) > (sizeof(size_t) * 8L)) {
-            // warning, close to overflow
-            //i--;
+            /* warning, close to overflow */
+            /* i--; */
             break;
         }
     }
