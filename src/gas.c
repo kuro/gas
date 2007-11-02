@@ -9,7 +9,7 @@
 #include <string.h>
 #include <stdio.h>
 
-#ifdef UNIX
+#if UNIX
 #include <assert.h>
 #else
 #define assert(expr) do {} while (0)

@@ -3,13 +3,13 @@
 #include <string.h>
 
 /* gas_buf_write_encoded_num() {{{*/
-long gas_buf_write_encoded_num (GASubyte* buf, GASunum value)
+GASnum gas_buf_write_encoded_num (GASubyte* buf, GASunum value)
 {
-    GASunum off = 0;
+    GASnum off = 0;
     GASunum i, coded_length;
     GASubyte byte, mask;
     GASunum zero_count, zero_bytes, zero_bits;
-    long si;  /* a signed i */
+    GASnum si;  /* a signed i */
 
     for (i = 1; 1; i++) {
         if (value < ((1L << (7L*i))-1L)) {
@@ -51,8 +51,8 @@ long gas_buf_write_encoded_num (GASubyte* buf, GASunum value)
      * subtract an addition byte because one was already or'ed with the mask
      * @todo figure out why zero_bytes is subtracted
      */
-    for (si = coded_length - 2 - zero_bytes; si >= 0; si--) {
-        byte = ((value >> (si*8)) & 0xff);
+    for (si = (GASnum)(coded_length - 2 - zero_bytes); si >= 0; si--) {
+        byte = (GASubyte)((value >> ((GASunum)si*8)) & 0xffL);
         memcpy(buf+off, &byte, 1);
         off++;
     }
@@ -67,10 +67,10 @@ long gas_buf_write_encoded_num (GASubyte* buf, GASunum value)
         memcpy(buf+off, self->field, self->field##_size);                   \
         off += self->field##_size;                                          \
     } while(0)
-long gas_buf_write (chunk* self, GASubyte* buf)
+GASnum gas_buf_write (chunk* self, GASubyte* buf)
 {
-    int i;
-    GASunum off = 0;
+    GASunum i;
+    GASnum off = 0;
 
     /* this chunk's size */
     off += gas_buf_write_encoded_num(buf+off, self->size);
@@ -85,7 +85,7 @@ long gas_buf_write (chunk* self, GASubyte* buf)
     /* children */
     off += gas_buf_write_encoded_num(buf+off, self->nb_children);
     for (i = 0; i < self->nb_children; i++) {
-        gas_buf_write(self->children[i], buf);
+        off += gas_buf_write(self->children[i], buf);
     }
 
     return off;

@@ -9,10 +9,19 @@
 
 #include <stdlib.h>
 
+
+#if UNIX
+#include <stddef.h>
+typedef uint8_t  GASubyte;
+typedef int      GASenum;
+typedef size_t   GASunum;
+typedef ssize_t  GASnum;
+#else
 typedef unsigned char GASubyte;
 typedef unsigned long GASunum;
-typedef long GASnum;
-typedef int GASenum;
+typedef long          GASnum;
+typedef int           GASenum;
+#endif
 
 enum
 {
@@ -100,8 +109,8 @@ void gas_write_encoded_num_fd (int fd, GASunum value);
 GASunum gas_read_encoded_num_fd (int fd);
 /*}}}*/
 /* buffer io {{{*/
-long gas_buf_write_encoded_num (GASubyte* buf, GASunum value);
-long gas_buf_write (chunk* self, GASubyte* buf);
+GASnum gas_buf_write_encoded_num (GASubyte* buf, GASunum value);
+GASnum gas_buf_write (chunk* self, GASubyte* buf);
 /*}}}*/
 
 #endif  /* GAS_H defined */
