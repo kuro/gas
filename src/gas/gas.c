@@ -15,7 +15,8 @@
 #define assert(expr) do {} while (0)
 #endif
 
-/* helper functions {{{*/
+/** @name helper functions */
+/*@{*/
 /* gas_cmp() {{{*/
 int gas_cmp (GASunum a_len, const GASubyte *a, GASunum b_len, const GASubyte *b)
 {
@@ -43,8 +44,10 @@ int gas_cmp (GASunum a_len, const GASubyte *a, GASunum b_len, const GASubyte *b)
     return result;
 }
 /*}}}*/
-/*}}}*/
-/* helper functions and macros {{{*/
+/*@}*/
+
+/** @name helper functions and macros */
+/*@{*/
 /* encode_size() {{{*/
 GASunum encoded_size (GASunum value)
 {
@@ -85,8 +88,10 @@ GASunum encoded_size (GASunum value)
         ((GASubyte*)a->field)[field##_size] = 0;                             \
     } while (0)
 /*}}}*/
-/*}}}*/
-/* cons/decons {{{*/
+/*}@*/
+
+/** @name cons/decons */
+/*@{*/
 /* gas_new() {{{*/
 chunk* gas_new (GASunum id_size, const void *id)
 {
@@ -134,12 +139,20 @@ void gas_destroy (chunk* c)
     free(c);
 }
 /*}}}*/
-/*}}}*/
-/* id access {{{*/
+/*@}*/
+
+/** @name id access */
+/*@{*/
 /* gas_set_id() {{{*/
 void gas_set_id (chunk* c, GASunum id_size, const void *id)
 {
     copy_to_field(id);
+}
+/*}}}*/
+/* gas_set_id_s() {{{*/
+void gas_set_id_s (chunk* c, const char* id)
+{
+    gas_set_id(c, strlen(id), id);
 }
 /*}}}*/
 /* gas_get_id_s() {{{*/
@@ -149,8 +162,10 @@ char* gas_get_id_s (chunk* c)
     return (char*)c->id;
 }
 /*}}}*/
-/*}}}*/
-/* attribute access {{{*/
+/*@}*/
+
+/** @name attribute access */
+/*@{*/
 /* gas_set_attribute() {{{*/
 void gas_set_attribute (chunk* c,
                         GASunum key_size, const void *key,
@@ -275,8 +290,10 @@ char* gas_get_attribute_ss (chunk* c, const char* key)
     return value;
 }
 /*}}}*/
-/*}}}*/
-/* payload access {{{*/
+/*@}*/
+
+/** @name payload access */
+/*@{*/
 /* gas_set_payload() {{{*/
 void gas_set_payload (chunk* c, GASunum payload_size, const void *payload)
 {
@@ -296,8 +313,10 @@ char* gas_get_payload_s (chunk* c)
     return c->payload;
 }
 /*}}}*/
-/*}}}*/
-/* child access {{{*/
+/*@}*/
+
+/** @name child access */
+/*@{*/
 /* gas_add_child() {{{*/
 void gas_add_child(chunk* parent, chunk* child)
 {
@@ -328,8 +347,10 @@ chunk* gas_get_child_at (chunk* c, GASunum index)
     return c->children[index];
 }
 /*}}}*/
-/*}}}*/
-/* management {{{*/
+/*@}*/
+
+/** @name management */
+/*@{*/
 /* gas_update() {{{*/
 /**
  * @todo finish and test
@@ -392,8 +413,10 @@ GASunum gas_total_size (chunk* c)
     return c->size + encoded_size(c->size);
 }
 /*}}}*/
-/*}}}*/
-/* misc {{{*/
+/*@}*/
+
+/** @name misc */
+/*@{*/
 /* gas_print(), for string based debugging only {{{ */
 
 #define indent() for (level_iter=0;level_iter<level;level_iter++) printf("  ")
@@ -428,6 +451,6 @@ void gas_print (chunk* c)
 }
 
 /* }}} */
-/*}}}*/
+/*@}*/
 
 /* vim: set sw=4 fdm=marker fdl=1 : */

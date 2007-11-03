@@ -9,9 +9,14 @@
 
 #include <stdlib.h>
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 
 #if UNIX
-#include <stddef.h>
+#include <linux/types.h>
 typedef uint8_t  GASubyte;
 typedef int      GASenum;
 typedef size_t   GASunum;
@@ -35,23 +40,27 @@ typedef struct _chunk chunk;
 /* }}}*/
 
 /* construction {{{*/
+/** @defgroup construction */
+/*@{*/
 chunk* gas_new (GASunum id_size, const void *id);
 chunk* gas_new_named (const char *id);
 void gas_destroy (chunk* c);
+/*@}*/
 /* }}}*/
 /* access {{{*/
+/** @defgroup access */
+/*@{*/
+/** @defgroup id */
+/*@{*/
 void gas_set_id (chunk* c, GASunum size, const void *id);
+void gas_set_id_s (chunk* c, const char* id);
 char* gas_get_id_s (chunk* c);
+/*@}*/
+/** @defgroup attribute */
+/*@{*/
 void gas_set_attribute (chunk* c,
                         GASunum key_size, const void *key,
                         GASunum value_size, const void *value);
-void gas_set_payload (chunk* c, GASunum payload_size, const void *payload);
-void gas_set_payload_s (chunk* c, const char* payload);
-/*GASunum gas_get_payload (chunk* c, void* payload);*/
-char* gas_get_payload_s (chunk* c);
-void gas_update (chunk* c);
-GASunum gas_total_size (chunk* c);
-
 void gas_set_attribute_s (chunk* c,
                           const char *key,
                           GASunum value_size, const void *value);
@@ -64,10 +73,26 @@ int gas_get_attribute_s (chunk* c,
                          const char* key,
                          GASunum* value_size, void* value);
 char* gas_get_attribute_ss (chunk* c, const char* key);
-
+/*@}*/
+/** @defgroup payload */
+/*@{*/
+void gas_set_payload (chunk* c, GASunum payload_size, const void *payload);
+void gas_set_payload_s (chunk* c, const char* payload);
+/*GASunum gas_get_payload (chunk* c, void* payload);*/
+char* gas_get_payload_s (chunk* c);
+/*@}*/
+/** @defgroup children */
+/*@{*/
 void gas_add_child(chunk* parent, chunk* child);
 GASunum gas_nb_children (chunk *c);
 chunk* gas_get_child_at (chunk* c, GASunum index);
+/*@}*/
+
+void gas_update (chunk* c);
+GASunum gas_total_size (chunk* c);
+
+
+/*@}*/
 /* }}}*/
 
 /* attribute {{{*/
@@ -101,17 +126,28 @@ struct _chunk
 /* }}}*/
 
 /* fd io {{{*/
+/** @name fd io */
+/*@{*/
 void gas_write_fd (chunk* self, int fd);
 void gas_write_encoded_num_fd (int fd, GASunum value);
 chunk* gas_read_fd (int fd);
 
 void gas_write_encoded_num_fd (int fd, GASunum value);
 GASunum gas_read_encoded_num_fd (int fd);
+/*@}*/
 /*}}}*/
 /* buffer io {{{*/
+/** @name buffer io */
+/*@{*/
 GASnum gas_buf_write_encoded_num (GASubyte* buf, GASunum value);
 GASnum gas_buf_write (chunk* self, GASubyte* buf);
+/*@}*/
 /*}}}*/
+
+#ifdef __cplusplus
+}
+#endif
+
 
 #endif  /* GAS_H defined */
 
