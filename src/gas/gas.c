@@ -15,6 +15,8 @@
 #define assert(expr) do {} while (0)
 #endif
 
+static int overwrite_attributes = GAS_TRUE;
+
 /** @name helper functions */
 /*@{*/
 /* gas_cmp() {{{*/
@@ -48,7 +50,7 @@ int gas_cmp (GASunum a_len, const GASubyte *a, GASunum b_len, const GASubyte *b)
 
 /** @name helper functions and macros */
 /*@{*/
-/* encode_size() {{{*/
+/* encoded_size() {{{*/
 GASunum encoded_size (GASunum value)
 {
     int i, coded_length;
@@ -74,18 +76,20 @@ GASunum encoded_size (GASunum value)
 #define copy_to_field(field)                                                \
     do {                                                                    \
         c->field##_size = field##_size;                                     \
-        c->field = malloc(field##_size + 1);                                \
+        c->field = realloc(c->field, field##_size + 1);                     \
         memcpy(c->field, field, field##_size);                              \
-        ((GASubyte*)c->field)[field##_size] = 0;                             \
+        ((GASubyte*)c->field)[field##_size] = 0;                            \
     } while (0)
 /*}}}*/
 /* macro copy_to_attribute() {{{*/
 #define copy_to_attribute(field)                                            \
     do {                                                                    \
         a->field##_size = field##_size;                                     \
-        a->field = malloc(field##_size + 1);                                \
+        ctmp = realloc(a->field, field##_size + 1);                         \
+        assert(ctmp != NULL);                                               \
+        a->field = ctmp;                                                    \
         memcpy(a->field, field, field##_size);                              \
-        ((GASubyte*)a->field)[field##_size] = 0;                             \
+        ((GASubyte*)a->field)[field##_size] = 0;                            \
     } while (0)
 /*}}}*/
 /*}@*/
@@ -149,61 +153,38 @@ void gas_set_id (chunk* c, GASunum id_size, const void *id)
     copy_to_field(id);
 }
 /*}}}*/
-/* gas_set_id_s() {{{*/
-void gas_set_id_s (chunk* c, const char* id)
+/* gas_id_size() {{{ */
+GASunum gas_id_size (chunk* c)
 {
-    gas_set_id(c, strlen(id), id);
+    return c->id_size;
 }
 /*}}}*/
-/* gas_get_id_s() {{{*/
-char* gas_get_id_s (chunk* c)
+#define min(a, b) (a<b?a:b)
+/* gas_get_id() {{{*/
+/**
+ * @returns The number of bytes remaining.
+ * @todo add sanity checking
+ */
+GASnum gas_get_id (chunk* c, void* id, GASunum offset, GASunum limit)
 {
-    assert(((char*)c->id)[c->id_size] == '\0');
-    return (char*)c->id;
+    GASunum count;
+
+    /** @todo check count with offset */
+    count = min(limit, c->id_size);
+    memcpy(((GASubyte*)id), ((GASubyte*)c->id) + offset, count);
+    return c->id_size - (offset + limit);
 }
 /*}}}*/
 /*@}*/
 
 /** @name attribute access */
 /*@{*/
-/* gas_set_attribute() {{{*/
-void gas_set_attribute (chunk* c,
-                        GASunum key_size, const void *key,
-                        GASunum value_size, const void *value)
-{
-	attribute* tmp, *a;
-
-    c->nb_attributes++;
-
-    tmp = realloc(c->attributes, c->nb_attributes*sizeof(attribute));
-    assert(tmp);
-    c->attributes = tmp;
-
-    a = &c->attributes[c->nb_attributes-1];
-    copy_to_attribute(key);
-    copy_to_attribute(value);
-}
-/*}}}*/
-/* gas_set_attribute_s() {{{*/
-void gas_set_attribute_s (chunk* c,
-                          const char *key,
-                          GASunum value_size, const void *value)
-{
-    gas_set_attribute(c, strlen(key), key, value_size, value);
-}
-/*}}}*/
-/* gas_set_attribute_ss() {{{*/
-void gas_set_attribute_ss(chunk* c, const char *key, const char *value)
-{
-    gas_set_attribute(c, strlen(key), key, strlen(value), value);
-}
-/*}}}*/
 /* gas_index_of_attribute() {{{*/
 /**
  * @return signed index
  * @retval -1 failure, attribute not found
  */
-GASunum gas_index_of_attribute (chunk* c, GASunum key_size, const void* key)
+GASnum gas_index_of_attribute (chunk* c, GASunum key_size, const void* key)
 {
     GASunum i;
     attribute* a;
@@ -216,78 +197,78 @@ GASunum gas_index_of_attribute (chunk* c, GASunum key_size, const void* key)
     return -1;
 }
 /*}}}*/
-/* gas_has_attribute() {{{*/
-int gas_has_attribute (chunk* c, GASunum key_size, void* key)
+/* gas_set_attribute() {{{*/
+/**
+ * @todo check for existing attribute first!
+ */
+#include <unistd.h>
+void gas_set_attribute (chunk* c,
+                        GASunum key_size, const void *key,
+                        GASunum value_size, const void *value)
 {
-    return gas_index_of_attribute(c, key_size, key) == -1 ? 0 : 1;
+	attribute* tmp, *a;
+    GASnum index;
+    GASubyte *ctmp;
+
+    index = gas_index_of_attribute(c, key_size, key);
+    if (index >= 0 && overwrite_attributes) {
+        /* found, replace */
+        a = &c->attributes[index];
+        copy_to_attribute(key);
+        copy_to_attribute(value);
+    } else {
+        /* not found, append at end */
+        c->nb_attributes++;
+
+        tmp = realloc(c->attributes, c->nb_attributes*sizeof(attribute));
+        assert(tmp);
+        c->attributes = tmp;
+
+        a = &c->attributes[c->nb_attributes-1];
+        a->key = NULL;
+        a->value = NULL;
+        copy_to_attribute(key);
+        copy_to_attribute(value);
+    }
+
+}
+/*}}}*/
+/* gas_attribute_value_size() {{{*/
+GASnum gas_attribute_value_size (chunk* c, GASunum index)
+{
+    if (index < c->nb_attributes) {
+        return c->attributes[index].value_size;
+    } else {
+        return -1;
+    }
 }
 /*}}}*/
 /* gas_get_attribute() {{{*/
 /**
  * @note This method does not allocate or copy value data.
- * @return request status
- * @retval GAS_FALSE failure
- * @retval GAS_TRUE success
+ * @returns bytes remaining
  */
-int gas_get_attribute (chunk* c,
-                       GASunum key_size, const void* key,
-                       GASunum* value_size, void* value)
+GASnum gas_get_attribute (chunk* c, GASunum index,
+                          void* value, GASunum offset, GASunum limit)
 {
     attribute* a;
-    GASunum index = gas_index_of_attribute(c, key_size, key);
+    GASunum count;
 
-    if (index == -1) {
-        if (value_size != NULL) {
-            *value_size = 0;
-        }
-        /* *value = NULL;*/
-        return GAS_FALSE;
+    if (index >= c->nb_attributes) {
+        return -1;
     }
 
     a = &c->attributes[index];
-    if (value_size != NULL) {
-        *value_size = a->value_size;
-    }
-    /* *value = a->value;*/
-    memcpy(value, a->value, a->value_size);
-    return GAS_TRUE;
+    /** @todo check count with offset */
+    count = min(limit, a->value_size);
+    memcpy(((GASubyte*)value), ((GASubyte*)a->value) + offset, count);
+    return a->value_size - (offset + limit);
 }
 /*}}}*/
-/* gas_get_attribute_s {{{*/
-int gas_get_attribute_s (chunk* c,
-                         const char* key,
-                         GASunum* value_size, void* value)
+/* gas_has_attribute() {{{*/
+int gas_has_attribute (chunk* c, GASunum key_size, void* key)
 {
-    return gas_get_attribute(c, strlen(key), key, value_size, value);
-}
-/*}}}*/
-/* gas_get_attribute_ss() {{{*/
-/**
- * @note Caller is responsible for freeing result.
- */
-char* gas_get_attribute_ss (chunk* c, const char* key)
-{
-    int status;
-    GASunum value_size;
-    GASunum key_size;
-    char *value;
-    GASunum index;
-
-    key_size = strlen(key);
-    
-    index = gas_index_of_attribute(c, key_size, key);
-
-    value = malloc(c->attributes[index].value_size + 1);
-    status = gas_get_attribute(c, key_size, key, &value_size,(void*)value);
-    value[value_size] = '\0';
-
-    if (status == 0) {
-        return NULL;
-    }
-    /* should already be null terminated */
-    assert(value[value_size] == '\0');
-
-    return value;
+    return gas_index_of_attribute(c, key_size, key) == -1 ? 0 : 1;
 }
 /*}}}*/
 /*@}*/
@@ -300,17 +281,25 @@ void gas_set_payload (chunk* c, GASunum payload_size, const void *payload)
     copy_to_field(payload);
 }
 /*}}}*/
-/* gas_set_payload_s() {{{*/
-void gas_set_payload_s (chunk* c, const char* payload)
+/* gas_payload_size() {{{ */
+GASunum gas_payload_size (chunk* c)
 {
-    gas_set_payload(c, strlen(payload), payload);
+    return c->payload_size;
 }
 /*}}}*/
-/* gas_get_payload_s() {{{*/
-char* gas_get_payload_s (chunk* c)
+/* gas_get_payload() {{{*/
+/**
+ * @returns The number of bytes remaining.
+ * @todo add sanity checking
+ */
+GASnum gas_get_payload (chunk* c, void* payload, GASunum offset, GASunum limit)
 {
-    assert(((char*)c->payload)[c->payload_size] == '\0');
-    return c->payload;
+    GASunum count;
+
+    /** @todo check count with offset */
+    count = min(limit, c->payload_size);
+    memcpy(((GASubyte*)payload), ((GASubyte*)c->payload) + offset, count);
+    return c->payload_size - (offset + limit);
 }
 /*}}}*/
 /*@}*/
@@ -352,9 +341,6 @@ chunk* gas_get_child_at (chunk* c, GASunum index)
 /** @name management */
 /*@{*/
 /* gas_update() {{{*/
-/**
- * @todo finish and test
- */
 void gas_update (chunk* c)
 {
     int i;
@@ -386,18 +372,6 @@ void gas_update (chunk* c)
         sum += child->size;
     }
 
-#if 0
-    a = sum;
-    //b = encoded_size(encoded_size(a) + encoded_size(b));
-    b = encoded_size(encoded_size(a) + 10);
-    sum = a + b;
-
-    /* @todo what about summing own size? */
-    /* this is just a best guess, and i don't like it */
-    //sum += encoded_size(sum + 2);
-#endif
-
-
     /*printf("size: %ld\n", sum); */
     c->size = sum;
     /*fflush(stdout);*/
@@ -415,42 +389,5 @@ GASunum gas_total_size (chunk* c)
 /*}}}*/
 /*@}*/
 
-/** @name misc */
-/*@{*/
-/* gas_print(), for string based debugging only {{{ */
 
-#define indent() for (level_iter=0;level_iter<level;level_iter++) printf("  ")
-
-void gas_print (chunk* c)
-{
-    int i;
-    static int level = 1;
-    static int level_iter;
-
-    indent(); printf("chunk of size = %ld\n", c->size);
-    indent(); printf("id of size %ld -> \"%s\"\n", c->id_size, (char*)c->id);
-    indent(); printf("%ld attribute(s):\n", c->nb_attributes);
-    for (i = 0; i < c->nb_attributes; i++) {
-        indent(); printf(
-            "%d -- \"%s\" (%ld) -> \"%s\" (%ld)\n",
-            i,
-            (char*)c->attributes[i].key, c->attributes[i].key_size,
-            (char*)c->attributes[i].value, c->attributes[i].value_size
-            );
-    }
-    indent(); printf("payload of size %ld:\n", c->payload_size);
-    if (c->payload_size > 0) {
-        printf("---\n%s\n^^^\n", (char*)c->payload);
-    }
-
-    level++;
-    for (i = 0; i < c->nb_children; i++) {
-        gas_print(c->children[i]);
-    }
-    level--;
-}
-
-/* }}} */
-/*@}*/
-
-/* vim: set sw=4 fdm=marker fdl=1 : */
+/* vim: set sw=4 fdm=marker : */

@@ -16,7 +16,8 @@ extern "C"
 
 
 #if UNIX
-#include <linux/types.h>
+#include <stdint.h>
+#include <sys/types.h>
 typedef uint8_t  GASubyte;
 typedef int      GASenum;
 typedef size_t   GASunum;
@@ -53,33 +54,22 @@ void gas_destroy (chunk* c);
 /** @defgroup id */
 /*@{*/
 void gas_set_id (chunk* c, GASunum size, const void *id);
-void gas_set_id_s (chunk* c, const char* id);
-char* gas_get_id_s (chunk* c);
 /*@}*/
 /** @defgroup attribute */
 /*@{*/
+GASnum gas_index_of_attribute (chunk* c, GASunum key_size,const void* key);
 void gas_set_attribute (chunk* c,
                         GASunum key_size, const void *key,
                         GASunum value_size, const void *value);
-void gas_set_attribute_s (chunk* c,
-                          const char *key,
-                          GASunum value_size, const void *value);
-void gas_set_attribute_ss(chunk* c, const char *key, const char *value);
 int gas_has_attribute (chunk* c, GASunum key_size, void* key);
-int gas_get_attribute (chunk* c,
-                       GASunum key_size, const void* key,
-                       GASunum* value_size, void* value);
-int gas_get_attribute_s (chunk* c,
-                         const char* key,
-                         GASunum* value_size, void* value);
-char* gas_get_attribute_ss (chunk* c, const char* key);
+GASnum gas_attribute_value_size (chunk* c, GASunum index);
+GASnum gas_get_attribute (chunk* c, GASunum index,
+                          void* value, GASunum offset, GASunum limit);
 /*@}*/
 /** @defgroup payload */
 /*@{*/
 void gas_set_payload (chunk* c, GASunum payload_size, const void *payload);
-void gas_set_payload_s (chunk* c, const char* payload);
 /*GASunum gas_get_payload (chunk* c, void* payload);*/
-char* gas_get_payload_s (chunk* c);
 /*@}*/
 /** @defgroup children */
 /*@{*/

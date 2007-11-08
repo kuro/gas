@@ -19,7 +19,9 @@ extern "C"
 void gas_print (chunk* c);
 }
 
+#if HAVE_EXPAT
 int xml2gas (string input, string output, bool verbose);
+#endif
 
 void print_gas_file (string fname)
 {
@@ -53,11 +55,13 @@ int main (int argc, char **argv)
             die("file not given");
         }
         print_gas_file(argv[2]);
+#if HAVE_EXPAT
     } else if (cmd == "xml2gas") {
         if (argc != 4) {
             die("input and output not given");
         }
         xml2gas(argv[2], argv[3], false);
+#endif
     } else {
         die("invalid command");
     }
