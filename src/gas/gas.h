@@ -12,6 +12,7 @@
 #ifdef __cplusplus
 extern "C"
 {
+/*}*/
 #endif
 
 
@@ -54,6 +55,9 @@ void gas_destroy (chunk* c);
 /** @defgroup id */
 /*@{*/
 void gas_set_id (chunk* c, GASunum size, const void *id);
+GASnum gas_get_id (chunk* c, void* id, GASunum offset, GASunum limit);
+void gas_set_id_s (chunk* c, const char* id);
+char* gas_get_id_s (chunk* c);
 /*@}*/
 /** @defgroup attribute */
 /*@{*/

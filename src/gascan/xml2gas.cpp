@@ -5,6 +5,7 @@
  */
 
 #include <gas.h>
+#include <ntstring.h>
 #include <expat.h>
 #include <string.h>
 #include <stdio.h>
@@ -22,10 +23,6 @@ int depth;
 int indent_i;
 #define indent() for (indent_i = 0; indent_i < depth; indent_i++){printf("  ");}
 
-extern "C"
-{
-void gas_print (chunk* c);
-}
 
 void start (void *data, const char *el, const char **attr)
 {

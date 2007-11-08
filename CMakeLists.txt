@@ -12,13 +12,13 @@ else ()
     add_definitions(-DUNIX=0)
 endif ()
 
-subdirs(src test)
-
 # ctags {{{
 find_program(CTAGS NAMES exuberant-ctags ctags)
 if (CTAGS)
     add_custom_target(tags ALL ${CTAGS} --recurse --extra=fq ${CMAKE_CURRENT_SOURCE_DIR}/src)
 endif ()
 #}}}
+
+subdirs(src test doc)
 
 # vim: fdm=marker

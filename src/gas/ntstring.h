@@ -9,6 +9,12 @@
 
 #include "gas.h"
 
+#ifdef __cplusplus
+extern "C"
+{
+/*}*/
+#endif
+
 /**
  * @defgroup ntstring
  * @brief null-terminated string support.
@@ -48,6 +54,10 @@ void gas_print (chunk* c);
 
 /*@}*/
 
+#ifdef __cplusplus
+}
+/*}*/
+#endif
 #endif /* NTSTRING_H defined */
 
 /* vim: set sw=4 fdm=marker :*/

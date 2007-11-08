@@ -4,7 +4,10 @@
  * @brief test_tree implementation
  */
 
-#include <gas.h>
+#include <gas/gas.h>
+#include <gas/ntstring.h>
+
+#include <stdio.h>
 
 #include <string.h>
 //#include <linux/types.h>
@@ -38,12 +41,12 @@ void test001 (void)
     char *c_out;
     memset(c, 0, sizeof(c));
     c[64] = 0;
-    gas_get_attribute_s(root, "class", &len, c);
+    gas_get_attribute_s(root, "class", &len, 0, sizeof(c));
     printf("class was %ld bytes and \"%s\"\n", len, c);
     c_out = gas_get_attribute_ss(root, "class");
     printf("class was again %ld bytes and \"%s\"\n", len, c_out);
     free(c_out);
-    gas_get_attribute_s(root, "num", NULL, &num_out);
+    gas_get_attribute_s(root, "num", &num_out, 0, sizeof(num_out));
     printf("num (0x%x) was 0x%x\n", num, num_out);
 
     gas_destroy(root);

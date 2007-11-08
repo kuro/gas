@@ -4,7 +4,9 @@
  * @brief xml2gas implementation
  */
 
-#include <gas.h>
+#include <gas/gas.h>
+#include <gas/ntstring.h>
+
 #include <expat.h>
 #include <string.h>
 #include <stdio.h>

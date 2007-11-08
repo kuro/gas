@@ -4,7 +4,8 @@
  * @brief io implementation
  */
 
-#include <gas.h>
+#include <gas/gas.h>
+#include <gas/ntstring.h>
 
 #include <stdlib.h>
 #include <string.h>

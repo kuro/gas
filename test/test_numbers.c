@@ -4,7 +4,7 @@
  * @brief numbers implementation
  */
 
-#include <gas.h>
+#include <gas/gas.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -127,7 +127,7 @@ void test_number (size_t num)
 
 int main (void)
 {
-    int i;
+    //int i;
 
     puts("testing specific cases");
     test_number(0xe9a2952240160c);
