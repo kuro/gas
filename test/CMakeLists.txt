@@ -1,4 +1,4 @@
-include_directories(../src)
+include_directories(../src/gas)
 
 foreach(test test_tree test_encoding test_io test_numbers)
     add_executable(${test} ${test}.c)
