@@ -1,5 +1,5 @@
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../gas)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/..)
 
 find_package(EXPAT)
 include_directories(${EXPAT_INCLUDE_PATH})

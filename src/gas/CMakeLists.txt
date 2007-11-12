@@ -7,8 +7,8 @@ endif ()
 set(sources gas.h gas.c)
 add_library(gas SHARED
     gas.h gas.c
-    fdio.c
-    bufio.c
+    fdio.h fdio.c
+    bufio.h bufio.c
     ntstring.h ntstring.c
     )
 

@@ -4,7 +4,7 @@
  * @brief main implementation
  */
 
-#include <gas.h>
+#include <gas/fdio.h>
 
 #include <stdio.h>
 #include <fcntl.h>

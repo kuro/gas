@@ -119,25 +119,6 @@ struct _chunk
 };
 /* }}}*/
 
-/* fd io {{{*/
-/** @name fd io */
-/*@{*/
-void gas_write_fd (chunk* self, int fd);
-void gas_write_encoded_num_fd (int fd, GASunum value);
-chunk* gas_read_fd (int fd);
-
-void gas_write_encoded_num_fd (int fd, GASunum value);
-GASunum gas_read_encoded_num_fd (int fd);
-/*@}*/
-/*}}}*/
-/* buffer io {{{*/
-/** @name buffer io */
-/*@{*/
-GASnum gas_buf_write_encoded_num (GASubyte* buf, GASunum value);
-GASnum gas_buf_write (chunk* self, GASubyte* buf);
-/*@}*/
-/*}}}*/
-
 #ifdef __cplusplus
 }
 #endif
