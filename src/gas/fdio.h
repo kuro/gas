@@ -21,7 +21,6 @@ extern "C"
 /*@{*/
 
 void gas_write_fd (chunk* self, int fd);
-void gas_write_encoded_num_fd (int fd, GASunum value);
 chunk* gas_read_fd (int fd);
 
 void gas_write_encoded_num_fd (int fd, GASunum value);

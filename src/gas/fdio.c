@@ -110,6 +110,7 @@ GASunum gas_read_encoded_num_fd (int fd)
     return retval;
 }
 /*}}}*/
+
 /* gas_write_fd() {{{*/
 #define write_field(field)                                                  \
     do {                                                                    \

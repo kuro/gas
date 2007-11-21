@@ -23,6 +23,8 @@ void gas_print (chunk* c);
 int xml2gas (string input, string output, bool verbose);
 #endif
 
+int gas2c (int argc, char **argv);
+
 void print_gas_file (string fname)
 {
     int fd;
@@ -62,6 +64,8 @@ int main (int argc, char **argv)
         }
         xml2gas(argv[2], argv[3], false);
 #endif
+    } else if (cmd == "gas2c") {
+        gas2c(argc-1, &argv[1]);
     } else {
         die("invalid command");
     }

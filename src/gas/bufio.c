@@ -1,9 +1,20 @@
 
+/**
+ * @file bufio.c
+ * @brief Memory buffer based routines.
+ *
+ * @todo This should perform acceptable when there are no error conditions.
+ * However, the sanity checks require review.
+ */
+
 #include "gas.h"
 #include <string.h>
 
-/* gas_buf_write_encoded_num() {{{*/
-GASnum gas_buf_write_encoded_num (GASubyte* buf, GASunum value)
+#include "ntstring.h"
+#include <stdio.h>
+
+/* gas_write_encoded_num_buf() {{{*/
+GASnum gas_write_encoded_num_buf (GASubyte* buf, GASunum value)
 {
     GASnum off = 0;
     GASunum i, coded_length;
@@ -60,35 +71,156 @@ GASnum gas_buf_write_encoded_num (GASubyte* buf, GASunum value)
     return off;
 }
 /*}}}*/
-/* gas_buf_write() {{{*/
+/* gas_read_encoded_num_buf() {{{*/
+/**
+ * @brief decode a number from a memory buffer.
+ * @param limit The length of the buffer.  Serves as a limiter.  However, limit
+ * bytes may or may not be used.
+ * @return The status.  When >0, the number of bytes used.  When <=0, error.
+ * @retval 0 error
+ */
+GASnum gas_read_encoded_num_buf (GASubyte* buf, GASunum limit, GASunum* result)
+{
+    size_t offset;
+    size_t retval;
+    int i, zero_byte_count, first_bit_set;
+    uint8_t byte, mask = 0x00;
+    size_t additional_bytes_to_read;
+
+    offset = 0;
+
+    /* find first non 0x00 byte */
+    for (zero_byte_count = 0; 1; zero_byte_count++) {
+/*        bytes_read = read(fd, &byte, 1);                    */
+/*        if (bytes_read != 1) {                              */
+/*            fprintf(stderr, "error: %s\n", strerror(errno));*/
+/*            abort();                                        */
+/*        }                                                   */
+        byte = buf[offset++];
+        if (offset > limit) {
+            puts("offset was limit");
+            return GAS_FALSE;
+        }
+        if (byte != 0x00)
+            break;
+    }
+
+    /* process initial byte */
+    for (first_bit_set = 7; first_bit_set >= 0; first_bit_set--)
+        if (byte & (1L << first_bit_set))
+            break;
+/*    assert(first_bit_set > 0);*/
+
+    for (i = 0; i < first_bit_set; i++)
+        mask |= (1L << i);
+
+    additional_bytes_to_read = (7-first_bit_set) + (7*zero_byte_count);
+
+    /* at this point, i have enough information to construct retval */
+    retval = mask & byte;
+    for (i = 0; i < additional_bytes_to_read; i++) {
+        byte = buf[offset++];
+        if (offset > limit) {
+            puts("offset was limit 2");
+            return GAS_FALSE;
+        }
+/*        bytes_read = read(fd, &byte, 1);                    */
+/*        if (bytes_read != 1) {                              */
+/*            fprintf(stderr, "error: %s\n", strerror(errno));*/
+/*            abort();                                        */
+/*        }                                                   */
+        retval = (retval << 8) | byte;
+    }
+    *result = retval;
+    return offset;
+}
+/*}}}*/
+
+/* gas_write_buf() {{{*/
 #define write_field(field)                                                  \
     do {                                                                    \
-        off += gas_buf_write_encoded_num(buf+off, self->field##_size);      \
+        off += gas_write_encoded_num_buf(buf+off, self->field##_size);      \
         memcpy(buf+off, self->field, self->field##_size);                   \
         off += self->field##_size;                                          \
     } while(0)
-GASnum gas_buf_write (chunk* self, GASubyte* buf)
+GASnum gas_write_buf (chunk* self, GASubyte* buf)
 {
     GASunum i;
     GASnum off = 0;
 
     /* this chunk's size */
-    off += gas_buf_write_encoded_num(buf+off, self->size);
+    off += gas_write_encoded_num_buf(buf+off, self->size);
     write_field(id);
     /* attributes */
-    off += gas_buf_write_encoded_num(buf+off, self->nb_attributes);
+    off += gas_write_encoded_num_buf(buf+off, self->nb_attributes);
     for (i = 0; i < self->nb_attributes; i++) {
         write_field(attributes[i].key);
         write_field(attributes[i].value);
     }
     write_field(payload);
     /* children */
-    off += gas_buf_write_encoded_num(buf+off, self->nb_children);
+    off += gas_write_encoded_num_buf(buf+off, self->nb_children);
     for (i = 0; i < self->nb_children; i++) {
-        off += gas_buf_write(self->children[i], buf);
+        off += gas_write_buf(self->children[i], buf);
     }
 
     return off;
+}
+/*}}}*/
+/* gas_read_buf() {{{*/
+
+#define read_field(field)                                                     \
+    do {                                                                      \
+        read_num(field##_size);                                               \
+        field = malloc(field##_size + 1);                                     \
+        memcpy(field, buf+offset, field##_size);                              \
+        offset += field##_size;                                               \
+        ((GASubyte*)field)[field##_size] = 0;                                 \
+    } while (0)
+
+#define read_num(field) \
+    tmp = gas_read_encoded_num_buf(buf + offset, limit - offset, &field); \
+    if (tmp < 1) { \
+        gas_destroy(c); \
+        return NULL; \
+    } \
+    offset += tmp;
+
+
+chunk* gas_read_buf (GASubyte* buf, GASunum limit, GASnum* out_offset)
+{
+    GASnum tmp;
+    GASunum offset = 0;
+
+    int i;
+    chunk* c = gas_new(0, NULL);
+
+    read_num(c->size);
+    read_field(c->id);
+    read_num(c->nb_attributes);
+    c->attributes = malloc(c->nb_attributes * sizeof(attribute));
+    for (i = 0; i < c->nb_attributes; i++) {
+        read_field(c->attributes[i].key);
+        read_field(c->attributes[i].value);
+    }
+    read_field(c->payload);
+    read_num(c->nb_children);
+    c->children = malloc(c->nb_children * sizeof(chunk*));
+    memset(c->children, 0, c->nb_children * sizeof(chunk*));
+    for (i = 0; i < c->nb_children; i++) {
+        c->children[i] = gas_read_buf(buf + offset, limit - offset, &tmp);
+        if (c->children[i] == NULL) {
+            gas_destroy(c);
+            return NULL;
+        }
+        offset += tmp;
+    }
+
+    if (out_offset != NULL) {
+        *out_offset = offset;
+    }
+
+    return c;
 }
 /*}}}*/
 

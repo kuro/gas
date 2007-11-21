@@ -18,8 +18,12 @@ extern "C"
 
 /** @name buffer io */
 /*@{*/
-GASnum gas_buf_write_encoded_num (GASubyte* buf, GASunum value);
-GASnum gas_buf_write (chunk* self, GASubyte* buf);
+
+chunk* gas_read_buf (GASubyte* buf, GASunum limit, GASnum* offset);
+GASnum gas_write_buf (chunk* self, GASubyte* buf);
+
+GASnum gas_read_encoded_num_buf (GASubyte* buf, GASunum len, GASunum* result);
+GASnum gas_write_encoded_num_buf (GASubyte* buf, GASunum value);
 /*@}*/
 
 #ifdef __cplusplus
