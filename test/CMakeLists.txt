@@ -1,6 +1,6 @@
 include_directories(../src)
 
-foreach(test test_tree test_encoding test_io test_numbers)
+foreach(test test_tree test_encoding test_io test_numbers test_parser)
     add_executable(${test} ${test}.c)
     target_link_libraries(${test} gas)
 

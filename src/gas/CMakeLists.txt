@@ -10,6 +10,8 @@ add_library(gas SHARED
     fdio.h fdio.c
     bufio.h bufio.c
     ntstring.h ntstring.c
+    session.h session.c
+    parser.h parser.c
     )
 
 #install(TARGETS gas LIBRARY DESTINATION lib)

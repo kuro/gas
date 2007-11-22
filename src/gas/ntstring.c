@@ -159,6 +159,10 @@ void gas_print (chunk* c)
     static int level = 1;
     static int level_iter;
 
+    if (c == NULL) {
+        return;
+    }
+
     indent(); printf("chunk of size = %ld\n", (unsigned long)c->size);
     indent(); printf("id of size %ld -> \"%s\"\n", (unsigned long)c->id_size, (char*)c->id);
     indent(); printf("%ld attribute(s):\n", (unsigned long)c->nb_attributes);

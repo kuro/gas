@@ -129,6 +129,9 @@ chunk* gas_new_named (const char *id)
 void gas_destroy (chunk* c)
 {
     int i;
+    if (c == NULL) {
+        return;
+    }
     free(c->id);
     for (i = 0; i < c->nb_attributes; i++) {
         free(c->attributes[i].key);

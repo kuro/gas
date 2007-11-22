@@ -30,6 +30,9 @@ typedef long          GASnum;
 typedef int           GASenum;
 #endif
 
+typedef void     GASvoid;
+typedef GASubyte GASbool;
+
 enum
 {
     GAS_FALSE,
