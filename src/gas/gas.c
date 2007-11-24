@@ -4,6 +4,13 @@
  * @brief gas implementation
  */
 
+/**
+ * @mainpage
+ *
+ * Topics:
+ * - @ref parser
+ */
+
 #include "gas.h"
 
 #include <string.h>

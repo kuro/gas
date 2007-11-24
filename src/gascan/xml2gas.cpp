@@ -46,13 +46,58 @@ void start (void *data, const char *el, const char **attr)
     depth++;
 }
 
-void character_data (void *data, const char *str, int length)
+void character_data (void *data, const char *str, int orig_length)
 {
+#if 0
     int total_new_len = length + cur->payload_size;
     cur->payload = realloc(cur->payload, total_new_len + 1);
     memcpy(((GASubyte*)cur->payload) + cur->payload_size, str, length);
     ((char*)cur->payload)[total_new_len] = 0;
     cur->payload_size = total_new_len;
+#else
+    int start = 0;
+    int end = orig_length;
+    int i;
+
+    for (i = 0; i < orig_length; i++) {
+        if ( ! isspace(str[i])) {
+            break;
+        }
+    }
+    start += i;
+
+//    for (i = orig_length-1; i > 0; i--) {
+//        if ( ! isspace(str[i])) {
+//            break;
+//        }
+//    }
+//    end -= i;
+
+    int length = end - start;
+
+    if (length == 0) {
+        return;
+    }
+
+//    printf("\"");
+//    for (i = start; i < end; i++) {
+//        printf("%c", str[i]);
+//    }
+//    printf("\"\n");
+//    return;
+
+//    printf("orig len %d\n", orig_length);
+//    printf("start %d\n", start);
+//    printf("end %d\n", end);
+//    printf("%d\n", length);
+//    exit(0);
+
+    int total_new_len = length + cur->payload_size;
+    cur->payload = realloc(cur->payload, total_new_len + 1);
+    memcpy(((GASubyte*)cur->payload) + cur->payload_size, str+start, length);
+    ((char*)cur->payload)[total_new_len] = 0;
+    cur->payload_size = total_new_len;
+#endif
 }
 
 void end (void *data, const char *el)

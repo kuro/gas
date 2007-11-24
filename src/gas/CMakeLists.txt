@@ -10,7 +10,7 @@ add_library(gas SHARED
     fdio.h fdio.c
     bufio.h bufio.c
     ntstring.h ntstring.c
-    session.h session.c
+    context.h context.c
     parser.h parser.c
     )
 

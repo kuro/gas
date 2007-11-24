@@ -31,13 +31,19 @@ typedef int           GASenum;
 #endif
 
 typedef void     GASvoid;
-typedef GASubyte GASbool;
 
+#ifdef __cplusplus
+typedef bool GASbool;
+#define GAS_FALSE false
+#define GAS_TRUE  true
+#else
+typedef GASubyte GASbool;
 enum
 {
     GAS_FALSE,
     GAS_TRUE
 };
+#endif
 
 /* types {{{*/
 typedef struct _attribute attribute;

@@ -1,7 +1,7 @@
 
 /**
- * @file session.h
- * @brief session definition
+ * @file context.h
+ * @brief context definition
  */
 
 #ifndef GAS_SESSION_H
@@ -36,12 +36,19 @@ typedef GASnum (*GAS_FILE_WRITE_CALLBACK) (void *handle, void *buffer,
                                            unsigned int sizebytes,
                                            unsigned int *byteswritten,
                                            void *userdata);
+/**
+ * @brief provides the ability to seek forward (SEEK_CUR).
+ */
 typedef GASnum (*GAS_FILE_SEEK_CALLBACK)  (void *handle,
                                            unsigned int pos,
                                            void *userdata);
 
-typedef struct _gas_session gas_session;
-struct _gas_session
+/**
+ * @see _gas_context
+ */
+typedef struct _gas_context gas_context;
+
+struct _gas_context
 {
     GAS_FILE_OPEN_CALLBACK  open_callback;
     GAS_FILE_CLOSE_CALLBACK close_callback;
@@ -51,10 +58,10 @@ struct _gas_session
     void *user_data;
 };
 
-gas_session* gas_session_new (void);
-void gas_session_destroy (gas_session* s);
+gas_context* gas_context_new (void);
+void gas_context_destroy (gas_context* s);
 
-void gas_write_cb (chunk* self, gas_session *session);
+void gas_write_cb (chunk* self, gas_context *context);
 chunk* gas_read_fd (int fd);
 
 void gas_write_encoded_num_fd (int fd, GASunum value);

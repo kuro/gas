@@ -1,32 +1,54 @@
 
 /**
- * @file session.c
+ * @file context.c
  * @brief <++>
  */
 
-#include "session.h"
+#include "context.h"
 
 #include <stdio.h>
 
+#if UNIX
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+#endif
 
+#define USE_FILE 1
 
 GASnum gas_default_open (const char *name, const char *mode, void **handle, void **userdata)
 {
-    if (name) {
-        FILE *fp;
+#if USE_FILE
+    FILE *fp;
 
-        fp = fopen(name, mode);
-        if (!fp) {
-            return GAS_ERR_FILE_NOT_FOUND;
-        }
-
-        /* fseek(fp, 0, SEEK_END); */
-        /* *filesize = ftell(fp);  */
-        /* fseek(fp, 0, SEEK_SET); */
-
-        *userdata = (void *)0x12345678;
-        *handle = fp;
+    fp = fopen(name, mode);
+    if (!fp) {
+        return GAS_ERR_FILE_NOT_FOUND;
     }
+
+    *userdata = NULL;
+    *handle = fp;
+#else
+    long fd = 0;
+    int flags = O_CREAT;
+    if (mode == "r") {
+        flags |= O_RDONLY;
+    } else if (mode == "w") {
+        flags |= O_WRONLY;
+    } else if (mode == "rw") {
+        flags |= O_RDWR;
+    }
+
+    fd = open(name, flags, 0644);
+    if (fd == -1) {
+        perror("error: File::File(filename, mode)");
+        return GAS_ERR_FILE_NOT_FOUND;
+    }
+
+    *userdata = NULL;
+    *handle = (void*)(long)fd;
+#endif
 
     return GAS_OK;
 }
@@ -37,7 +59,11 @@ GASnum gas_default_close (void *handle, void *userdata)
         return GAS_ERR_INVALID_PARAM;
     }
 
+#if USE_FILE
     fclose((FILE *)handle);
+#else
+    close((long)handle);
+#endif
 
     return GAS_OK;
 }
@@ -49,6 +75,7 @@ GASnum gas_default_read (void *handle, void *buffer, unsigned int sizebytes,
         return GAS_ERR_INVALID_PARAM;
     }
 
+#if USE_FILE
     if (bytesread) {
         *bytesread = (int)fread(buffer, 1, sizebytes, (FILE *)handle);
 
@@ -56,6 +83,9 @@ GASnum gas_default_read (void *handle, void *buffer, unsigned int sizebytes,
             return GAS_ERR_FILE_EOF;
         }
     }
+#else
+    *bytesread = read((long)handle, buffer, sizebytes);
+#endif
 
     return GAS_OK;
 }
@@ -67,6 +97,7 @@ GASnum gas_default_write (void *handle, void *buffer, unsigned int sizebytes,
         return GAS_ERR_INVALID_PARAM;
     }
 
+#if USE_FILE
     if (byteswritten) {
         *byteswritten = (int)fwrite(buffer, 1, sizebytes, (FILE *)handle);
 
@@ -74,6 +105,9 @@ GASnum gas_default_write (void *handle, void *buffer, unsigned int sizebytes,
             return GAS_ERR_UNKNOWN;
         }
     }
+#else
+    *byteswritten = write((long)handle, buffer, sizebytes);
+#endif
 
     return GAS_OK;
 }
@@ -84,17 +118,21 @@ GASnum gas_default_seek (void *handle, unsigned int pos, void *userdata)
         return GAS_ERR_INVALID_PARAM;
     }
 
+#if USE_FILE
     /*fseek((FILE *)handle, pos, SEEK_SET);*/
     /** @todo make this configurable */
     fseek((FILE *)handle, pos, SEEK_CUR);
+#else
+    lseek((long)handle, pos, SEEK_CUR);
+#endif
 
     return GAS_OK;
 }
 
-gas_session* gas_session_new (void)
+gas_context* gas_context_new (void)
 {
-    gas_session *s;
-    s = malloc(sizeof(gas_session));
+    gas_context *s;
+    s = malloc(sizeof(gas_context));
     s->open_callback = gas_default_open;
     s->close_callback = gas_default_close;
     s->read_callback = gas_default_read;
@@ -104,7 +142,7 @@ gas_session* gas_session_new (void)
     return s;
 }
 
-void gas_session_destroy (gas_session* s)
+void gas_context_destroy (gas_context* s)
 {
     free(s);
 }
