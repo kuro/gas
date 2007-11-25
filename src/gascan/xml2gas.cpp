@@ -7,10 +7,13 @@
 #include <gas/fdio.h>
 #include <gas/ntstring.h>
 
+#include <fcntl.h>
+
+#if 0
+
 #include <expat.h>
 #include <string.h>
 #include <stdio.h>
-#include <fcntl.h>
 #include <unistd.h>
 
 #include <string>
@@ -147,6 +150,78 @@ int xml2gas (string input, string output, bool verbose)
     close(fd);
 
     return 1;
+}
+#endif
+
+#include <QXmlStreamReader>
+#include <QFile>
+
+int xml2gas_main (int argc, char **argv)
+{
+    QFile *input;
+
+    input = new QFile("test.xml");
+    input->open(QIODevice::ReadOnly);
+
+    chunk *cur = gas_new_named("fake_root");
+
+    QXmlStreamReader xml (input);
+    while ( ! xml.atEnd()) {
+        xml.readNext();
+        if (xml.hasError()) {
+            qDebug(xml.errorString().toAscii());
+        }
+        if (xml.isStartElement()) {
+            //QXmlStreamAttributes& attr = xml.attributes();
+
+            chunk* n = gas_new(xml.name().size(), (const char*)xml.name().toString().toAscii());
+
+            foreach(QXmlStreamAttribute attr, xml.attributes()) {
+                gas_set_attribute_ss(n,
+                        (const char*)attr.name().toString().toAscii(), 
+                        (const char*)attr.value().toString().toAscii()
+                        );
+            }
+
+
+            gas_add_child(cur, n);
+            cur = n;
+        }
+        if ((xml.isCharacters() || xml.isCDATA()) && !xml.isWhitespace()) {
+            const char *str = (const char*)xml.text().toString().toAscii();
+            int length = xml.text().size();
+            int total_new_len = length + cur->payload_size;
+            cur->payload = realloc(cur->payload, total_new_len + 1);
+            memcpy(((GASubyte*)cur->payload) + cur->payload_size, str, length);
+            ((char*)cur->payload)[total_new_len] = 0;
+            cur->payload_size = total_new_len;
+        }
+        if (xml.isEndElement()) {
+            cur = cur->parent;
+        }
+    }
+
+    gas_update(cur);
+    int verbose = 0;
+    if (verbose) {
+        puts("printing gas");
+        gas_print(cur);
+    }
+    puts("saving gas");
+    int fd;
+    fd = open("test.gas", O_WRONLY|O_CREAT|O_TRUNC, 0600);
+    gas_write_fd(cur, fd);
+    // i do not need to write the top root element,
+    // so when reading the file back, there may be multiple top chunks
+//    unsigned int i;
+//    for (i = 0; i < cur->nb_children; i++) {
+//        printf("total size: %d\n", gas_total_size(cur->children[i]));
+//        gas_write_fd(cur->children[i], fd);
+//    }
+    close(fd);
+    gas_destroy(cur);
+
+    return 0;
 }
 
 // vim: sw=4 fdm=marker

@@ -50,11 +50,11 @@ typedef struct _gas_context gas_context;
 
 struct _gas_context
 {
-    GAS_FILE_OPEN_CALLBACK  open_callback;
-    GAS_FILE_CLOSE_CALLBACK close_callback;
-    GAS_FILE_READ_CALLBACK  read_callback;
-    GAS_FILE_WRITE_CALLBACK write_callback;
-    GAS_FILE_SEEK_CALLBACK  seek_callback;
+    GAS_FILE_OPEN_CALLBACK  open;
+    GAS_FILE_CLOSE_CALLBACK close;
+    GAS_FILE_READ_CALLBACK  read;
+    GAS_FILE_WRITE_CALLBACK write;
+    GAS_FILE_SEEK_CALLBACK  seek;
     void *user_data;
 };
 

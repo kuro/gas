@@ -64,7 +64,7 @@ int main (void)
     gas_parser *p;
 
     ctx = gas_context_new();
-    p = gas_parser_new(ctx, GAS_TRUE);
+    p = gas_parser_new(ctx);
 
     p->build_tree = GAS_FALSE;
     //p->get_payloads = GAS_FALSE;

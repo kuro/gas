@@ -7,6 +7,13 @@
 #ifndef GAS_PARSER_H
 #define GAS_PARSER_H
 
+#ifdef __cplusplus
+extern "C"
+{
+/*}*/
+#endif
+
+
 #include <gas/context.h>
 
 typedef struct _gas_parser gas_parser;
@@ -57,9 +64,14 @@ struct _gas_parser
  *
  * @see gas_parser::build_tree
  */
-gas_parser* gas_parser_new (gas_context* context, GASbool build_tree);
+gas_parser* gas_parser_new (gas_context* context);
 chunk* gas_parse (gas_parser* p, const char *resource);
 void gas_parser_destroy (gas_parser *p);
+
+#ifdef __cplusplus
+}
+#endif
+
 
 #endif /* GAS_PARSER_H defined */
 

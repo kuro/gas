@@ -16,7 +16,7 @@
  * false, gas_parse will return NULL, and the parser will act as a scanner
  * only.  When true, gas_parse returns a tree.
  *
- * @subsection parser_callbacks Parser Callbacks
+ * @subsection parsers Parser Callbacks
  *
  * The parser contains a number of callbacks.  When the function pointers are
  * NULL, the parser ignores them.
@@ -86,7 +86,7 @@ GASunum gas_read_encoded_num_parser (gas_parser *p)
     /* find first non 0x00 byte */
     for (zero_byte_count = 0; 1; zero_byte_count++) {
         /*bytes_read = read(fd, &byte, 1);*/
-        p->context->read_callback(p->handle, &byte, 1, &bytes_read,
+        p->context->read(p->handle, &byte, 1, &bytes_read,
                                   p->context->user_data);
         if (bytes_read != 1) {
             fprintf(stderr, "error: %s\n", strerror(errno));
@@ -110,7 +110,7 @@ GASunum gas_read_encoded_num_parser (gas_parser *p)
     retval = mask & byte;
     for (i = 0; i < additional_bytes_to_read; i++) {
         /*bytes_read = read(fd, &byte, 1);*/
-        p->context->read_callback(p->handle, &byte, 1, &bytes_read,
+        p->context->read(p->handle, &byte, 1, &bytes_read,
                                   p->context->user_data);
         if (bytes_read != 1) {
             fprintf(stderr, "error: %s\n", strerror(errno));
@@ -127,7 +127,7 @@ GASunum gas_read_encoded_num_parser (gas_parser *p)
     do {                                                                      \
         field##_size = gas_read_encoded_num_parser(p);                        \
         field = malloc(field##_size + 1);                                     \
-        p->context->read_callback(p->handle, field, field##_size,             \
+        p->context->read(p->handle, field, field##_size,             \
                                   &bytes_read, p->context->user_data);        \
         ((GASubyte*)field)[field##_size] = 0;                                 \
     } while (0)
@@ -157,7 +157,7 @@ chunk* gas_read_parser (gas_parser *p)
     }
     if ( ! cont) {
         GASunum jump = c->size - encoded_size(c->id_size) - c->id_size;
-        p->context->seek_callback(p->handle, jump, p->context->user_data);
+        p->context->seek(p->handle, jump, p->context->user_data);
         gas_destroy(c);
         return NULL;
     }
@@ -186,7 +186,7 @@ chunk* gas_read_parser (gas_parser *p)
     } else {
         c->payload_size = gas_read_encoded_num_parser(p);
         c->payload = NULL;
-        p->context->seek_callback(p->handle, c->payload_size,
+        p->context->seek(p->handle, c->payload_size,
                                   p->context->user_data);
     }
 
@@ -215,7 +215,7 @@ chunk* gas_read_parser (gas_parser *p)
 }
 /*}}}*/
 /* parser routines {{{*/
-gas_parser* gas_parser_new (gas_context* context, GASbool build_tree)
+gas_parser* gas_parser_new (gas_context* context)
 {
     gas_parser *p;
 
@@ -224,7 +224,7 @@ gas_parser* gas_parser_new (gas_context* context, GASbool build_tree)
     memset(p, 0, sizeof(gas_parser));
 
     p->context = context;
-    p->build_tree = build_tree;
+    p->build_tree = GAS_TRUE;
     p->get_payloads = GAS_TRUE;
 
 #if 0
@@ -251,9 +251,9 @@ chunk* gas_parse (gas_parser* p, const char *resource)
     GASnum status;
     gas_context *s = p->context;
 
-    status = s->open_callback(resource, "rb", &p->handle, &s->user_data);
+    status = s->open(resource, "rb", &p->handle, &s->user_data);
     c = gas_read_parser(p);
-    status = s->close_callback(p->handle, s->user_data);
+    status = s->close(p->handle, s->user_data);
 
     return c;
 }

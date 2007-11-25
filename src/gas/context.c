@@ -133,11 +133,11 @@ gas_context* gas_context_new (void)
 {
     gas_context *s;
     s = malloc(sizeof(gas_context));
-    s->open_callback = gas_default_open;
-    s->close_callback = gas_default_close;
-    s->read_callback = gas_default_read;
-    s->write_callback = gas_default_write;
-    s->seek_callback = gas_default_seek;
+    s->open = gas_default_open;
+    s->close = gas_default_close;
+    s->read = gas_default_read;
+    s->write = gas_default_write;
+    s->seek = gas_default_seek;
     s->user_data = NULL;
     return s;
 }

@@ -19,9 +19,13 @@ extern "C"
 void gas_print (chunk* c);
 }
 
-#if HAVE_EXPAT
-int xml2gas (string input, string output, bool verbose);
+int test_main (int argc, char **argv);
+
+#if HAVE_QT4
+int xml2gas_main (int argc, char **argv);
+int qtedit_main (int argc, char **argv);
 #endif
+
 
 int gas2c (int argc, char **argv);
 
@@ -48,7 +52,7 @@ void die (string msg)
 int main (int argc, char **argv)
 {
     if (argc < 2) {
-        die("invalid usage");
+        die("invalid usage: command not given");
     }
 
     string cmd = argv[1];
@@ -57,12 +61,13 @@ int main (int argc, char **argv)
             die("file not given");
         }
         print_gas_file(argv[2]);
-#if HAVE_EXPAT
+    } else if (cmd == "test") {
+        test_main(argc-1, &argv[1]);
+#if HAVE_QT4
     } else if (cmd == "xml2gas") {
-        if (argc != 4) {
-            die("input and output not given");
-        }
-        xml2gas(argv[2], argv[3], false);
+        xml2gas_main(argc-1, &argv[1]);
+    } else if (cmd == "edit") {
+        qtedit_main(argc-1, &argv[1]);
 #endif
     } else if (cmd == "gas2c") {
         gas2c(argc-1, &argv[1]);
