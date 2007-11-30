@@ -7,6 +7,8 @@
 #include <gas/fdio.h>
 #include <gas/ntstring.h>
 
+#include "gascan.h"
+
 #include <fcntl.h>
 
 #if 0
@@ -158,10 +160,35 @@ int xml2gas (string input, string output, bool verbose)
 
 int xml2gas_main (int argc, char **argv)
 {
+    QString fin, fout;
+
+    switch (argc) {
+    case 1:
+        fin = "-";
+        fout = "-";
+        break;
+    case 2:
+        fin = argv[1];
+        fout = "-";
+        break;
+    case 3:
+        fin = argv[1];
+        fout = argv[2];
+        break;
+    default:
+        die("invalid usage");
+        break;
+    }
+
     QFile *input;
 
-    input = new QFile("test.xml");
-    input->open(QIODevice::ReadOnly);
+    if (fin == "-") {
+        input = new QFile();
+        input->open(stdin, QIODevice::ReadOnly);
+    } else {
+        input = new QFile(fin);
+        input->open(QIODevice::ReadOnly);
+    }
 
     chunk *cur = gas_new_named("fake_root");
 
@@ -204,20 +231,23 @@ int xml2gas_main (int argc, char **argv)
     gas_update(cur);
     int verbose = 0;
     if (verbose) {
-        puts("printing gas");
+        //puts("printing gas");
         gas_print(cur);
     }
-    puts("saving gas");
+    //puts("saving gas");
     int fd;
-    fd = open("test.gas", O_WRONLY|O_CREAT|O_TRUNC, 0600);
-    gas_write_fd(cur, fd);
+    if (fout == "-") {
+        fd = 1;
+    } else {
+        fd = open(fout.toAscii(), O_WRONLY|O_CREAT|O_TRUNC, 0600);
+    }
     // i do not need to write the top root element,
     // so when reading the file back, there may be multiple top chunks
-//    unsigned int i;
-//    for (i = 0; i < cur->nb_children; i++) {
-//        printf("total size: %d\n", gas_total_size(cur->children[i]));
-//        gas_write_fd(cur->children[i], fd);
-//    }
+    unsigned int i;
+    for (i = 0; i < cur->nb_children; i++) {
+        printf("total size: %ld\n", gas_total_size(cur->children[i]));
+        gas_write_fd(cur->children[i], fd);
+    }
     close(fd);
     gas_destroy(cur);
 

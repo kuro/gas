@@ -37,8 +37,6 @@ endif ()
 
 add_executable(gascan ${sources})
 
-message(${sources})
-
 target_link_libraries(gascan
     gas
     ${EXPAT_LIBRARIES}

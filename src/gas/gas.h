@@ -125,6 +125,13 @@ struct _chunk
 
     GASunum nb_children;
     chunk** children;
+
+#ifdef __cplusplus
+    attribute* get_attribute ()
+    {
+        return NULL;
+    }
+#endif
 };
 /* }}}*/
 

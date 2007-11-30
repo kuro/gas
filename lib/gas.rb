@@ -1,6 +1,7 @@
 
 require 'dl'
 require 'dl/import'
+require 'pp'
 
 module Gas
   LIB = case RUBY_PLATFORM
@@ -19,6 +20,18 @@ module Gas
     #return rs
   end
 
+  function_map = %w/
+    gas_read_buf PSIP
+    /
+  function_map = Hash[*function_map]
+  function_map.each do |func, sig|
+    self.const_set func.upcase, LIB[func, sig]
+  end
+  def self.parse_buffer (buf)
+    o = GAS_READ_BUF.call(buf, buf.size, nil).first
+    return Chunk.new(o)
+  end
+
   class Chunk
     include Gas
     function_map = %w/
@@ -30,6 +43,7 @@ module Gas
     gas_get_id IPPII
     gas_nb_children IP
     gas_get_child_at PPI
+    gas_add_child 0PP
     gas_set_attribute 0PIPIP
     gas_get_attribute IPIPII
     gas_set_id 0PIP
@@ -39,6 +53,8 @@ module Gas
     gas_payload_size IP
     gas_get_payload IPPII
     gas_update 0P
+    gas_write_buf IPP
+    gas_total_size IP
     /
     function_map = Hash[*function_map]
     function_map.each do |func, sig|
@@ -55,6 +71,10 @@ module Gas
         @c_obj = gas_call(GAS_READ_FD, arg).first
       else
         fail 'invalid arg type'
+      end
+
+      if block_given?
+        yield self
       end
     end
     def destroy
@@ -84,14 +104,39 @@ module Gas
     def child_at (index)
       return Chunk.new(gas_call(GAS_GET_CHILD_AT, @c_obj, index).first)
     end
+    def each_child
+      nb_children.times do |i|
+        yield child_at(i)
+      end
+    end
+    def children
+      a = Array.new
+      nb_children.times do |i|
+        a << child_at(i)
+      end
+      return a
+    end
+    def add_child (child)
+      gas_call(GAS_ADD_CHILD, @c_obj, child.instance_variable_get(:@c_obj))
+      self
+    end
+    def add_children (child_array)
+      child_array.each do |child|
+        add_child(child)
+      end
+      self
+    end
     def index_of_attribute (key)
-      return gas_call(GAS_INDEX_OF_ATTRIBUTE, @c_obj, key.size, key).first
+      return gas_call(GAS_INDEX_OF_ATTRIBUTE, @c_obj, key.to_s.size, key.to_s).first
+    end
+    def has_attribute (key)
+      return index_of_attribute(key) >= 0
     end
     def attribute_value_size (index)
       return gas_call(GAS_ATTRIBUTE_VALUE_SIZE, @c_obj, index).first
     end
     def get_attribute (key)
-      index = index_of_attribute(key)
+      index = index_of_attribute(key.to_s)
       value_size = attribute_value_size(index)
 
       buf = DL.malloc(value_size)
@@ -108,8 +153,10 @@ module Gas
       self
     end
     def []= (key, val)
-      return set_attribute(key, val)
+      return set_attribute(key.to_s, val.to_s)
     end
+#    def attributes
+#    end
     def payload_size
       return gas_call(GAS_PAYLOAD_SIZE, @c_obj).first
     end
@@ -126,6 +173,36 @@ module Gas
     def update
       gas_call(GAS_UPDATE, @c_obj)
       self
+    end
+    def total_size
+      return gas_call(GAS_TOTAL_SIZE, @c_obj).first
+    end
+    def serialize
+      # TODO automatically update or not?
+      update
+      buf = DL.malloc(total_size)
+      offset = gas_call(GAS_WRITE_BUF, @c_obj, buf).first
+      fail "gas_write_buf size != offset" unless total_size == offset
+      return buf.to_str
+    end
+    def write (io)
+      buf = serialize
+      io.write buf
+      # TODO what about the allocated data
+    end
+    def method_missing (meth, *args)
+      case meth.to_s
+      when /=\Z/
+        key = meth.to_s[0..-2]
+        fail 'invalid arg count' unless args.size == 1
+        set_attribute(key, args.first)
+      else
+        if has_attribute(meth)
+          return get_attribute(meth)
+        else
+          fail "attribute '#{meth}' not found"
+        end
+      end
     end
   end
 end

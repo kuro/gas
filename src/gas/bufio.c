@@ -161,7 +161,7 @@ GASnum gas_write_buf (chunk* self, GASubyte* buf)
     /* children */
     off += gas_write_encoded_num_buf(buf+off, self->nb_children);
     for (i = 0; i < self->nb_children; i++) {
-        off += gas_write_buf(self->children[i], buf);
+        off += gas_write_buf(self->children[i], buf + off);
     }
 
     return off;

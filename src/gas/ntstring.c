@@ -163,20 +163,26 @@ void gas_print (chunk* c)
         return;
     }
 
-    indent(); printf("chunk of size = %ld\n", (unsigned long)c->size);
-    indent(); printf("id of size %ld -> \"%s\"\n", (unsigned long)c->id_size, (char*)c->id);
-    indent(); printf("%ld attribute(s):\n", (unsigned long)c->nb_attributes);
+    indent(); printf("---\n");
+    /*indent(); printf("chunk of size = %ld\n", (unsigned long)c->size);*/
+    indent(); printf("id[%ld]: \"%s\"\n", (unsigned long)c->id_size, (char*)c->id);
+    /*indent(); printf("%ld attribute(s):\n", (unsigned long)c->nb_attributes);*/
     for (i = 0; i < c->nb_attributes; i++) {
         indent(); printf(
-            "%d -- \"%s\" (%ld) -> \"%s\" (%ld)\n",
+            "attr %d of %ld: \"%s\" -> \"%s\"\n",
             i,
-            (char*)c->attributes[i].key, (unsigned long)c->attributes[i].key_size,
-            (char*)c->attributes[i].value, (unsigned long)c->attributes[i].value_size
+            c->nb_attributes,
+            (char*)c->attributes[i].key,
+            (char*)c->attributes[i].value
             );
     }
-    indent(); printf("payload of size %ld:\n", (unsigned long)c->payload_size);
     if (c->payload_size > 0) {
+#if 0
+        indent(); printf("payload of size %ld:\n", (unsigned long)c->payload_size);
         printf("---\n%s\n^^^\n", (char*)c->payload);
+#else
+        indent(); printf("payload[%ld]: \"%s\"\n", c->payload_size, (char*)c->payload);
+#endif
     }
 
     level++;
