@@ -7,7 +7,7 @@
 #ifndef NTSTRING_H
 #define NTSTRING_H 
 
-#include "gas.h"
+#include <gas/gas.h>
 
 #ifdef __cplusplus
 extern "C"
