@@ -17,9 +17,9 @@
 
 int successes = 0, failures = 0;
 
-int try (int fd, size_t num)
+int try (int fd, GASunum num)
 {
-    size_t out;
+    GASunum out;
 
     lseek(fd, 0, SEEK_SET);
     gas_write_encoded_num_fd(fd, num);
@@ -41,7 +41,7 @@ int try (int fd, size_t num)
 void test_range (int start, int end)
 {
     int fd;
-    size_t i, j;
+    GASunum i, j;
 
     char *fname = "/dev/shm/dump";
     fd = open(fname, O_RDWR|O_CREAT|O_TRUNC, 0600);
@@ -70,10 +70,10 @@ void test_range (int start, int end)
     unlink(fname);
 }
 
-void test_random (int count, size_t mask)
+void test_random (int count, GASunum mask)
 {
     int i, fd, fd_rand;
-    size_t num;
+    GASunum num;
     char *fname;
 
     fname = "/dev/shm/dump";
@@ -102,7 +102,7 @@ void test_random (int count, size_t mask)
     unlink(fname);
 }
 
-void test_number (size_t num)
+void test_number (GASunum num)
 {
     int fd;
     char *fname;
@@ -156,7 +156,7 @@ int main (void)
     test_random(100, 0x00000000ffffffff);
 
 //    for (i = 0; i < 10; i++) {
-//        int x = rand() % sizeof(size_t);
+//        int x = rand() % sizeof(GASunum);
 //        printf("%lx\n", 0xffL << (x*8));
 //    }
 
@@ -164,8 +164,8 @@ int main (void)
     puts("this range will not finish any time soon");
     //test_range(0, 0xffffffffffffffff);
     {
-        size_t num = 0;
-        for (i = 1; i < sizeof(size_t); i++) {
+        GASunum num = 0;
+        for (i = 1; i < sizeof(GASunum); i++) {
             memset(&num, 0xff, i);
             //printf("%lx\n", num);
             printf("%ld %ld\n", 0x1L << ((i-1)*8L), num);

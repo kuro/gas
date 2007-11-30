@@ -24,14 +24,14 @@ typedef struct _gas_parser gas_parser;
  * When false is returned, the chunk will be pruned (seeked over) from the tree
  * (practically ignored).
  */
-typedef GASbool (*GAS_PRE_CHUNK)    (size_t id_size, void *id, void *user_data);
-typedef GASvoid (*GAS_PUSH_ID)      (size_t id_size, void *id, void *user_data);
+typedef GASbool (*GAS_PRE_CHUNK)    (GASunum id_size, void *id, void *user_data);
+typedef GASvoid (*GAS_PUSH_ID)      (GASunum id_size, void *id, void *user_data);
 typedef GASvoid (*GAS_PUSH_CHUNK)   (chunk* c, void *user_data);
-typedef GASvoid (*GAS_ON_ATTRIBUTE) (size_t key_size, void *key,
-                                     size_t value_size, void *value,
+typedef GASvoid (*GAS_ON_ATTRIBUTE) (GASunum key_size, void *key,
+                                     GASunum value_size, void *value,
                                      void *user_data);
-typedef GASvoid (*GAS_ON_PAYLOAD)   (size_t payload_size, void *payload, void *user_data);
-typedef GASvoid (*GAS_POP_ID)       (size_t id_size, void *id, void *user_data);
+typedef GASvoid (*GAS_ON_PAYLOAD)   (GASunum payload_size, void *payload, void *user_data);
+typedef GASvoid (*GAS_POP_ID)       (GASunum id_size, void *id, void *user_data);
 typedef GASvoid (*GAS_POP_CHUNK)    (chunk* c, void *user_data);
 
 struct _gas_parser

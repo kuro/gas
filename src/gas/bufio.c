@@ -81,11 +81,11 @@ GASnum gas_write_encoded_num_buf (GASubyte* buf, GASunum value)
  */
 GASnum gas_read_encoded_num_buf (GASubyte* buf, GASunum limit, GASunum* result)
 {
-    size_t offset;
-    size_t retval;
+    GASunum offset;
+    GASunum retval;
     int i, zero_byte_count, first_bit_set;
-    uint8_t byte, mask = 0x00;
-    size_t additional_bytes_to_read;
+    GASubyte byte, mask = 0x00;
+    GASunum additional_bytes_to_read;
 
     offset = 0;
 

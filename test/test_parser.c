@@ -15,12 +15,12 @@ void indent (void)
 }
 
 /* default callbacks {{{*/
-GASbool my_pre_chunk (size_t id_size, void *id, void *user_data)
+GASbool my_pre_chunk (GASunum id_size, void *id, void *user_data)
 {
     return GAS_TRUE;
 }
 
-void my_push_id (size_t id_size, void *id, void *user_data)
+void my_push_id (GASunum id_size, void *id, void *user_data)
 {
     indent_level++;
     indent();  printf("---\n");
@@ -32,7 +32,7 @@ void my_push_id (size_t id_size, void *id, void *user_data)
 //    /*gas_print(c);*/
 //}
 
-void my_pop_id (size_t id_size, void *id, void *user_data)
+void my_pop_id (GASunum id_size, void *id, void *user_data)
 {
     indent_level--;
 }
@@ -41,15 +41,15 @@ void my_pop_id (size_t id_size, void *id, void *user_data)
 //{
 //}
 
-void my_on_attribute (size_t key_size, void *key,
-                   size_t value_size, void *value,
+void my_on_attribute (GASunum key_size, void *key,
+                   GASunum value_size, void *value,
                    void *user_data)
 {
     return;
     indent();  printf("attribute: \"%s\" -> \"%s\"\n", (char*)key, (char*)value);
 }
 
-void my_on_payload (size_t payload_size, void *payload, void *user_data)
+void my_on_payload (GASunum payload_size, void *payload, void *user_data)
 {
     indent();  printf("payload: \"%s\"\n", (char*)payload);
 }

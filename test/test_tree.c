@@ -35,7 +35,7 @@ void test001 (void)
     gas_update(root);
     gas_print(root);
 
-    size_t len;
+    GASunum len;
     uint32_t num_out;
     char c[1024];
     char *c_out;

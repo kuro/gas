@@ -121,7 +121,7 @@ int xml2gas (string input, string output, bool verbose)
     XML_SetCharacterDataHandler(parser, &character_data);
 
     char buf[1024];
-    ssize_t bytes_read;
+    GASnum bytes_read;
     //int fd = open("test.dae", O_RDONLY);
     int fd = open(input.c_str(), O_RDONLY);
     printf("fd: %d\n", fd);

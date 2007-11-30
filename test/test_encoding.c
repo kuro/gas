@@ -19,10 +19,10 @@ int success_count;
 int failure_count;
 
 /* size encoding/decoding {{{*/
-void write_size (int fd, size_t val)
+void write_size (int fd, GASunum val)
 {
-    uint8_t byte;
-    size_t i;
+    GASubyte byte;
+    GASunum i;
     //int full_bytes_needed;
 
     printf("val: %lx\n", val);
@@ -31,7 +31,7 @@ void write_size (int fd, size_t val)
     write(fd, &byte, 1);
 
 
-    for (i = sizeof(size_t) * 8 - 1; i >= 0; i--) {
+    for (i = sizeof(GASunum) * 8 - 1; i >= 0; i--) {
         if (val & (1L << i)) {
             break;
         }
@@ -42,11 +42,11 @@ void write_size (int fd, size_t val)
     //printf("full_bytes_needed: %d\n", full_bytes_needed);
 }
 
-size_t read_size (int fd)
+GASunum read_size (int fd)
 {
-    size_t retval;
+    GASunum retval;
     int i, bytes_read, zero_byte_count, first_bit_set;
-    uint8_t byte, mask = 0x00;
+    GASubyte byte, mask = 0x00;
 
     // find first non 0x00 byte
     for (zero_byte_count = 0; 1; zero_byte_count++) {
@@ -68,7 +68,7 @@ size_t read_size (int fd)
     for (i = 0; i < first_bit_set; i++)
         mask |= (1L << i);
 
-    size_t additional_bytes_to_read = (7-first_bit_set) + (7*zero_byte_count);
+    GASunum additional_bytes_to_read = (7-first_bit_set) + (7*zero_byte_count);
 
     // at this point, i have enough information to construct retval
     retval = mask & byte;
@@ -85,10 +85,10 @@ size_t read_size (int fd)
 }
 /*}}}*/
 
-int test_size_read(const char *fname, size_t expected_value)
+int test_size_read(const char *fname, GASunum expected_value)
 {
     int fd;
-    size_t size;
+    GASunum size;
 
     printf("***\ntesting size read: %s\n", fname);
 
@@ -124,7 +124,7 @@ int test_size_read(const char *fname, size_t expected_value)
     return 1;
 }
 
-void test_size_write(const char* fname, size_t val)
+void test_size_write(const char* fname, GASunum val)
 {
     printf("***\ntesting size write: %lx store to %s\n", val, fname);
 
