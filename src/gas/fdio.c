@@ -167,6 +167,7 @@ chunk* gas_read_fd (int fd)
     c->children = malloc(c->nb_children * sizeof(chunk*));
     for (i = 0; i < c->nb_children; i++) {
         c->children[i] = gas_read_fd(fd);
+        c->children[i]->parent = c;
     }
     return c;
 }

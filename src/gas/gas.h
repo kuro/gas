@@ -86,6 +86,7 @@ void gas_set_payload (chunk* c, GASunum payload_size, const void *payload);
 /*@}*/
 /** @defgroup children */
 /*@{*/
+chunk* gas_get_parent(chunk* c);
 void gas_add_child(chunk* parent, chunk* child);
 GASunum gas_nb_children (chunk *c);
 chunk* gas_get_child_at (chunk* c, GASunum index);

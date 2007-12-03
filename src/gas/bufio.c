@@ -209,6 +209,7 @@ chunk* gas_read_buf (GASubyte* buf, GASunum limit, GASnum* out_offset)
     memset(c->children, 0, c->nb_children * sizeof(chunk*));
     for (i = 0; i < c->nb_children; i++) {
         c->children[i] = gas_read_buf(buf + offset, limit - offset, &tmp);
+        c->children[i]->parent = c;
         if (c->children[i] == NULL) {
             gas_destroy(c);
             return NULL;

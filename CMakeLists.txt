@@ -12,6 +12,11 @@ else ()
     add_definitions(-DUNIX=0)
 endif ()
 
+string(TOUPPER "${CMAKE_BUILD_TYPE}" tmp)
+if ("${tmp}" MATCHES "DEBUG")
+    add_definitions(-DDEBUG)
+endif ()
+
 # ctags {{{
 find_program(CTAGS NAMES exuberant-ctags ctags)
 if (CTAGS)

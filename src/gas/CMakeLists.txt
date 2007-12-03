@@ -4,8 +4,7 @@ if (NOT MSVC)
     add_definitions(-pedantic -ansi)
 endif ()
 
-set(sources gas.h gas.c)
-add_library(gas SHARED
+set(sources
     gas.h gas.c
     fdio.h fdio.c
     bufio.h bufio.c
@@ -13,6 +12,8 @@ add_library(gas SHARED
     context.h context.c
     parser.h parser.c
     )
+
+add_library(gas SHARED ${sources})
 
 #install(TARGETS gas LIBRARY DESTINATION lib)
 #install(FILES gas.h DESTINATION include)

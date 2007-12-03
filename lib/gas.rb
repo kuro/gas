@@ -28,19 +28,24 @@ module Gas
     self.const_set func.upcase, LIB[func, sig]
   end
   def self.parse_buffer (buf)
-    o = GAS_READ_BUF.call(buf, buf.size, nil).first
-    return Chunk.new(o)
+    ptr = GAS_READ_BUF.call(buf, buf.size, nil).first
+    # ptr is the root, initialize does not set destroy for pointers, so set here
+    ptr.free = GAS_DESTROY
+    return Chunk.new(ptr)
   end
 
   class Chunk
     include Gas
     function_map = %w/
+    gas_new PIP
     gas_new_named PS
+    gas_set_id 0PIP
     gas_destroy 0P
     gas_read_fd PI
     gas_print 0P
     gas_id_size IP
     gas_get_id IPPII
+    gas_get_parent PP
     gas_nb_children IP
     gas_get_child_at PPI
     gas_add_child 0PP
@@ -61,7 +66,7 @@ module Gas
       self.const_set func.upcase, LIB[func, sig]
     end
 
-    def initialize (arg)
+    def initialize (arg = nil)
       case arg
       when DL::PtrData
         @c_obj = arg
@@ -69,17 +74,50 @@ module Gas
         @c_obj = gas_call(GAS_NEW_NAMED, arg).first
       when Integer
         @c_obj = gas_call(GAS_READ_FD, arg).first
+      when Hash
+        @c_obj = gas_call(GAS_NEW, 0, nil).first
+        arg.each do |key, val|
+          skey = key.to_s
+          sval = val.to_s
+          case skey
+          when 'id'
+            self.id = sval
+          when 'payload'
+            self.payload = sval
+          else
+            self[skey] = sval
+          end
+        end
       else
-        fail 'invalid arg type'
+        @c_obj = gas_call(GAS_NEW, 0, nil).first
+        #fail 'invalid arg type'
       end
+
+      # pointers are created internally, and do not need to be destroyed, i
+      # think
+      @c_obj.free = GAS_DESTROY unless DL::PtrData === arg
 
       if block_given?
         yield self
       end
     end
+    # do not call the manual destory on elements belonging to a tree other than
+    # the root node
     def destroy
-      gas_call(GAS_DESTROY, @c_obj)
+      unless @c_obj.nil?
+        if not parent.nil?
+          @c_obj.free = nil
+          fail 'destroy called on chunk with a valid parent'
+        end
+        @c_obj.free = nil
+        gas_call(GAS_DESTROY, @c_obj)
+        @c_obj = nil
+      end
       nil
+    end
+    def parent
+      o = gas_call(GAS_GET_PARENT, @c_obj).first
+      return o.nil? ? nil : Chunk.new(o)
     end
     def print
       gas_call(GAS_PRINT, @c_obj)
@@ -117,7 +155,9 @@ module Gas
       return a
     end
     def add_child (child)
-      gas_call(GAS_ADD_CHILD, @c_obj, child.instance_variable_get(:@c_obj))
+      other = child.instance_variable_get(:@c_obj)
+      gas_call(GAS_ADD_CHILD, @c_obj, other)
+      other.free = nil
       self
     end
     def add_children (child_array)
@@ -202,6 +242,19 @@ module Gas
         else
           fail "attribute '#{meth}' not found"
         end
+      end
+    end
+    def << (arg)
+      case arg
+      when Array
+        add_children arg
+        return self
+      when Chunk
+        add_child(arg)
+        #return arg
+        return self
+      else
+        fail 'invalid arg type'
       end
     end
   end

@@ -136,9 +136,17 @@ chunk* gas_new_named (const char *id)
 void gas_destroy (chunk* c)
 {
     int i;
+
     if (c == NULL) {
         return;
     }
+
+#ifdef DEBUG
+    if (c->parent == NULL) {
+        fprintf(stderr, "destroyed a root\n");
+    }
+#endif
+
     free(c->id);
     for (i = 0; i < c->nb_attributes; i++) {
         free(c->attributes[i].key);
@@ -316,6 +324,12 @@ GASnum gas_get_payload (chunk* c, void* payload, GASunum offset, GASunum limit)
 
 /** @name child access */
 /*@{*/
+/* gas_get_parent() {{{*/
+chunk* gas_get_parent(chunk* c)
+{
+    return c->parent;
+}
+/*}}}*/
 /* gas_add_child() {{{*/
 void gas_add_child(chunk* parent, chunk* child)
 {

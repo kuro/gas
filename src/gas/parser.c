@@ -198,6 +198,7 @@ chunk* gas_read_parser (gas_parser *p)
     c->children = malloc(c->nb_children * sizeof(chunk*));
     for (i = 0; i < c->nb_children; i++) {
         c->children[i] = gas_read_parser(p);
+        c->children[i]->parent = c;
     }
     if (p->on_pop_chunk) {
         p->on_pop_chunk(c, p->context->user_data);
