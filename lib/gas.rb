@@ -22,6 +22,7 @@ module Gas
 
   function_map = %w/
     gas_read_buf PSIP
+    gas_destroy 0P
     /
   function_map = Hash[*function_map]
   function_map.each do |func, sig|
@@ -40,7 +41,6 @@ module Gas
     gas_new PIP
     gas_new_named PS
     gas_set_id 0PIP
-    gas_destroy 0P
     gas_read_fd PI
     gas_print 0P
     gas_id_size IP
@@ -77,20 +77,21 @@ module Gas
       when Hash
         @c_obj = gas_call(GAS_NEW, 0, nil).first
         arg.each do |key, val|
-          skey = key.to_s
-          sval = val.to_s
+          skey = (Fixnum === key and (0..255) === key) ? key.chr : key.to_s
+          sval = (Fixnum === val and (0..255) === val) ? val.chr : val.to_s
           case skey
           when 'id'
-            self.id = sval
+            set_id sval
           when 'payload'
-            self.payload = sval
+            set_payload sval
           else
             self[skey] = sval
           end
         end
-      else
+      when nil
         @c_obj = gas_call(GAS_NEW, 0, nil).first
-        #fail 'invalid arg type'
+      else
+        fail 'invalid arg type'
       end
 
       # pointers are created internally, and do not need to be destroyed, i
@@ -132,9 +133,13 @@ module Gas
       fail unless bytes_left.zero?
       return buf.to_str
     end
-    def id= (str)
-      gas_call(GAS_SET_ID, @c_obj, str.size, str)
+    def set_id (id)
+      sid = (Fixnum === id and (0..255) === id) ? id.chr : id.to_s
+      gas_call(GAS_SET_ID, @c_obj, sid.size, sid)
       self
+    end
+    def id= (str)
+      return set_id(str)
     end
     def nb_children
       return gas_call(GAS_NB_CHILDREN, @c_obj).first
@@ -167,7 +172,8 @@ module Gas
       self
     end
     def index_of_attribute (key)
-      return gas_call(GAS_INDEX_OF_ATTRIBUTE, @c_obj, key.to_s.size, key.to_s).first
+      skey = (Fixnum === key and (0..255) === key) ? key.chr : key.to_s
+      return gas_call(GAS_INDEX_OF_ATTRIBUTE, @c_obj, skey.size, skey).first
     end
     def has_attribute (key)
       return index_of_attribute(key) >= 0
@@ -176,7 +182,8 @@ module Gas
       return gas_call(GAS_ATTRIBUTE_VALUE_SIZE, @c_obj, index).first
     end
     def get_attribute (key)
-      index = index_of_attribute(key.to_s)
+      skey = (Fixnum === key and (0..255) === key) ? key.chr : key.to_s
+      index = index_of_attribute(skey)
       value_size = attribute_value_size(index)
 
       buf = DL.malloc(value_size)
@@ -189,11 +196,13 @@ module Gas
       return get_attribute(key)
     end
     def set_attribute (key, val)
-      gas_call(GAS_SET_ATTRIBUTE, @c_obj, key.size, key, val.size, val)
+      skey = (Fixnum === key and (0..255) === key) ? key.chr : key.to_s
+      sval = (Fixnum === val and (0..255) === val) ? val.chr : val.to_s
+      gas_call(GAS_SET_ATTRIBUTE, @c_obj, skey.size, skey, sval.size, sval)
       self
     end
     def []= (key, val)
-      return set_attribute(key.to_s, val.to_s)
+      return set_attribute(key, val)
     end
 #    def attributes
 #    end
@@ -206,9 +215,13 @@ module Gas
       fail unless bytes_left.zero?
       return buf.to_str
     end
-    def payload= (data)
-      gas_call(GAS_SET_PAYLOAD, @c_obj, data.size, data)
+    def set_payload (data)
+      sdata = (Fixnum === data and (0..255) === data) ? data.chr : data.to_s
+      gas_call(GAS_SET_PAYLOAD, @c_obj, sdata.size, sdata)
       self
+    end
+    def payload= (data)
+      return set_payload(data)
     end
     def update
       gas_call(GAS_UPDATE, @c_obj)

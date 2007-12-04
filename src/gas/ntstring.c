@@ -153,6 +153,34 @@ char* gas_get_payload_s (chunk* c)
 
 #define indent() for (level_iter=0;level_iter<level;level_iter++) printf("  ")
 
+#include <ctype.h>
+
+char* sanitize (const GASubyte* str, GASunum len)
+{
+    static char san[1024 * 4];
+    static char hex[5];
+    GASunum i, o = 0;
+
+    memset(san, 0, sizeof(san));
+    for (i = 0; i < len; i++) {
+        if (isprint(str[i])) {
+            if (o+1 >= sizeof(san)) {
+                return NULL;
+            }
+            san[o] = str[i];
+            o+=1;
+        } else {
+            if (o+4 >= sizeof(san)) {
+                return NULL;
+            }
+            sprintf(hex, "<%02x>", str[i] & 0xff);
+            strncat(san, hex, sizeof(san));
+            o+=4;
+        }
+    }
+    return san;
+}
+
 void gas_print (chunk* c)
 {
     int i;
@@ -165,15 +193,20 @@ void gas_print (chunk* c)
 
     indent(); printf("---\n");
     /*indent(); printf("chunk of size = %ld\n", (unsigned long)c->size);*/
-    indent(); printf("id[%ld]: \"%s\"\n", (unsigned long)c->id_size, (char*)c->id);
+    indent(); printf("id[%ld]: \"%s\"\n", (unsigned long)c->id_size,
+                     sanitize(c->id, c->id_size));
     /*indent(); printf("%ld attribute(s):\n", (unsigned long)c->nb_attributes);*/
     for (i = 0; i < c->nb_attributes; i++) {
-        indent(); printf(
-            "attr %d of %ld: \"%s\" -> \"%s\"\n",
+        indent();
+        printf(
+            "attr %d of %ld: \"%s\" ",
             i,
             c->nb_attributes,
-            (char*)c->attributes[i].key,
-            (char*)c->attributes[i].value
+            sanitize(c->attributes[i].key, c->attributes[i].key_size)
+            );
+        printf(
+            "-> \"%s\"\n",
+            sanitize(c->attributes[i].value, c->attributes[i].value_size)
             );
     }
     if (c->payload_size > 0) {
@@ -181,7 +214,10 @@ void gas_print (chunk* c)
         indent(); printf("payload of size %ld:\n", (unsigned long)c->payload_size);
         printf("---\n%s\n^^^\n", (char*)c->payload);
 #else
-        indent(); printf("payload[%ld]: \"%s\"\n", c->payload_size, (char*)c->payload);
+        indent(); printf("payload[%ld]: \"%s\"\n",
+                         c->payload_size,
+                         sanitize(c->payload, c->payload_size)
+                         );
 #endif
     }
 
