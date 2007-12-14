@@ -49,7 +49,8 @@ void gas_write_encoded_num_fd (int fd, GASunum value)
     mask >>= zero_bits;
 
     /* write the first masked byte */
-    if ((coded_length - 1) <= sizeof(GASunum)) {
+    /*if ((coded_length - 1) <= sizeof(GASunum)) {*/
+    if (coded_length <= sizeof(GASunum)) {
         byte = mask | ((value >> ((coded_length-zero_bytes-1)*8)) & 0xff);
     } else {
         byte = mask;

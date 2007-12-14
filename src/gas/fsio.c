@@ -24,6 +24,8 @@ void gas_write_encoded_num_fs (FILE* fs, GASunum value)
     GASunum zero_count, zero_bytes, zero_bits;
     GASnum si;  /* a signed i */
 
+/*    printf("orig %lx\n", value);*/
+
     for (i = 1; 1; i++) {
         if (value < ((1L << (7L*i))-1L)) {
             break;
@@ -35,25 +37,34 @@ void gas_write_encoded_num_fs (FILE* fs, GASunum value)
         }
     }
     coded_length = i;  /* not including header */
+/*    printf("coded length %ld\n", coded_length);*/
 
     zero_count = coded_length - 1;
     zero_bytes = zero_count / 8;
     zero_bits = zero_count % 8;
 
+/*    printf("zero count %ld\n", zero_count);*/
+/*    printf("zero bytes %ld\n", zero_bytes);*/
+/*    printf("zero bits %ld\n", zero_bits);*/
+
     byte = 0x0;
     for (i = 0; i < zero_bytes; i++) {
+/*        printf("writing %x\n", byte);*/
         fwrite(&byte, 1, 1, fs);
     }
 
     mask = 0x80;
     mask >>= zero_bits;
+/*    printf("mask %x\n", mask);*/
 
     /* write the first masked byte */
-    if ((coded_length - 1) <= sizeof(GASunum)) {
+    /*if ((coded_length - 1) <= sizeof(GASunum)) {*/
+    if (coded_length <= sizeof(GASunum)) {
         byte = mask | ((value >> ((coded_length-zero_bytes-1)*8)) & 0xff);
     } else {
         byte = mask;
     }
+/*    printf("writing %x\n", byte);*/
     fwrite(&byte, 1, 1, fs);
 
     /*
@@ -64,6 +75,7 @@ void gas_write_encoded_num_fs (FILE* fs, GASunum value)
      */
     for (si = coded_length - 2 - zero_bytes; si >= 0; si--) {
         byte = ((value >> (si*8)) & 0xff);
+/*        printf("writing %x\n", byte);*/
         fwrite(&byte, 1, 1, fs);
     }
 }
@@ -100,16 +112,22 @@ void gas_write_fs (chunk* self, FILE* fs)
 /* gas_read_encoded_num_fs() {{{*/
 GASunum gas_read_encoded_num_fs (FILE* fs)
 {
-    GASunum retval;
+    GASunum retval = 0x0;
     int i, bytes_read, zero_byte_count, first_bit_set;
     GASubyte byte, mask = 0x00;
     GASunum additional_bytes_to_read;
 
+/*    GASunum blah = 0x0;*/
+/*    fread(&blah, sizeof(blah), 1, fs);*/
+/*    printf("read %lx\n", blah);*/
+/*    rewind(fs);*/
+
     /* find first non 0x00 byte */
     for (zero_byte_count = 0; 1; zero_byte_count++) {
         bytes_read = fread(&byte, 1, 1, fs);
+/*        printf("byte %x\n", byte);*/
         if (bytes_read == 0) {
-            fprintf(stderr, "eof\n");
+/*            fprintf(stderr, "eof\n");*/
             abort();
         }
         if (bytes_read != 1) {
@@ -119,11 +137,13 @@ GASunum gas_read_encoded_num_fs (FILE* fs)
         if (byte != 0x00)
             break;
     }
+/*    printf("zbc %d\n", zero_byte_count);*/
 
     /* process initial byte */
     for (first_bit_set = 7; first_bit_set >= 0; first_bit_set--)
         if (byte & (1L << first_bit_set))
             break;
+/*    printf("fbs %d\n", first_bit_set);*/
 
     for (i = 0; i < first_bit_set; i++)
         mask |= (1L << i);
@@ -131,7 +151,9 @@ GASunum gas_read_encoded_num_fs (FILE* fs)
     additional_bytes_to_read = (7-first_bit_set) + (7*zero_byte_count);
 
     /* at this point, i have enough information to construct retval */
+/*    printf("%lx\n", retval);*/
     retval = mask & byte;
+/*    printf("%lx\n", retval);*/
     for (i = 0; i < additional_bytes_to_read; i++) {
         bytes_read = fread(&byte, 1, 1, fs);
         if (bytes_read == 0) {
@@ -144,6 +166,9 @@ GASunum gas_read_encoded_num_fs (FILE* fs)
         }
         retval = (retval << 8) | byte;
     }
+/*    printf("retval %lx\n", retval);*/
+/*    fflush(stdout);*/
+/*    exit(0);*/
     return retval;
 }
 /*}}}*/

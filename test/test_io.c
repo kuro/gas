@@ -6,6 +6,7 @@
 
 #include <gas/gas.h>
 #include <gas/ntstring.h>
+#include <gas/fsio.h>
 
 #include <stdlib.h>
 #include <string.h>
@@ -16,7 +17,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
-//#include <linux/types.h>
+#include <linux/types.h>
 
 void gas_print (chunk* c);
 
@@ -45,17 +46,17 @@ void test0001 (void)
     gas_add_child(media, movie);
 
 
-    int fd = open("dump.gas", O_WRONLY|O_TRUNC|O_CREAT, 0600);
+    FILE* fs = fopen("dump.gas", "w");
     gas_update(root);
-    gas_write_fd(root, fd);
-    close(fd);
+    gas_write_fs(root, fs);
+    fclose(fs);
     system("xxd dump.gas");
 
-    fd = open("dump.gas", O_RDONLY);
-    chunk* root2 = gas_read_fd(fd);
+    fs = fopen("dump.gas", "r");
+    chunk* root2 = gas_read_fs(fs);
     gas_print(root2);
     gas_destroy(root2);
-    close(fd);
+    fclose(fs);
 
     gas_destroy(root);
 }
@@ -65,17 +66,17 @@ void test0002 (void)
     chunk* root = gas_new_named("head");
     gas_set_attribute_ss(root, "foo", "bar");
 
-    int fd = open("1attr.gas", O_WRONLY|O_TRUNC|O_CREAT, 0600);
+    FILE *fs = fopen("1attr.gas", "w");
     gas_update(root);
-    gas_write_fd(root, fd);
-    close(fd);
+    gas_write_fs(root, fs);
+    fclose(fs);
     system("xxd 1attr.gas");
 
-    fd = open("1attr.gas", O_RDONLY);
-    chunk* root2 = gas_read_fd(fd);
+    fs = fopen("1attr.gas", "r");
+    chunk* root2 = gas_read_fs(fs);
     gas_print(root2);
     gas_destroy(root2);
-    close(fd);
+    fclose(fs);
 
     gas_destroy(root);
 }
@@ -84,17 +85,17 @@ void test0003 (void)
 {
     chunk* root = gas_new(0, NULL);
 
-    int fd = open("empty.gas", O_WRONLY|O_TRUNC|O_CREAT, 0600);
+    FILE* fs = fopen("empty.gas", "w");
     gas_update(root);
-    gas_write_fd(root, fd);
-    close(fd);
+    gas_write_fs(root, fs);
+    fclose(fs);
     system("xxd empty.gas");
 
-    fd = open("empty.gas", O_RDONLY);
-    chunk* root2 = gas_read_fd(fd);
+    fs = fopen("empty.gas", "r");
+    chunk* root2 = gas_read_fs(fs);
     gas_print(root2);
     gas_destroy(root2);
-    close(fd);
+    fclose(fs);
 
     gas_destroy(root);
 }
@@ -102,21 +103,21 @@ void test0004 (void)
 {
     chunk* root = gas_new(0, NULL);
 
-    int fd = open("double.gas", O_WRONLY|O_TRUNC|O_CREAT, 0600);
+    FILE* fs = fopen("double.gas", "w");
     gas_update(root);
-    gas_write_fd(root, fd);
-    gas_write_fd(root, fd);
-    close(fd);
+    gas_write_fs(root, fs);
+    gas_write_fs(root, fs);
+    fclose(fs);
     system("xxd double.gas");
 
-    fd = open("double.gas", O_RDONLY);
-    chunk* root3 = gas_read_fd(fd);
+    fs = fopen("double.gas", "r");
+    chunk* root3 = gas_read_fs(fs);
     gas_print(root3);
     gas_destroy(root3);
-    chunk* root2 = gas_read_fd(fd);
+    chunk* root2 = gas_read_fs(fs);
     gas_print(root2);
     gas_destroy(root2);
-    close(fd);
+    fclose(fs);
 
     gas_destroy(root);
 }

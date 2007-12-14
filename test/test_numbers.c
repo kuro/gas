@@ -4,7 +4,7 @@
  * @brief numbers implementation
  */
 
-#include <gas/gas.h>
+#include <gas/fsio.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -17,15 +17,16 @@
 
 int successes = 0, failures = 0;
 
-int try (int fd, GASunum num)
+int try (FILE* fs, GASunum num)
 {
     GASunum out;
+    //printf("%lx\n", num);
 
-    lseek(fd, 0, SEEK_SET);
-    gas_write_encoded_num_fd(fd, num);
+    rewind(fs);
+    gas_write_encoded_num_fs(fs, num);
 
-    lseek(fd, 0, SEEK_SET);
-    out = gas_read_encoded_num_fd(fd);
+    rewind(fs);
+    out = gas_read_encoded_num_fs(fs);
 
     if (num == out) {
         successes++;
@@ -40,19 +41,19 @@ int try (int fd, GASunum num)
 
 void test_range (int start, int end)
 {
-    int fd;
+    FILE* fs;
     GASunum i, j;
 
     char *fname = "/dev/shm/dump";
-    fd = open(fname, O_RDWR|O_CREAT|O_TRUNC, 0600);
+    fs = fopen(fname, "w+");
 
     for (i = start; i <= end; i++) {
-        lseek(fd, 0, SEEK_SET);
-        gas_write_encoded_num_fd(fd, i);
+        rewind(fs);
+        gas_write_encoded_num_fs(fs, i);
         //printf("i=%lx\n", i);
 
-        lseek(fd, 0, SEEK_SET);
-        j = gas_read_encoded_num_fd(fd);
+        rewind(fs);
+        j = gas_read_encoded_num_fs(fs);
         //printf("j=%lx\n", j);
 
         if (i != j) {
@@ -66,27 +67,28 @@ void test_range (int start, int end)
         }
     }
 
-    close(fd);
+    fclose(fs);
     unlink(fname);
 }
 
 void test_random (int count, GASunum mask)
 {
-    int i, fd, fd_rand;
+    int i;
+    FILE *fs, *fs_rand;
     GASunum num;
     char *fname;
 
     fname = "/dev/shm/dump";
-    fd = open(fname, O_RDWR|O_CREAT|O_TRUNC, 0600);
+    fs = fopen(fname, "w+");
 
 
-    fd_rand = open("/dev/urandom", O_RDONLY);
+    fs_rand = fopen("/dev/urandom", "r");
 
     for (i = 0; i < count; i++) {
-        read(fd_rand, &num, sizeof(num));
+        fread(&num, sizeof(num), 1, fs_rand);
         num &= mask;
 
-        if ( ! try(fd, num)) {
+        if ( ! try(fs, num)) {
             char cmd[1024];
             cmd[0] = '\0';
             strcat(cmd, "xxd ");
@@ -98,19 +100,19 @@ void test_random (int count, GASunum mask)
         }
     }
 
-    close(fd);
+    fclose(fs);
     unlink(fname);
 }
 
 void test_number (GASunum num)
 {
-    int fd;
+    FILE* fs;
     char *fname;
 
     fname = "/dev/shm/dump";
-    fd = open(fname, O_RDWR|O_CREAT|O_TRUNC, 0600);
+    fs = fopen(fname, "w+");
 
-    if ( ! try(fd, num)) {
+    if ( ! try(fs, num)) {
         char cmd[1024];
         cmd[0] = '\0';
         strcat(cmd, "xxd ");
@@ -121,7 +123,7 @@ void test_number (GASunum num)
         //exit(1);
     }
 
-    close(fd);
+    fclose(fs);
     unlink(fname);
 }
 
@@ -130,7 +132,13 @@ int main (void)
     //int i;
 
     puts("testing specific cases");
+    //test_number(0x32);
+    //test_number(0x4632);
+    //test_number(0xf24632);
+    test_number(0x35f24632);
+#if SIZEOF_VOID_P >= 8
     test_number(0xe9a2952240160c);
+#endif
 
 //    puts("testing given ranges");
 //    test_range(0, 0xffffffff);
@@ -138,6 +146,21 @@ int main (void)
 //    test_range(0xfffffffffffffff0, 0xffffffffffffffff);
 
     puts("testing random masked numbers");
+    test_random(10000000, 0xffffffff);
+    test_random(100, 0x00000000);
+    test_random(100, 0x00000000);
+    test_random(100, 0x00000000);
+    test_random(100, 0x00000000);
+    test_random(100, 0xff000000);
+    test_random(100, 0x00ff0000);
+    test_random(100, 0x0000ff00);
+    test_random(100, 0x000000ff);
+    test_random(100, 0xffff0000);
+    test_random(100, 0x0000ffff);
+    test_random(100, 0x00000000);
+    test_random(100, 0xffff0000);
+    test_random(100, 0xffffffff);
+#if SIZEOF_VOID_P >= 8
     test_random(10000, 0xffffffffffffffff);
     test_random(100, 0xff00000000000000);
     test_random(100, 0x00ff000000000000);
@@ -154,6 +177,7 @@ int main (void)
     test_random(100, 0xffffffff00000000);
     test_random(100, 0x0000ffffffff0000);
     test_random(100, 0x00000000ffffffff);
+#endif
 
 //    for (i = 0; i < 10; i++) {
 //        int x = rand() % sizeof(GASunum);

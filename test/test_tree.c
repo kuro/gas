@@ -10,7 +10,7 @@
 #include <stdio.h>
 
 #include <string.h>
-//#include <linux/types.h>
+#include <linux/types.h>
 
 void gas_print (chunk* c);
 

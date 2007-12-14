@@ -1,5 +1,7 @@
 project(Gas)
 
+add_definitions(-DSIZEOF_VOID_P=${CMAKE_SIZEOF_VOID_P})
+
 enable_testing()
 include(CPack)
 set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS on)

@@ -16,19 +16,10 @@ extern "C"
 #endif
 
 
-#if UNIX
-#include <stdint.h>
-#include <sys/types.h>
-typedef uint8_t  GASubyte;
-typedef int      GASenum;
-typedef size_t   GASunum;
-typedef ssize_t  GASnum;
-#else
 typedef unsigned char GASubyte;
-typedef unsigned long GASunum;
-typedef long          GASnum;
+typedef unsigned long int GASunum;
+typedef long int     GASnum;
 typedef int           GASenum;
-#endif
 
 typedef void     GASvoid;
 
