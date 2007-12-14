@@ -6,6 +6,7 @@ endif ()
 
 set(sources
     gas.h gas.c
+    fsio.h fsio.c
     fdio.h fdio.c
     bufio.h bufio.c
     ntstring.h ntstring.c
