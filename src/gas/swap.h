@@ -21,7 +21,7 @@
       ((x & 0xff000000UL) >> 24)                                            \
     )
 
-#if CMAKE_SIZEOF_VOID_P >= 8
+#if SIZEOF_VOID_P >= 8
 #define swap64(x)                                                           \
     (                                                                       \
       ((x & 0x00000000000000ffUL) << 56) |                                  \
