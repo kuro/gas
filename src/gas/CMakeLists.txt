@@ -12,6 +12,7 @@ set(sources
     ntstring.h ntstring.c
     context.h context.c
     parser.h parser.c
+    writer.h writer.c
     )
 
 add_library(gas SHARED ${sources})
