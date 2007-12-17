@@ -16,8 +16,8 @@ struct _gas_writer
     void *handle;
 };
 
-void gas_write_encoded_num_ctx (gas_writer *writer, GASunum value);
-void gas_write_ctx (chunk* self, gas_writer *writer);
+void gas_write_encoded_num_writer (gas_writer *writer, GASunum value);
+void gas_write_writer (gas_writer *writer, chunk* self);
 
 #endif /* WRITER_H defined */
 

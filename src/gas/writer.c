@@ -2,8 +2,8 @@
 #include <gas/writer.h>
 
 
-/* gas_write_encoded_num_ctx() {{{*/
-void gas_write_encoded_num_ctx (gas_writer *writer, GASunum value)
+/* gas_write_encoded_num_writer() {{{*/
+void gas_write_encoded_num_writer (gas_writer *writer, GASunum value)
 {
     unsigned int bytes_written;
     GASunum i, coded_length;
@@ -58,32 +58,34 @@ void gas_write_encoded_num_ctx (gas_writer *writer, GASunum value)
 /*}}}*/
 
 
-/* gas_write_fs() {{{*/
+/* gas_write_writer() {{{*/
 #define write_field(field)                                                  \
     do {                                                                    \
-        gas_write_encoded_num_ctx(writer, self->field##_size);                   \
-        writer->context->write(writer->handle, self->field, self->field##_size, &bytes_written, writer->context->user_data);                        \
+        gas_write_encoded_num_writer(writer, self->field##_size);           \
+        writer->context->write(writer->handle, self->field,                 \
+                               self->field##_size, &bytes_written,          \
+                               writer->context->user_data);                 \
     } while(0)
 
-void gas_write_ctx (chunk* self, gas_writer *writer)
+void gas_write_writer (gas_writer *writer, chunk* self)
 {
     int i;
     unsigned int bytes_written;
 
     /* this chunk's size */
-    gas_write_encoded_num_ctx(writer, self->size);
+    gas_write_encoded_num_writer(writer, self->size);
     write_field(id);
     /* attributes */
-    gas_write_encoded_num_ctx(writer, self->nb_attributes);
+    gas_write_encoded_num_writer(writer, self->nb_attributes);
     for (i = 0; i < self->nb_attributes; i++) {
         write_field(attributes[i].key);
         write_field(attributes[i].value);
     }
     write_field(payload);
     /* children */
-    gas_write_encoded_num_ctx(writer, self->nb_children);
+    gas_write_encoded_num_writer(writer, self->nb_children);
     for (i = 0; i < self->nb_children; i++) {
-        gas_write_ctx(self->children[i], writer);
+        gas_write_writer(writer, self->children[i]);
     }
 }
 /*}}}*/
