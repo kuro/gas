@@ -7,14 +7,14 @@
 #ifndef GAS_PARSER_H
 #define GAS_PARSER_H
 
+#include <gas/context.h>
+
 #ifdef __cplusplus
 extern "C"
 {
 /*}*/
 #endif
 
-
-#include <gas/context.h>
 
 typedef struct _gas_parser gas_parser;
 

@@ -4,7 +4,7 @@
  * @brief io implementation
  */
 
-#include <gas/gas.h>
+#include <gas/fdio.h>
 #include <gas/ntstring.h>
 #include <gas/fsio.h>
 

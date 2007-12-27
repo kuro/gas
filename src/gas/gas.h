@@ -9,13 +9,6 @@
 
 #include <stdlib.h>
 
-#ifdef __cplusplus
-extern "C"
-{
-/*}*/
-#endif
-
-
 typedef unsigned char GASubyte;
 typedef unsigned long int GASunum;
 typedef long int     GASnum;
@@ -37,9 +30,15 @@ enum
 #endif
 
 /* types {{{*/
-typedef struct _attribute attribute;
-typedef struct _chunk chunk;
+typedef struct Attribute attribute;
+typedef struct Chunk chunk;
 /* }}}*/
+
+#ifdef __cplusplus
+extern "C"
+{
+/*}*/
+#endif
 
 /* construction {{{*/
 /** @defgroup construction */
@@ -72,7 +71,7 @@ GASnum gas_get_attribute (chunk* c, GASunum index,
 /*@}*/
 /** @defgroup payload */
 /*@{*/
-void gas_set_payload (chunk* c, GASunum payload_size, const void *payload);
+void gas_set_payload (chunk* c, GASunum payload_size, const GASvoid *payload);
 /*GASunum gas_get_payload (chunk* c, void* payload);*/
 /*@}*/
 /** @defgroup children */
@@ -90,17 +89,22 @@ GASunum gas_total_size (chunk* c);
 /*@}*/
 /* }}}*/
 
+#ifdef __cplusplus
+} // extern C
+#endif
+
 /* attribute {{{*/
-struct _attribute
+struct Attribute
 {
     GASunum key_size;
-    void *key;
+    GASubyte *key;
     GASunum value_size;
-    void *value;
+    GASubyte *value;
 };
 /* }}}*/
+
 /* chunk {{{*/
-struct _chunk
+struct Chunk
 {
     chunk* parent;
 
@@ -110,27 +114,55 @@ struct _chunk
     void *id;
 
     GASunum nb_attributes;
-    attribute* attributes;
+    struct Attribute* attributes;
 
     GASunum payload_size;
-    void *payload;
+    GASubyte *payload;
 
     GASunum nb_children;
     chunk** children;
 
 #ifdef __cplusplus
-    attribute* get_attribute ()
-    {
-        return NULL;
-    }
+public:
+    //static void* operator new (size_t size); 
+    //static void operator delete (void *p);
+
+    inline Chunk (const char *id = NULL);
+    inline Chunk (GASunum id_size, const GASvoid *id);
+    inline ~Chunk();
+
+    inline void add_child (Chunk* child) { gas_add_child(this, child); }
+
+    inline void set_attribute (const char* key, const char* val);
+    inline void set_attribute (const char* key,       char* val);
+    inline void set_attribute (      char* key, const char* val);
+    inline void set_attribute (      char* key,       char* val);
+
+    template<typename V>
+    inline void set_attribute (const char* key, const V& val);
+    template<typename V>
+    inline void set_attribute (      char* key, const V& val);
+
+    template<typename K, typename V>
+    inline void set_attribute (const K& key, const V& val);
+
+    template<typename V>
+    inline void get_attribute (const char* key, V& retval);
+
+    template<typename K, typename V>
+    inline void get_attribute (const K& key, V& retval);
+
+    inline void set_payload (GASunum size, const GASvoid *payload);
+
 #endif
 };
-/* }}}*/
 
 #ifdef __cplusplus
-}
+#include <gas/gas.inl>
 #endif
 
+
+/* }}}*/
 
 #endif  /* GAS_H defined */
 

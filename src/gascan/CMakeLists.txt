@@ -42,4 +42,4 @@ target_link_libraries(gascan
     ${EXPAT_LIBRARIES}
     )
 
-install(PROGRAMS gascan DESTINATION bin)
+install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/gascan DESTINATION bin)

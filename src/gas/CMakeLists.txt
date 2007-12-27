@@ -4,18 +4,32 @@ if (NOT MSVC)
     add_definitions(-pedantic -ansi)
 endif ()
 
-set(sources
-    gas.h gas.c
-    fsio.h fsio.c
-    fdio.h fdio.c
-    bufio.h bufio.c
-    ntstring.h ntstring.c
-    context.h context.c
-    parser.h parser.c
-    writer.h writer.c
+set(headers
+    bufio.h
+    context.h
+    fdio.h
+    fsio.h
+    gas.h
+    gas.inl
+    ntstring.h
+    parser.h
+    swap.h
+    writer.h
     )
 
-add_library(gas SHARED ${sources})
+set(sources
+    bufio.c
+    context.c
+    fdio.c
+    fsio.c
+    gas.c
+    ntstring.c
+    parser.c
+    swap.c
+    writer.c
+    )
 
-#install(TARGETS gas LIBRARY DESTINATION lib)
-#install(FILES gas.h DESTINATION include)
+add_library(gas SHARED ${headers} ${sources})
+
+install(TARGETS gas LIBRARY DESTINATION lib)
+install(FILES ${headers} DESTINATION include/gas)

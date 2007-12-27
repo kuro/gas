@@ -36,7 +36,8 @@ else ()
                 )
             add_dependencies(pdf ${src}_pdf)
         endif()
-        install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${src} DESTINATION doc)
+        install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${src}
+            DESTINATION share/doc)
     endforeach()
 
 endif ()

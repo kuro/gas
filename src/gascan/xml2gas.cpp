@@ -218,7 +218,7 @@ int xml2gas_main (int argc, char **argv)
             const char *str = (const char*)xml.text().toString().toAscii();
             int length = xml.text().size();
             int total_new_len = length + cur->payload_size;
-            cur->payload = realloc(cur->payload, total_new_len + 1);
+            cur->payload = (GASubyte*)realloc(cur->payload, total_new_len + 1);
             memcpy(((GASubyte*)cur->payload) + cur->payload_size, str, length);
             ((char*)cur->payload)[total_new_len] = 0;
             cur->payload_size = total_new_len;

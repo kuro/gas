@@ -155,15 +155,27 @@ char* gas_get_payload_s (chunk* c)
 
 #include <ctype.h>
 
+static GASbool gas_printable_all_or_nothing = GAS_TRUE;
+
 char* sanitize (const GASubyte* str, GASunum len)
 {
+    GASbool printable;
     static char san[1024 * 4];
     static char hex[5];
     GASunum i, o = 0;
 
+    printable = GAS_TRUE;
+    if (gas_printable_all_or_nothing) {
+        for (i = 0; i < len; i++) {
+            if (str[i] == 0 || ! isprint(str[i])) {
+                printable = GAS_FALSE;
+            }
+        }
+    }
+
     memset(san, 0, sizeof(san));
     for (i = 0; i < len; i++) {
-        if (isprint(str[i])) {
+        if (printable && (str[i] == 0 || isprint(str[i]))) {
             if (o+1 >= sizeof(san)) {
                 return NULL;
             }
