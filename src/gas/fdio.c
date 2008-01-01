@@ -80,6 +80,9 @@ GASunum gas_read_encoded_num_fd (int fd)
     /* find first non 0x00 byte */
     for (zero_byte_count = 0; 1; zero_byte_count++) {
         bytes_read = read(fd, &byte, 1);
+        if (bytes_read == 0) {
+            return 0;
+        }
         if (bytes_read != 1) {
             fprintf(stderr, "error: %s\n", strerror(errno));
             abort();
@@ -156,6 +159,17 @@ chunk* gas_read_fd (int fd)
     chunk* c = gas_new(0, NULL);
 
     c->size = gas_read_encoded_num_fd(fd);
+
+    /**
+     * @todo gas_read_encoded_num_fd() returns an unsigned value.  This is a
+     * bit hackish, but upon an end of file, it returns 0.  A chunk size is
+     * never zero, so a result of 0 indicates eof.  Thus, clean up and return.
+     */
+    if (c->size == 0) {
+        gas_destroy(c);
+        return NULL;
+    }
+
     read_field(c->id);
     c->nb_attributes = gas_read_encoded_num_fd(fd);
     c->attributes = malloc(c->nb_attributes * sizeof(attribute));

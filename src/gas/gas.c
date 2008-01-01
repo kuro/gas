@@ -141,12 +141,6 @@ void gas_destroy (chunk* c)
         return;
     }
 
-#ifdef DEBUG
-    if (c->parent == NULL) {
-        fprintf(stderr, "destroyed a root\n");
-    }
-#endif
-
     free(c->id);
     for (i = 0; i < c->nb_attributes; i++) {
         free(c->attributes[i].key);

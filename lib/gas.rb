@@ -4,13 +4,19 @@ require 'dl/import'
 require 'pp'
 
 module Gas
+
+  class GasError < RuntimeError
+  end
+  class AttributeNotFoundError < GasError
+  end
+
   LIB = case RUBY_PLATFORM
         when /linux/
           DL::dlopen('libgas.so')
         when /mswin/
           DL::dlopen('libgas.dll')
         else
-          fail 'unsupported platform'
+          raise GasError, 'unsupported platform'
         end
 
   def gas_call (target, *args)
@@ -72,6 +78,11 @@ module Gas
         @c_obj = arg
       when String
         @c_obj = gas_call(GAS_NEW_NAMED, arg).first
+      when IO
+        @c_obj = gas_call(GAS_READ_FD, arg.fileno).first
+        if @c_obj.nil?
+          raise GasError, 'error reading from fd, io is probably empty'
+        end
       when Integer
         @c_obj = gas_call(GAS_READ_FD, arg).first
       when Hash
@@ -91,7 +102,7 @@ module Gas
       when nil
         @c_obj = gas_call(GAS_NEW, 0, nil).first
       else
-        fail 'invalid arg type'
+        raise GasError, 'invalid arg type'
       end
 
       # pointers are created internally, and do not need to be destroyed, i
@@ -108,7 +119,7 @@ module Gas
       unless @c_obj.nil?
         if not parent.nil?
           @c_obj.free = nil
-          fail 'destroy called on chunk with a valid parent'
+          raise GasError, 'destroy called on chunk with a valid parent'
         end
         @c_obj.free = nil
         gas_call(GAS_DESTROY, @c_obj)
@@ -130,7 +141,7 @@ module Gas
     def id
       buf = DL.malloc(id_size)
       bytes_left = gas_call(GAS_GET_ID, @c_obj, buf, 0, id_size).first
-      fail unless bytes_left.zero?
+      raise GasError, 'did not consume entire id' unless bytes_left.zero?
       return buf.to_str
     end
     def set_id (id)
@@ -173,7 +184,8 @@ module Gas
     end
     def index_of_attribute (key)
       skey = (Fixnum === key and (0..255) === key) ? key.chr : key.to_s
-      return gas_call(GAS_INDEX_OF_ATTRIBUTE, @c_obj, skey.size, skey).first
+      retval = gas_call(GAS_INDEX_OF_ATTRIBUTE, @c_obj, skey.size, skey).first
+      return retval
     end
     def has_attribute (key)
       return index_of_attribute(key) >= 0
@@ -184,11 +196,15 @@ module Gas
     def get_attribute (key)
       skey = (Fixnum === key and (0..255) === key) ? key.chr : key.to_s
       index = index_of_attribute(skey)
+      if index < 0
+        raise AttributeNotFoundError, "attribute \"#{skey}\" not found"
+      end
       value_size = attribute_value_size(index)
 
       buf = DL.malloc(value_size)
       bytes_left = gas_call(GAS_GET_ATTRIBUTE, @c_obj, index, buf, 0, value_size).first
-      fail unless bytes_left.zero?
+
+      raise GasError, 'bytes_left not zero' unless bytes_left.zero?
       return buf.to_str
     end
     # TODO this should not crash when the attribute is not found
@@ -212,7 +228,7 @@ module Gas
     def payload
       buf = DL.malloc(payload_size)
       bytes_left = gas_call(GAS_GET_PAYLOAD, @c_obj, buf, 0, payload_size).first
-      fail unless bytes_left.zero?
+      fail GasError, 'did not consume all payload bytes' unless bytes_left.zero?
       return buf.to_str
     end
     def set_payload (data)
@@ -235,7 +251,7 @@ module Gas
       update
       buf = DL.malloc(total_size)
       offset = gas_call(GAS_WRITE_BUF, @c_obj, buf).first
-      fail "gas_write_buf size != offset" unless total_size == offset
+      raise GasError, "gas_write_buf size != offset" unless total_size == offset
       return buf.to_str
     end
     def write (io)
@@ -247,14 +263,11 @@ module Gas
       case meth.to_s
       when /=\Z/
         key = meth.to_s[0..-2]
-        fail 'invalid arg count' unless args.size == 1
+        raise GasError, 'invalid arg count' unless args.size == 1
         set_attribute(key, args.first)
       else
-        if has_attribute(meth)
-          return get_attribute(meth)
-        else
-          fail "attribute '#{meth}' not found"
-        end
+        # exception will propagate
+        return get_attribute(meth)
       end
     end
     def << (arg)
@@ -267,7 +280,7 @@ module Gas
         #return arg
         return self
       else
-        fail 'invalid arg type'
+        raise GasError, 'invalid arg type'
       end
     end
   end

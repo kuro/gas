@@ -16,7 +16,7 @@
 #endif
 
 #define USE_FILE 1
-
+/* default callbacks {{{*/
 GASnum gas_default_open (const char *name, const char *mode, void **handle, void **userdata)
 {
 #if USE_FILE
@@ -128,6 +128,7 @@ GASnum gas_default_seek (void *handle, unsigned int pos, void *userdata)
 
     return GAS_OK;
 }
+/*}}}*/
 
 gas_context* gas_context_new (void)
 {

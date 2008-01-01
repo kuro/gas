@@ -13,7 +13,7 @@
 #define copy_to_field(field)                                                \
     do {                                                                    \
         this->field##_size = field##_size;                                  \
-        this->field = realloc(this->field, field##_size + 1);               \
+        this->field = (GASubyte*)realloc(this->field, field##_size + 1);    \
         memcpy(this->field, field, field##_size);                           \
         ((GASubyte*)this->field)[field##_size] = 0;                         \
     } while (0)

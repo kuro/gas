@@ -90,7 +90,7 @@ GASunum gas_total_size (chunk* c);
 /* }}}*/
 
 #ifdef __cplusplus
-} // extern C
+} /* extern C */
 #endif
 
 /* attribute {{{*/
@@ -111,7 +111,7 @@ struct Chunk
     GASunum size;
 
     GASunum id_size;
-    void *id;
+    GASubyte *id;
 
     GASunum nb_attributes;
     struct Attribute* attributes;
@@ -124,8 +124,8 @@ struct Chunk
 
 #ifdef __cplusplus
 public:
-    //static void* operator new (size_t size); 
-    //static void operator delete (void *p);
+    /*static void* operator new (size_t size); */
+    /*static void operator delete (void *p);*/
 
     inline Chunk (const char *id = NULL);
     inline Chunk (GASunum id_size, const GASvoid *id);

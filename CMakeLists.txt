@@ -1,10 +1,19 @@
+set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS on)
+
 project(Gas)
 
 add_definitions(-DSIZEOF_VOID_P=${CMAKE_SIZEOF_VOID_P})
 
+include(CheckIncludeFiles)
+CHECK_INCLUDE_FILES(byteswap.h HAVE_BYTESWAP_H)
+if (HAVE_BYTESWAP_H)
+    add_definitions(-DHAVE_BYTESWAP_H=1)
+else ()
+    add_definitions(-DHAVE_BYTESWAP_H=0)
+endif ()
+
 enable_testing()
 include(CPack)
-set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS on)
 
 add_definitions(-Wall)
 
@@ -22,7 +31,7 @@ endif ()
 # ctags {{{
 find_program(CTAGS NAMES exuberant-ctags ctags)
 if (CTAGS)
-    add_custom_target(tags ALL ${CTAGS} --recurse --extra=fq ${CMAKE_CURRENT_SOURCE_DIR}/src)
+    add_custom_target(tags ALL ${CTAGS} --recurse --extra=fq ${CMAKE_CURRENT_SOURCE_DIR})
 endif ()
 #}}}
 

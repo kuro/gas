@@ -1,7 +1,8 @@
 
 if (NOT MSVC)
     message(STATUS "Hardcore checks enabled")
-    add_definitions(-pedantic -ansi)
+    #add_definitions(-pedantic -ansi)
+    add_definitions(-pedantic -std=c99)
 endif ()
 
 set(headers

@@ -7,33 +7,33 @@
 #ifndef SWAP_H
 #define SWAP_H
 
+#include <stdlib.h>
+#include <stdint.h>
+
+#if HAVE_BYTESWAP_H
+#include <byteswap.h>
+#define swap16 __bswap_16
+#define swap32 __bswap_32
+#define swap64 __bswap_64
+#else
+
 #define swap16(x)                                                           \
     (                                                                       \
       ((x & 0x00ffU) << 8) |                                                \
       ((x & 0xff00U) >> 8)                                                  \
     )
 
-#if SIZEOF_VOID_P >= 8
 #define swap32(x)                                                           \
-    (                                                                       \
+    ((uint32_t)                                                             \
       ((x & 0x000000ffU) << 24) |                                          \
       ((x & 0x0000ff00U) <<  8) |                                          \
       ((x & 0x00ff0000U) >>  8) |                                          \
       ((x & 0xff000000U) >> 24)                                            \
     )
-#else
-#define swap32(x)                                                           \
-    (                                                                       \
-      ((x & 0x000000ffUL) << 24) |                                          \
-      ((x & 0x0000ff00UL) <<  8) |                                          \
-      ((x & 0x00ff0000UL) >>  8) |                                          \
-      ((x & 0xff000000UL) >> 24)                                            \
-    )
-#endif
 
 #if SIZEOF_VOID_P >= 8
 #define swap64(x)                                                           \
-    (                                                                       \
+    ((uint64_t)                                                             \
       ((x & 0x00000000000000ffUL) << 56) |                                  \
       ((x & 0x000000000000ff00UL) << 40) |                                  \
       ((x & 0x0000000000ff0000UL) << 24) |                                  \
@@ -44,9 +44,10 @@
       ((x & 0xff00000000000000UL) >> 56)                                    \
     )
 #endif
-#include <stdlib.h>
-#include <stdint.h>
-inline float swapf (float fin)
+
+#endif
+
+extern inline float swapf(float fin)
 {
     uint32_t tmp = swap32(*(uint32_t*)&fin);
     return *(float*)&tmp;
@@ -65,6 +66,8 @@ inline float swapf (float fin)
 #define htons ntohs
 #define htonl ntohl
 #define htonf ntohf
+#define htons ntohs
+#define htonl ntohl
 
 #ifdef __cplusplus
 extern "C"

@@ -43,11 +43,11 @@ typedef GASnum (*GAS_FILE_SEEK_CALLBACK)  (void *handle,
                                            unsigned int pos,
                                            void *userdata);
 
+typedef struct _gas_context gas_context;
+
 /**
  * @see _gas_context
  */
-typedef struct _gas_context gas_context;
-
 struct _gas_context
 {
     GAS_FILE_OPEN_CALLBACK  open;
@@ -61,13 +61,6 @@ struct _gas_context
 gas_context* gas_context_new (void);
 void gas_context_destroy (gas_context* s);
 
-void gas_write_cb (chunk* self, gas_context *context);
-chunk* gas_read_fd (int fd);
-
-void gas_write_encoded_num_fd (int fd, GASunum value);
-GASunum gas_read_encoded_num_fd (int fd);
-
-/*FMOD_RESULT F_API FMOD_System_SetFileSystem          (FMOD_SYSTEM *system, FMOD_FILE_OPENCALLBACK useropen, FMOD_FILE_CLOSECALLBACK userclose, FMOD_FILE_READCALLBACK userread, FMOD_FILE_SEEKCALLBACK userseek, int blockalign);*/
 
 /*@}*/
 
