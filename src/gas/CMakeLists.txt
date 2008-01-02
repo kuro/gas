@@ -11,10 +11,12 @@ set(headers
     fdio.h
     fsio.h
     gas.h
-    gas.inl
     ntstring.h
     parser.h
     swap.h
+    tree.h
+    tree.inl
+    types.h
     writer.h
     )
 
@@ -23,10 +25,10 @@ set(sources
     context.c
     fdio.c
     fsio.c
-    gas.c
     ntstring.c
     parser.c
     swap.c
+    tree.c
     writer.c
     )
 

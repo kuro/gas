@@ -4,8 +4,8 @@
  * @brief swap definition
  */
 
-#ifndef SWAP_H
-#define SWAP_H
+#ifndef GAS_SWAP_H
+#define GAS_SWAP_H
 
 #include <stdlib.h>
 #include <stdint.h>
@@ -90,6 +90,6 @@ int gas_swap (void *buf, size_t stride, size_t bufsize);
 #endif
 
 
-#endif /* SWAP_H defined */
+#endif /* GAS_SWAP_H defined */
 
 /* vim: set sw=4 fdm=marker :*/

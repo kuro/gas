@@ -4,8 +4,8 @@
  * @brief ntstring definition
  */
 
-#ifndef NTSTRING_H
-#define NTSTRING_H 
+#ifndef GAS_NTSTRING_H
+#define GAS_NTSTRING_H 
 
 #include <gas/gas.h>
 
@@ -27,20 +27,20 @@ extern "C"
  */
 /*@{*/
 
-void gas_set_id_s (chunk* c, const char* id);
-char* gas_get_id_s (chunk* c);
+GASvoid gas_set_id_s (chunk* c, const GASchar* id);
+GASchar* gas_get_id_s (chunk* c);
 
-void gas_set_attribute_s (chunk* c,
-                          const char *key,
-                          GASunum value_size, const void *value);
-void gas_set_attribute_ss(chunk* c, const char *key, const char *value);
+GASvoid gas_set_attribute_s (chunk* c,
+                             const GASchar *key,
+                             const GASvoid *value, GASunum value_size);
+GASvoid gas_set_attribute_ss(chunk* c, const GASchar *key, const GASchar *value);
 
-int gas_get_attribute_s (chunk* c, const char* key,
-                         void* value, GASunum offset, GASunum limit);
-char* gas_get_attribute_ss (chunk* c, const char* key);
+int gas_get_attribute_s (chunk* c, const GASchar* key,
+                         GASvoid* value, GASunum limit);
+GASchar* gas_get_attribute_ss (chunk* c, const GASchar* key);
 
-void gas_set_payload_s (chunk* c, const char* payload);
-char* gas_get_payload_s (chunk* c);
+GASvoid gas_set_payload_s (chunk* c, const GASchar* payload);
+GASchar* gas_get_payload_s (chunk* c);
 
 
 
@@ -50,7 +50,7 @@ char* gas_get_payload_s (chunk* c);
  * @warning This treats EVERYTHING as null terminated strings.  Only call
  * this when ids, attributes, and payloads are all strings.
  */
-void gas_print (chunk* c);
+GASvoid gas_print (chunk* c);
 
 /*@}*/
 
@@ -58,6 +58,6 @@ void gas_print (chunk* c);
 }
 /*}*/
 #endif
-#endif /* NTSTRING_H defined */
+#endif /* GAS_NTSTRING_H defined */
 
 /* vim: set sw=4 fdm=marker :*/

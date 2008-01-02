@@ -4,8 +4,8 @@
  * @brief bufio definition
  */
 
-#ifndef BUFIO_H
-#define BUFIO_H
+#ifndef GAS_BUFIO_H
+#define GAS_BUFIO_H
 
 #include <gas/gas.h>
 
@@ -30,6 +30,6 @@ GASnum gas_write_encoded_num_buf (GASubyte* buf, GASunum value);
 }
 #endif
 
-#endif /* BUFIO_H defined */
+#endif /* GAS_BUFIO_H defined */
 
 // vim: sw=4 fdm=marker

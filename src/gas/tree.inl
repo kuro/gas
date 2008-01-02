@@ -18,6 +18,7 @@
         ((GASubyte*)this->field)[field##_size] = 0;                         \
     } while (0)
 /*}}}*/
+
 inline Chunk::Chunk (GASunum id_size, const GASvoid *id)
 {
     memset(this, 0, sizeof(Chunk));
@@ -25,7 +26,7 @@ inline Chunk::Chunk (GASunum id_size, const GASvoid *id)
         copy_to_field(id);
     }
 }
-inline Chunk::Chunk (const char *id)
+inline Chunk::Chunk (const GASchar *id)
 {
     GASunum id_size = strlen(id);
     memset(this, 0, sizeof(Chunk));
@@ -49,67 +50,72 @@ inline Chunk::~Chunk ()
     free(children);
 }
 
+inline GASvoid Chunk::add_child (Chunk* child)
+{
+    gas_add_child(this, child);
+}
+
 template<typename V>
-inline void Chunk::set_attribute (const char* key, const V& val)
+inline GASvoid Chunk::set_attribute (const GASchar* key, const V& val)
 {
     gas_set_attribute(this, strlen(key), key, sizeof(V), &val);
 }
 
 template<typename V>
-inline void Chunk::set_attribute (char* key, const V& val)
+inline GASvoid Chunk::set_attribute (GASchar* key, const V& val)
 {
-    gas_set_attribute(this, strlen(key), key, sizeof(V), &val);
+    gas_set_attribute(this, key, strlen(key), &val, sizeof(V));
 }
 
-inline void Chunk::set_attribute (const char* key, const char* val)
+inline GASvoid Chunk::set_attribute (const GASchar* key, const GASchar* val)
 {
-    gas_set_attribute(this, strlen(key), key, strlen(val), val);
+    gas_set_attribute(this, key, strlen(key), val, strlen(val));
 }
 
-inline void Chunk::set_attribute (char* key, const char* val)
+inline GASvoid Chunk::set_attribute (GASchar* key, const GASchar* val)
 {
-    gas_set_attribute(this, strlen(key), key, strlen(val), val);
+    gas_set_attribute(this, key, strlen(key), val, strlen(val));
 }
 
-inline void Chunk::set_attribute (const char* key, char* val)
+inline GASvoid Chunk::set_attribute (const GASchar* key, GASchar* val)
 {
-    gas_set_attribute(this, strlen(key), key, strlen(val), val);
+    gas_set_attribute(this, key, strlen(key), val, strlen(val));
 }
 
-inline void Chunk::set_attribute (char* key, char* val)
+inline GASvoid Chunk::set_attribute (GASchar* key, GASchar* val)
 {
-    gas_set_attribute(this, strlen(key), key, strlen(val), val);
+    gas_set_attribute(this, key, strlen(key), val, strlen(val));
 }
 
 template<typename K, typename V>
-inline void Chunk::set_attribute (const K& key, const V& val)
+inline GASvoid Chunk::set_attribute (const K& key, const V& val)
 {
     //std::clog << typeid(K).name() << std::endl;
     std::clog << typeid(key).name() << std::endl;
     std::clog << typeid(typeof(key)).name() << std::endl;
-    std::clog << (typeid(key).name() == typeid(char*).name()) << std::endl;
+    std::clog << (typeid(key).name() == typeid(GASchar*).name()) << std::endl;
     std::clog << (1 xor 1) << std::endl;
-    gas_set_attribute(this, sizeof(K), &key, sizeof(V), &val);
+    gas_set_attribute(this, &key, sizeof(K), &val, sizeof(V));
 }
 
 template<typename V>
-inline void Chunk::get_attribute (const char* key, V& retval)
+inline GASvoid Chunk::get_attribute (const GASchar* key, V& retval)
 {
-    gas_get_attribute_s(this, key, &retval, 0, sizeof(retval));
+    gas_get_attribute_s(this, key, &retval, sizeof(retval));
 }
 
 template<typename K, typename V>
-inline void Chunk::get_attribute (const K& key, V& retval)
+inline GASvoid Chunk::get_attribute (const K& key, V& retval)
 {
     puts(";)");
     GASnum index;
     index = gas_index_of_attribute(this, sizeof(K), &key);
-    gas_get_attribute(this, index, &retval, 0, sizeof(V));
+    gas_get_attribute(this, index, &retval, sizeof(V));
 }
 
-inline void Chunk::set_payload (GASunum size, const GASvoid *payload)
+inline GASvoid Chunk::set_payload (const GASvoid *payload, GASunum size)
 {
-    gas_set_payload(this, size, payload);
+    gas_set_payload(this, payload, size);
 }
 
 #undef copy_to_field

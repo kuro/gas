@@ -133,7 +133,7 @@ chunk* gas_new_named (const char *id)
  * @note This does not release data for id, or the data contained in the
  * attributes, or the payload data.
  */
-void gas_destroy (chunk* c)
+GASvoid gas_destroy (chunk* c)
 {
     int i;
 
@@ -160,7 +160,7 @@ void gas_destroy (chunk* c)
 /** @name id access */
 /*@{*/
 /* gas_set_id() {{{*/
-void gas_set_id (chunk* c, GASunum id_size, const void *id)
+GASvoid gas_set_id (chunk* c, const GASvoid *id, GASunum id_size)
 {
     copy_to_field(id);
 }
@@ -177,14 +177,13 @@ GASunum gas_id_size (chunk* c)
  * @returns The number of bytes remaining.
  * @todo add sanity checking
  */
-GASnum gas_get_id (chunk* c, void* id, GASunum offset, GASunum limit)
+GASnum gas_get_id (chunk* c, GASvoid* id, GASunum limit)
 {
     GASunum count;
 
-    /** @todo check count with offset */
     count = min(limit, c->id_size);
-    memcpy(((GASubyte*)id), ((GASubyte*)c->id) + offset, count);
-    return c->id_size - (offset + limit);
+    memcpy(((GASubyte*)id), c->id, count);
+    return c->id_size - limit;
 }
 /*}}}*/
 /*@}*/
@@ -196,7 +195,7 @@ GASnum gas_get_id (chunk* c, void* id, GASunum offset, GASunum limit)
  * @return signed index
  * @retval -1 failure, attribute not found
  */
-GASnum gas_index_of_attribute (chunk* c, GASunum key_size, const void* key)
+GASnum gas_index_of_attribute (chunk* c, const GASvoid* key, GASunum key_size)
 {
     GASunum i;
     attribute* a;
@@ -214,15 +213,15 @@ GASnum gas_index_of_attribute (chunk* c, GASunum key_size, const void* key)
  * @todo check for existing attribute first!
  */
 #include <unistd.h>
-void gas_set_attribute (chunk* c,
-                        GASunum key_size, const void *key,
-                        GASunum value_size, const void *value)
+GASvoid gas_set_attribute (chunk* c,
+                           const GASvoid *key, GASunum key_size,
+                           const GASvoid *value, GASunum value_size)
 {
 	attribute* tmp, *a;
     GASnum index;
     GASubyte *ctmp;
 
-    index = gas_index_of_attribute(c, key_size, key);
+    index = gas_index_of_attribute(c, key, key_size);
     if (index >= 0 && overwrite_attributes) {
         /* found, replace */
         a = &c->attributes[index];
@@ -261,7 +260,7 @@ GASnum gas_attribute_value_size (chunk* c, GASunum index)
  * @returns bytes remaining
  */
 GASnum gas_get_attribute (chunk* c, GASunum index,
-                          void* value, GASunum offset, GASunum limit)
+                          GASvoid* value, GASunum limit)
 {
     attribute* a;
     GASunum count;
@@ -271,16 +270,15 @@ GASnum gas_get_attribute (chunk* c, GASunum index,
     }
 
     a = &c->attributes[index];
-    /** @todo check count with offset */
     count = min(limit, a->value_size);
-    memcpy(((GASubyte*)value), ((GASubyte*)a->value) + offset, count);
-    return a->value_size - (offset + limit);
+    memcpy(((GASubyte*)value), a->value, count);
+    return a->value_size - limit;
 }
 /*}}}*/
 /* gas_has_attribute() {{{*/
-int gas_has_attribute (chunk* c, GASunum key_size, void* key)
+GASbool gas_has_attribute (chunk* c, GASvoid* key, GASunum key_size)
 {
-    return gas_index_of_attribute(c, key_size, key) == -1 ? 0 : 1;
+    return gas_index_of_attribute(c, key, key_size) == -1 ? 0 : 1;
 }
 /*}}}*/
 /*@}*/
@@ -288,7 +286,7 @@ int gas_has_attribute (chunk* c, GASunum key_size, void* key)
 /** @name payload access */
 /*@{*/
 /* gas_set_payload() {{{*/
-void gas_set_payload (chunk* c, GASunum payload_size, const void *payload)
+GASvoid gas_set_payload (chunk* c, const GASvoid *payload, GASunum payload_size)
 {
     copy_to_field(payload);
 }
@@ -304,14 +302,13 @@ GASunum gas_payload_size (chunk* c)
  * @returns The number of bytes remaining.
  * @todo add sanity checking
  */
-GASnum gas_get_payload (chunk* c, void* payload, GASunum offset, GASunum limit)
+GASunum gas_get_payload (chunk* c, GASvoid* payload, GASunum limit)
 {
     GASunum count;
 
-    /** @todo check count with offset */
     count = min(limit, c->payload_size);
-    memcpy(((GASubyte*)payload), ((GASubyte*)c->payload) + offset, count);
-    return c->payload_size - (offset + limit);
+    memcpy(((GASubyte*)payload), c->payload, count);
+    return c->payload_size - limit;
 }
 /*}}}*/
 /*@}*/
@@ -325,7 +322,7 @@ chunk* gas_get_parent(chunk* c)
 }
 /*}}}*/
 /* gas_add_child() {{{*/
-void gas_add_child(chunk* parent, chunk* child)
+GASvoid gas_add_child(chunk* parent, chunk* child)
 {
     chunk** tmp;
 
@@ -359,7 +356,7 @@ chunk* gas_get_child_at (chunk* c, GASunum index)
 /** @name management */
 /*@{*/
 /* gas_update() {{{*/
-void gas_update (chunk* c)
+GASvoid gas_update (chunk* c)
 {
     int i;
 

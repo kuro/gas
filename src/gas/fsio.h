@@ -4,8 +4,8 @@
  * @brief fsio definition
  */
 
-#ifndef FSIO_H
-#define FSIO_H
+#ifndef GAS_FSIO_H
+#define GAS_FSIO_H
 
 
 #include <gas/gas.h>
@@ -33,6 +33,6 @@ GASunum gas_read_encoded_num_fs (FILE* fs);
 }
 #endif
 
-#endif /* FSIO_H defined */
+#endif /* GAS_FSIO_H defined */
 
 /* vim: set sw=4 fdm=marker :*/

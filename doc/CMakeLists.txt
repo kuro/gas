@@ -41,3 +41,11 @@ else ()
     endforeach()
 
 endif ()
+
+find_program(RDOC NAMES rdoc)
+if (RDOC)
+    add_custom_target(rdoc
+        COMMAND ${RDOC} -o ${CMAKE_CURRENT_BINARY_DIR}/rdoc ${CMAKE_CURRENT_SOURCE_DIR}/../lib
+        )
+    add_dependencies(doc rdoc)
+endif ()

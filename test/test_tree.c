@@ -21,14 +21,14 @@ void test001 (void)
     gas_set_attribute_ss(root, "checksum", "11235");
 
     uint32_t num = 0x00636261;
-    gas_set_payload(root, sizeof(num), &num);
-    gas_set_attribute_s(root, "num", sizeof(num), &num);
+    gas_set_payload(root, &num, sizeof(num));
+    gas_set_attribute_s(root, "num", &num, sizeof(num));
 
 
     chunk* message = gas_new_named("message");
     gas_set_attribute_ss(message, "reason", "because i can");
     gas_set_attribute_ss(message, "project", "GekkoWare");
-    gas_set_payload(message, strlen("hello world"), "hello world");
+    gas_set_payload(message, "hello world", strlen("hello world"));
 
     gas_add_child(root, message);
 
@@ -41,12 +41,12 @@ void test001 (void)
     char *c_out;
     memset(c, 0, sizeof(c));
     c[64] = 0;
-    gas_get_attribute_s(root, "class", &len, 0, sizeof(c));
+    gas_get_attribute_s(root, "class", &len, sizeof(c));
     printf("class was %ld bytes and \"%s\"\n", len, c);
     c_out = gas_get_attribute_ss(root, "class");
     printf("class was again %ld bytes and \"%s\"\n", len, c_out);
     free(c_out);
-    gas_get_attribute_s(root, "num", &num_out, 0, sizeof(num_out));
+    gas_get_attribute_s(root, "num", &num_out, sizeof(num_out));
     printf("num (0x%x) was 0x%x\n", num, num_out);
 
     gas_destroy(root);

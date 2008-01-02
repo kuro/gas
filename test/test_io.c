@@ -28,13 +28,13 @@ void test0001 (void)
     gas_set_attribute_ss(root, "checksum", "11235");
 
     uint32_t num = 0x00636261;
-    gas_set_payload(root, sizeof(num), &num);
+    gas_set_payload(root, &num, sizeof(num));
 
 
     chunk* message = gas_new_named("message");
     gas_set_attribute_ss(message, "reason", "because i can");
     gas_set_attribute_ss(message, "project", "GekkoWare");
-    gas_set_payload(message, strlen("hello world"), "hello world");
+    gas_set_payload(message, "hello world", strlen("hello world"));
     gas_add_child(root, message);
 
     chunk* media = gas_new_named("media");

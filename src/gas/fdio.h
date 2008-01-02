@@ -4,8 +4,8 @@
  * @brief fdio definition
  */
 
-#ifndef FDIO_H
-#define FDIO_H
+#ifndef GAS_FDIO_H
+#define GAS_FDIO_H
 
 
 #include <gas/gas.h>
@@ -32,6 +32,6 @@ GASunum gas_read_encoded_num_fd (int fd);
 }
 #endif
 
-#endif /* FDIO_H defined */
+#endif /* GAS_FDIO_H defined */
 
 /* vim: set sw=4 fdm=marker :*/

@@ -18,9 +18,9 @@
 /** @name id access */
 /*@{*/
 /* gas_set_id_s() {{{*/
-void gas_set_id_s (chunk* c, const char* id)
+GASvoid gas_set_id_s (chunk* c, const GASchar* id)
 {
-    gas_set_id(c, strlen(id), id);
+    gas_set_id(c, id, strlen(id));
 }
 /*}}}*/
 /* gas_get_id_s() {{{*/
@@ -29,9 +29,9 @@ void gas_set_id_s (chunk* c, const char* id)
  *
  * Free the result when finished.
  */
-char* gas_get_id_s (chunk* c)
+GASchar* gas_get_id_s (chunk* c)
 {
-    char *retval;
+    GASchar *retval;
     retval = malloc(c->id_size + 1);
     assert(retval != NULL);
     if (retval == NULL) {
@@ -48,17 +48,17 @@ char* gas_get_id_s (chunk* c)
 /** @name attribute access */
 /*@{*/
 /* gas_set_attribute_s() {{{*/
-void gas_set_attribute_s (chunk* c,
-                          const char *key,
-                          GASunum value_size, const void *value)
+GASvoid gas_set_attribute_s (chunk* c,
+                          const GASchar *key,
+                          const GASvoid *value, GASunum value_size)
 {
-    gas_set_attribute(c, strlen(key), key, value_size, value);
+    gas_set_attribute(c, key, strlen(key), value, value_size);
 }
 /*}}}*/
 /* gas_set_attribute_ss() {{{*/
-void gas_set_attribute_ss(chunk* c, const char *key, const char *value)
+GASvoid gas_set_attribute_ss(chunk* c, const GASchar *key, const GASchar *value)
 {
-    gas_set_attribute(c, strlen(key), key, strlen(value), value);
+    gas_set_attribute(c, key, strlen(key), value, strlen(value));
 }
 /*}}}*/
 /* gas_get_attribute_s {{{*/
@@ -71,12 +71,11 @@ void gas_set_attribute_ss(chunk* c, const char *key, const char *value)
  *
  * @returns status
  */
-int gas_get_attribute_s (chunk* c, const char* key,
-                         void* value, GASunum offset, GASunum limit)
+int gas_get_attribute_s (chunk* c, const GASchar* key,
+                         GASvoid* value, GASunum limit)
 {
-    return gas_get_attribute (c,
-                              gas_index_of_attribute(c, strlen(key), key),
-                              value, offset, limit);
+    return gas_get_attribute(c, gas_index_of_attribute(c, key, strlen(key)),
+                             value, limit);
 }
 /*}}}*/
 /* gas_get_attribute_ss() {{{*/
@@ -88,14 +87,14 @@ int gas_get_attribute_s (chunk* c, const char* key,
  *
  * @returns An allocated copy of the requested attribute.
  */
-char* gas_get_attribute_ss (chunk* c, const char* key)
+GASchar* gas_get_attribute_ss (chunk* c, const GASchar* key)
 {
     int status;
     GASunum len;
     GASnum index;
-    char *retval;
+    GASchar *retval;
    
-    index = gas_index_of_attribute(c, strlen(key), key);
+    index = gas_index_of_attribute(c, key, strlen(key));
     if (index < 0) {
         return NULL;
     }
@@ -107,7 +106,7 @@ char* gas_get_attribute_ss (chunk* c, const char* key)
         return NULL;
     }
 
-    status = gas_get_attribute(c, index, retval, 0, len);
+    status = gas_get_attribute(c, index, retval, len);
     if (status != 0) {
         free(retval);
         return NULL;
@@ -123,18 +122,18 @@ char* gas_get_attribute_ss (chunk* c, const char* key)
 /** @name payload access */
 /*@{*/
 /* gas_set_payload_s() {{{*/
-void gas_set_payload_s (chunk* c, const char* payload)
+GASvoid gas_set_payload_s (chunk* c, const GASchar* payload)
 {
-    gas_set_payload(c, strlen(payload), payload);
+    gas_set_payload(c, payload, strlen(payload));
 }
 /*}}}*/
 /* gas_get_payload_s() {{{*/
 /**
  * @returns An allocated copy of the payload.
  */
-char* gas_get_payload_s (chunk* c)
+GASchar* gas_get_payload_s (chunk* c)
 {
-    char *retval;
+    GASchar *retval;
     retval = malloc(c->payload_size + 1);
     assert(retval != NULL);
     if (retval == NULL) {
@@ -157,11 +156,11 @@ char* gas_get_payload_s (chunk* c)
 
 static GASbool gas_printable_all_or_nothing = GAS_TRUE;
 
-char* sanitize (const GASubyte* str, GASunum len)
+GASchar* sanitize (const GASubyte* str, GASunum len)
 {
     GASbool printable;
-    static char san[1024 * 4];
-    static char hex[5];
+    static GASchar san[1024 * 4];
+    static GASchar hex[5];
     GASunum i, o = 0;
 
     printable = GAS_TRUE;
@@ -193,7 +192,7 @@ char* sanitize (const GASubyte* str, GASunum len)
     return san;
 }
 
-void gas_print (chunk* c)
+GASvoid gas_print (chunk* c)
 {
     int i;
     static int level = 1;
@@ -224,7 +223,7 @@ void gas_print (chunk* c)
     if (c->payload_size > 0) {
 #if 0
         indent(); printf("payload of size %ld:\n", (unsigned long)c->payload_size);
-        printf("---\n%s\n^^^\n", (char*)c->payload);
+        printf("---\n%s\n^^^\n", (GASchar*)c->payload);
 #else
         indent(); printf("payload[%ld]: \"%s\"\n",
                          c->payload_size,
