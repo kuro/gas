@@ -44,25 +44,25 @@ module Gas
   class Chunk
     include Gas
     function_map = %w/
-    gas_new PIP
+    gas_new PPI
     gas_new_named PS
-    gas_set_id 0PIP
+    gas_set_id 0PPI
     gas_read_fd PI
     gas_print 0P
     gas_id_size IP
-    gas_get_id IPPII
+    gas_get_id IPPI
     gas_get_parent PP
     gas_nb_children IP
     gas_get_child_at PPI
     gas_add_child 0PP
-    gas_set_attribute 0PIPIP
-    gas_get_attribute IPIPII
-    gas_set_id 0PIP
-    gas_set_payload 0PIP
-    gas_index_of_attribute IPIP
+    gas_set_attribute 0PPIPI
+    gas_get_attribute IPIPI
+    gas_set_id 0PPI
+    gas_set_payload 0PPI
+    gas_index_of_attribute IPPI
     gas_attribute_value_size IPI
     gas_payload_size IP
-    gas_get_payload IPPII
+    gas_get_payload IPPI
     gas_update 0P
     gas_write_buf IPP
     gas_total_size IP
@@ -86,7 +86,7 @@ module Gas
       when Integer
         @c_obj = gas_call(GAS_READ_FD, arg).first
       when Hash
-        @c_obj = gas_call(GAS_NEW, 0, nil).first
+        @c_obj = gas_call(GAS_NEW, nil, 0).first
         arg.each do |key, val|
           skey = (Fixnum === key and (0..255) === key) ? key.chr : key.to_s
           sval = (Fixnum === val and (0..255) === val) ? val.chr : val.to_s
@@ -140,13 +140,13 @@ module Gas
     end
     def id
       buf = DL.malloc(id_size)
-      bytes_left = gas_call(GAS_GET_ID, @c_obj, buf, 0, id_size).first
+      bytes_left = gas_call(GAS_GET_ID, @c_obj, buf, id_size).first
       raise GasError, 'did not consume entire id' unless bytes_left.zero?
       return buf.to_str
     end
     def set_id (id)
       sid = (Fixnum === id and (0..255) === id) ? id.chr : id.to_s
-      gas_call(GAS_SET_ID, @c_obj, sid.size, sid)
+      gas_call(GAS_SET_ID, @c_obj, sid, sid.size)
       self
     end
     def id= (str)
@@ -184,7 +184,7 @@ module Gas
     end
     def index_of_attribute (key)
       skey = (Fixnum === key and (0..255) === key) ? key.chr : key.to_s
-      retval = gas_call(GAS_INDEX_OF_ATTRIBUTE, @c_obj, skey.size, skey).first
+      retval = gas_call(GAS_INDEX_OF_ATTRIBUTE, @c_obj, skey, skey.size).first
       return retval
     end
     def has_attribute (key)
@@ -202,7 +202,7 @@ module Gas
       value_size = attribute_value_size(index)
 
       buf = DL.malloc(value_size)
-      bytes_left = gas_call(GAS_GET_ATTRIBUTE, @c_obj, index, buf, 0, value_size).first
+      bytes_left = gas_call(GAS_GET_ATTRIBUTE, @c_obj, index, buf, value_size).first
 
       raise GasError, 'bytes_left not zero' unless bytes_left.zero?
       return buf.to_str
@@ -214,7 +214,7 @@ module Gas
     def set_attribute (key, val)
       skey = (Fixnum === key and (0..255) === key) ? key.chr : key.to_s
       sval = (Fixnum === val and (0..255) === val) ? val.chr : val.to_s
-      gas_call(GAS_SET_ATTRIBUTE, @c_obj, skey.size, skey, sval.size, sval)
+      gas_call(GAS_SET_ATTRIBUTE, @c_obj, skey, skey.size, sval, sval.size)
       self
     end
     def []= (key, val)
@@ -227,13 +227,13 @@ module Gas
     end
     def payload
       buf = DL.malloc(payload_size)
-      bytes_left = gas_call(GAS_GET_PAYLOAD, @c_obj, buf, 0, payload_size).first
+      bytes_left = gas_call(GAS_GET_PAYLOAD, @c_obj, buf, payload_size).first
       fail GasError, 'did not consume all payload bytes' unless bytes_left.zero?
       return buf.to_str
     end
     def set_payload (data)
       sdata = (Fixnum === data and (0..255) === data) ? data.chr : data.to_s
-      gas_call(GAS_SET_PAYLOAD, @c_obj, sdata.size, sdata)
+      gas_call(GAS_SET_PAYLOAD, @c_obj, sdata, sdata.size)
       self
     end
     def payload= (data)
