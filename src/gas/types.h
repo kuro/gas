@@ -9,6 +9,10 @@
 
 #include <stdlib.h>
 
+#if HAVE_STDINT_H
+#include <stdint.h>
+#endif
+
 typedef unsigned long int GASunum;
 typedef          long int GASnum;
 typedef unsigned char     GASubyte;
