@@ -26,6 +26,10 @@ public:
     int rowCount (const QModelIndex &parent = QModelIndex()) const;
     int columnCount (const QModelIndex &parent = QModelIndex()) const;
 
+    void clear ()
+    {
+        reset();
+    }
 };
 
 
@@ -42,8 +46,8 @@ private slots:
     void on_open (void);
     void on_close (void);
     void on_about (void);
-    void on_tree_row_change (const QModelIndex& current,
-                             const QModelIndex& previous);
+    void on_tree_selection_change (const QModelIndex& current,
+                                   const QModelIndex& previous);
     void on_print (void);
 
 private:

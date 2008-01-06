@@ -74,6 +74,8 @@ module Gas
 
     def initialize (arg = nil)
       case arg
+      when nil
+        @c_obj = gas_call(GAS_NEW, nil, 0).first
       when DL::PtrData
         @c_obj = arg
       when String

@@ -156,7 +156,7 @@ GASchar* gas_get_payload_s (chunk* c)
 
 static GASbool gas_printable_all_or_nothing = GAS_TRUE;
 
-GASchar* sanitize (const GASubyte* str, GASunum len)
+GASchar* gas_sanitize (const GASubyte* str, GASunum len)
 {
     GASbool printable;
     static GASchar san[1024 * 4];
@@ -195,7 +195,7 @@ GASchar* sanitize (const GASubyte* str, GASunum len)
 GASvoid gas_print (chunk* c)
 {
     int i;
-    static int level = 1;
+    static int level = 0;
     static int level_iter;
 
     if (c == NULL) {
@@ -205,7 +205,7 @@ GASvoid gas_print (chunk* c)
     indent(); printf("---\n");
     /*indent(); printf("chunk of size = %ld\n", (unsigned long)c->size);*/
     indent(); printf("id[%ld]: \"%s\"\n", (unsigned long)c->id_size,
-                     sanitize(c->id, c->id_size));
+                     gas_sanitize(c->id, c->id_size));
     /*indent(); printf("%ld attribute(s):\n", (unsigned long)c->nb_attributes);*/
     for (i = 0; i < c->nb_attributes; i++) {
         indent();
@@ -213,11 +213,11 @@ GASvoid gas_print (chunk* c)
             "attr %d of %ld: \"%s\" ",
             i,
             c->nb_attributes,
-            sanitize(c->attributes[i].key, c->attributes[i].key_size)
+            gas_sanitize(c->attributes[i].key, c->attributes[i].key_size)
             );
         printf(
             "-> \"%s\"\n",
-            sanitize(c->attributes[i].value, c->attributes[i].value_size)
+            gas_sanitize(c->attributes[i].value, c->attributes[i].value_size)
             );
     }
     if (c->payload_size > 0) {
@@ -227,7 +227,7 @@ GASvoid gas_print (chunk* c)
 #else
         indent(); printf("payload[%ld]: \"%s\"\n",
                          c->payload_size,
-                         sanitize(c->payload, c->payload_size)
+                         gas_sanitize(c->payload, c->payload_size)
                          );
 #endif
     }

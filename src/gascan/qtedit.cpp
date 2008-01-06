@@ -34,14 +34,18 @@ MainEditWindow::MainEditWindow (void)
 
     model = new MyTreeModel();
     tree_view = new QTreeView(this);
+    tree_view->setEnabled(false);
     tree_view->setModel(model);
+    tree_view->setAlternatingRowColors(true);
 
     tree_selection_model = new QItemSelectionModel(model, this); 
-    connect(tree_selection_model, SIGNAL(currentRowChanged(QModelIndex, QModelIndex)),
-            this, SLOT(on_tree_row_change(QModelIndex, QModelIndex)));
+    connect(tree_selection_model, SIGNAL(currentChanged(QModelIndex, QModelIndex)),
+            this, SLOT(on_tree_selection_change(QModelIndex, QModelIndex)));
     tree_view->setSelectionModel(tree_selection_model);
 
     attr_table = new QTableWidget(this);
+    attr_table->setEnabled(false);
+    attr_table->setAlternatingRowColors(true);
     attr_table->setColumnCount(2);
     QStringList attr_table_headers;
     attr_table_headers << "Key" << "Value";
@@ -50,6 +54,7 @@ MainEditWindow::MainEditWindow (void)
     attr_table->setSortingEnabled(true);
 
     payload_box = new QTextEdit(this);
+    payload_box->setEnabled(false);
     payload_box->setReadOnly(true);
 
     splitter0 = new QSplitter(this);
@@ -58,7 +63,6 @@ MainEditWindow::MainEditWindow (void)
     //new QLabel("Attributes:", attr_table);
     //splitter1->addWidget(new QLabel("Attributes:"));
     splitter1->addWidget(attr_table);
-    splitter1->addWidget(new QLabel("Payload:"));
     splitter1->addWidget(payload_box);
     splitter0->addWidget(tree_view);
     splitter0->addWidget(splitter1);
@@ -142,12 +146,18 @@ void MainEditWindow::on_close (void)
     close_action->setEnabled(false);
     print_action->setEnabled(false);
 
+    attr_table->setEnabled(false);
+    tree_view->setEnabled(false);
+    payload_box->setEnabled(false);
+
     if (root) {
         gas_destroy(root);
         root = NULL;
     }
 
-    //model->modelReset();
+    model->clear();
+    attr_table->clearContents();
+    payload_box->clear();
 
     setWindowTitle("gascan");
 }
@@ -174,8 +184,40 @@ void MainEditWindow::on_about (void)
     QMessageBox::about(this, tr("About Application"), tr("Gas Editor"));
 }
 
-void MainEditWindow::on_tree_row_change (const QModelIndex& current,
-        const QModelIndex& previous)
+QString sanitize (const QByteArray& in, bool wrap)
+{
+    char buf[8];
+    QString out;
+    bool doit = false;
+    for (int i = 0; i < in.size(); i++) {
+        if (in[i] == 0 or not isprint(in[i])) {
+            doit = true;
+            break;
+        }
+    }
+    if (doit) {
+        if (wrap) {
+            for (int i = 0; i < in.size(); i++) {
+                snprintf(buf, sizeof(buf), "<%02x>", in[i] & 0xff);
+                out.append(buf);
+                if (i % 8 == 7) {
+                    out.append('\n');
+                }
+            }
+        } else {
+            for (int i = 0; i < in.size(); i++) {
+                snprintf(buf, sizeof(buf), "<%02x>", in[i] & 0xff);
+                out.append(buf);
+            }
+        }
+        return out;
+    } else {
+        return in;
+    }
+}
+
+void MainEditWindow::on_tree_selection_change (const QModelIndex& current,
+                                               const QModelIndex& previous)
 {
     chunk *c = static_cast<chunk*>(current.internalPointer());
 
@@ -185,22 +227,23 @@ void MainEditWindow::on_tree_row_change (const QModelIndex& current,
     for (GASunum i = 0; i < c->nb_attributes; i++) {
         QByteArray key ((char*)c->attributes[i].key,
                 c->attributes[i].key_size);
-        QTableWidgetItem *key_item = new QTableWidgetItem (QString(key));
+        QTableWidgetItem *key_item = new QTableWidgetItem (sanitize(key, false));
         key_item->setToolTip(QString::number(c->attributes[i].key_size));
         attr_table->setItem(i, 0, key_item);
 
         QByteArray val ((char*)c->attributes[i].value,
                 c->attributes[i].value_size);
-        QTableWidgetItem *val_item = new QTableWidgetItem (QString(val));
+        QTableWidgetItem *val_item = new QTableWidgetItem (sanitize(val, false));
         val_item->setToolTip(QString::number(c->attributes[i].value_size));
         attr_table->setItem(i, 1, val_item);
     }
 
     QByteArray payload ((char*)c->payload, c->payload_size);
-    payload_box->setText(payload);
+    //payload_box->setText(payload);
+    payload_box->setText(sanitize(payload, true));
 }
 /*}}}*/
-
+// load {{{
 void MainEditWindow::load (const QString& src)
 {
     progress_bar->show();
@@ -224,9 +267,16 @@ void MainEditWindow::load (const QString& src)
     gas_add_child(root, doc);
 
     progress_bar->hide();
-}
 
+    attr_table->setEnabled(true);
+    tree_view->setEnabled(true);
+    payload_box->setEnabled(true);
+
+    model->clear();
+}
+// }}}
 /*}}}*/
+
 /* MyTreeModel {{{*/
 /* MyTreeModel() {{{*/
 MyTreeModel::MyTreeModel ()
@@ -241,37 +291,15 @@ MyTreeModel::~MyTreeModel ()
 /* columnCount() {{{*/
 int MyTreeModel::columnCount (const QModelIndex &parent) const
 {
-    //qDebug("column count");
-    return 2;
-}
-/*}}}*/
-/* data() {{{*/
-QVariant MyTreeModel::data (const QModelIndex &index, int role) const
-{
-    if (!index.isValid()) {
-        return QVariant();
-    }
-    if (role != Qt::DisplayRole) {
-        return QVariant();
-    }
-
-
-    chunk *c = static_cast<chunk*>(index.internalPointer());
-    if (index.column() == 0) {
-        qDebug("\t\tdata row=%d id=%s", index.row(), (char*)c->id);
-        return QByteArray((char*)c->id, c->id_size);
-    } else {
-        return (unsigned int)c->size;
-    }
-
+    return 3;
 }
 /*}}}*/
 /* flags() {{{*/
 Qt::ItemFlags MyTreeModel::flags (const QModelIndex &index) const
 {
     //qDebug("flags");
-    if (!index.isValid()) {
-        return 0;
+    if (not index.isValid()) {
+        return Qt::ItemIsEnabled;
     }
     return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 }
@@ -281,43 +309,122 @@ QVariant MyTreeModel::headerData (int section, Qt::Orientation orientation,
         int role) const
 {
     //qDebug("header section=%d role=%d", section, role);
-    if (role == Qt::DisplayRole) {
+    if (orientation == Qt::Horizontal and role == Qt::DisplayRole) {
         switch (section) {
         case 0:
-            return "Chunk";
+            return tr("Chunk");
         case 1:
-            return "Size";
+            return tr("Attributes");
+        case 2:
+            return tr("Size");
         default:
             //qDebug("unprovided header");
-            break;
+            return QVariant();
         }
     }
     //return QString("header");
     return QVariant();
 }
 /*}}}*/
+
+/* data() {{{*/
+QVariant MyTreeModel::data (const QModelIndex &index, int role) const
+{
+    if (not index.isValid()) {
+        return QVariant();
+    }
+
+    chunk *c = static_cast<chunk*>(index.internalPointer());
+
+    switch (index.column()) {
+    case 0:
+        switch (role) {
+        case Qt::ToolTipRole:
+            return QByteArray((char*)c->id, c->id_size)
+                + " (" + QString::number(gas_total_size(c)) + ")";
+        case Qt::DisplayRole:
+            return QByteArray((char*)c->id, c->id_size);
+        default:
+            return QVariant();
+        }
+    case 1:
+        switch (role) {
+        case Qt::ToolTipRole:
+        case Qt::DisplayRole:
+            {
+                QStringList attributes;
+                for (GASunum i = 0; i < c->nb_attributes; i++) {
+                    Attribute& attr = c->attributes[i];
+                    attributes
+                        << (QString("\"")
+                            + QByteArray((char*)attr.key, attr.key_size)
+                            + "\" => \""
+                            + QByteArray((char*)attr.value, attr.value_size)
+                            + "\""
+                           )
+                        ;
+
+                }
+                return attributes.join(", ");
+            }
+        default:
+            return QVariant();
+        }
+    case 2:
+        switch (role) {
+        case Qt::DisplayRole:
+            return (unsigned int)gas_total_size(c);
+        default:
+            return QVariant();
+        }
+    default:
+        return QVariant();
+    }
+}
+/*}}}*/
+/* rowCount() {{{*/
+int MyTreeModel::rowCount (const QModelIndex &parent) const
+{
+    chunk *parent_chunk;
+
+    if (root == NULL) {
+        return 0;
+    }
+
+//    if (parent.column() > 0) {
+//        return 0;
+//    }
+
+    if (not parent.isValid()) {
+        parent_chunk = root;
+    } else {
+        parent_chunk = static_cast<chunk*>(parent.internalPointer());
+    }
+
+    return parent_chunk->nb_children;
+}
+/*}}}*/
 /* index() {{{*/
 QModelIndex MyTreeModel::index (int row, int col,
         const QModelIndex &parent) const
 {
-    if (root == NULL) {
-        return QModelIndex();
-    }
-
-    qDebug("index row=%d col=%d", row, col);
-
-    if ( ! hasIndex(row, col, parent)) {
-        return QModelIndex();
-    }
-
     chunk *parent_chunk;
-    if (parent.isValid()) {
-        parent_chunk = static_cast<chunk*>(parent.internalPointer());
-    } else {
+
+//    if (root == NULL) {
+//        return QModelIndex();
+//    }
+
+//    if ( ! hasIndex(row, col, parent)) {
+//        return QModelIndex();
+//    }
+
+    if (not parent.isValid()) {
         parent_chunk = root;
+    } else {
+        parent_chunk = static_cast<chunk*>(parent.internalPointer());
     }
 
-    qDebug("parent was %s\n", (char*)parent_chunk->id);
+    //qDebug("parent was %s\n", (char*)parent_chunk->id);
 
     if ((GASunum)row < parent_chunk->nb_children) {
 //        qDebug("      row=%d col=%d is id=%s", row, col,
@@ -329,22 +436,18 @@ QModelIndex MyTreeModel::index (int row, int col,
 }
 /*}}}*/
 /* parent() {{{*/
-QModelIndex MyTreeModel::parent (const QModelIndex &index) const
+QModelIndex MyTreeModel::parent (const QModelIndex &child) const
 {
-
-
-    if ( ! index.isValid()) {
+    if (not child.isValid()) {
         return QModelIndex();
     }
    
-    chunk *current_chunk;
-    chunk *parent_chunk;
+    chunk *child_chunk = static_cast<chunk*>(child.internalPointer());
+    chunk *parent_chunk = child_chunk->parent;;
 
-    current_chunk = static_cast<chunk*>(index.internalPointer());
-    qDebug("parent for %s", (char*)current_chunk->id);
-    parent_chunk = current_chunk->parent;
+    //qDebug("parent for %s", (char*)child_chunk->id);
 
-    if (parent_chunk == NULL) {
+    if (parent_chunk == NULL or parent_chunk == root) {
         return QModelIndex();
     }
 
@@ -353,7 +456,7 @@ QModelIndex MyTreeModel::parent (const QModelIndex &index) const
     if (parent_chunk->parent == NULL) {
         row = 0;
     } else {
-        qDebug("%ld", parent_chunk->parent->nb_children);
+        //qDebug("%ld", parent_chunk->parent->nb_children);
         for (unsigned int i = 0; i < parent_chunk->parent->nb_children; i++) {
             if (parent_chunk->parent->children[i] == parent_chunk) {
                 row = i;
@@ -361,31 +464,13 @@ QModelIndex MyTreeModel::parent (const QModelIndex &index) const
             }
         }
     }
-qDebug("created index at row %d for %s", row, (char*)parent_chunk->id);
+//qDebug("created child at row %d for %s", row, (char*)parent_chunk->id);
     return createIndex(row, 0, parent_chunk);
 }
 /*}}}*/
-/* rowCount() {{{*/
-int MyTreeModel::rowCount (const QModelIndex &parent) const
-{
-    if (root == NULL) {
-        return 0;
-    }
-    if (parent.column() > 0) {
-        return 0;
-    }
 
-    chunk *parent_chunk;
-    if ( ! parent.isValid()) {
-        parent_chunk = root;
-    } else {
-        parent_chunk = static_cast<chunk*>(parent.internalPointer());
-    }
+/*}}}*/
 
-    return parent_chunk->nb_children;
-}
-/*}}}*/
-/*}}}*/
 /* main() {{{*/
 int qtedit_main (int argc, char **argv)
 {
@@ -397,8 +482,11 @@ int qtedit_main (int argc, char **argv)
 
     QApplication app (argc, argv);
     MainEditWindow win;
-    //win.load("test/dump.gas");
-    win.load("test.gas");
+
+    if (argc > 1) {
+        win.load(argv[argc-1]);
+    }
+
     win.show();
 
     retval = app.exec();
@@ -411,4 +499,5 @@ int qtedit_main (int argc, char **argv)
     return retval;
 }
 /*}}}*/
+
 // vim: sw=4 fdm=marker
