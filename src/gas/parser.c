@@ -143,7 +143,7 @@ GASunum encoded_size (GASunum value);
 chunk* gas_read_parser (gas_parser *p)
 {
     int i;
-    chunk* c = gas_new(0, NULL);
+    chunk* c = gas_new(NULL, 0);
     unsigned int bytes_read;
     GASbool cont;
 

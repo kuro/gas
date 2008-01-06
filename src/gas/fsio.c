@@ -185,7 +185,7 @@ GASunum gas_read_encoded_num_fs (FILE* fs)
 chunk* gas_read_fs (FILE* fs)
 {
     int i;
-    chunk* c = gas_new(0, NULL);
+    chunk* c = gas_new(NULL, 0);
     c->size = gas_read_encoded_num_fs(fs);
     read_field(c->id);
     c->nb_attributes = gas_read_encoded_num_fs(fs);

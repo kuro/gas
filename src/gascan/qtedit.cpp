@@ -262,7 +262,7 @@ void MainEditWindow::load (const QString& src)
         root = NULL;
     }
 
-    root = gas_new(4, "root");
+    root = gas_new("root", 4);
     chunk *doc = gas_parse(parser, src.toAscii());
     gas_add_child(root, doc);
 

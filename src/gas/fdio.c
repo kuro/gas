@@ -156,7 +156,7 @@ void gas_write_fd (chunk* self, int fd)
 chunk* gas_read_fd (int fd)
 {
     int i;
-    chunk* c = gas_new(0, NULL);
+    chunk* c = gas_new(NULL, 0);
 
     c->size = gas_read_encoded_num_fd(fd);
 

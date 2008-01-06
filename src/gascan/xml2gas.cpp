@@ -201,7 +201,8 @@ int xml2gas_main (int argc, char **argv)
         if (xml.isStartElement()) {
             //QXmlStreamAttributes& attr = xml.attributes();
 
-            chunk* n = gas_new(xml.name().size(), (const char*)xml.name().toString().toAscii());
+            chunk* n = gas_new((const char*)xml.name().toString().toAscii(),
+                               xml.name().size());
 
             foreach(QXmlStreamAttribute attr, xml.attributes()) {
                 gas_set_attribute_ss(n,

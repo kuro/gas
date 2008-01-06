@@ -47,5 +47,8 @@ if (RDOC)
     add_custom_target(rdoc
         COMMAND ${RDOC} -o ${CMAKE_CURRENT_BINARY_DIR}/rdoc ${CMAKE_CURRENT_SOURCE_DIR}/../lib
         )
+    install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/rdoc DESTINATION
+        share/doc/gas/rdoc
+        )
     add_dependencies(doc rdoc)
 endif ()

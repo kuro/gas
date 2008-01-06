@@ -104,7 +104,7 @@ GASunum encoded_size (GASunum value)
 /** @name cons/decons */
 /*@{*/
 /* gas_new() {{{*/
-chunk* gas_new (GASunum id_size, const GASvoid *id)
+chunk* gas_new (const GASvoid *id, GASunum id_size)
 {
     chunk *c;
 
@@ -123,7 +123,7 @@ chunk* gas_new (GASunum id_size, const GASvoid *id)
 /* gas_new_named() {{{*/
 chunk* gas_new_named (const char *id)
 {
-    return gas_new(strlen(id), id);
+    return gas_new(id, strlen(id));
 }
 /*}}}*/
 /* gas_destroy() {{{*/

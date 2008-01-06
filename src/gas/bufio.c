@@ -194,7 +194,7 @@ chunk* gas_read_buf (GASubyte* buf, GASunum limit, GASnum* out_offset)
     GASunum offset = 0;
 
     int i;
-    chunk* c = gas_new(0, NULL);
+    chunk* c = gas_new(NULL, 0);
 
     read_num(c->size);
     read_field(c->id);

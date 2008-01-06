@@ -23,7 +23,7 @@ extern "C"
 /* construction {{{*/
 /** @defgroup construction */
 /*@{*/
-chunk* gas_new (GASunum id_size, const GASvoid *id);
+chunk* gas_new (const GASvoid *id, GASunum id_size);
 chunk* gas_new_named (const GASchar *id);
 GASvoid gas_destroy (chunk* c);
 /*@}*/

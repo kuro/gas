@@ -83,7 +83,7 @@ void test0002 (void)
 
 void test0003 (void)
 {
-    chunk* root = gas_new(0, NULL);
+    chunk* root = gas_new(NULL, 0);
 
     FILE* fs = fopen("empty.gas", "w");
     gas_update(root);
@@ -101,7 +101,7 @@ void test0003 (void)
 }
 void test0004 (void)
 {
-    chunk* root = gas_new(0, NULL);
+    chunk* root = gas_new(NULL, 0);
 
     FILE* fs = fopen("double.gas", "w");
     gas_update(root);
