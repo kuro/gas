@@ -12,10 +12,6 @@
 #include <stdio.h>
 #include <errno.h>
 
-#if UNIX
-#include <unistd.h>
-#endif
-
 /* gas_write_encoded_num_fs() {{{*/
 void gas_write_encoded_num_fs (FILE* fs, GASunum value)
 {

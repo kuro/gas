@@ -8,13 +8,6 @@
 
 #include <stdio.h>
 
-#if UNIX
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
-#endif
-
 #define USE_FILE 1
 /* default callbacks {{{*/
 GASnum gas_default_open (const char *name, const char *mode, void **handle, void **userdata)
@@ -112,7 +105,8 @@ GASnum gas_default_write (void *handle, void *buffer, unsigned int sizebytes,
     return GAS_OK;
 }
 
-GASnum gas_default_seek (void *handle, unsigned int pos, void *userdata)
+GASnum gas_default_seek (void *handle, unsigned int pos,
+                         int whence, void *userdata)
 {
     if (!handle) {
         return GAS_ERR_INVALID_PARAM;
@@ -121,9 +115,9 @@ GASnum gas_default_seek (void *handle, unsigned int pos, void *userdata)
 #if USE_FILE
     /*fseek((FILE *)handle, pos, SEEK_SET);*/
     /** @todo make this configurable */
-    fseek((FILE *)handle, pos, SEEK_CUR);
+    fseek((FILE *)handle, pos, whence);
 #else
-    lseek((long)handle, pos, SEEK_CUR);
+    lseek((long)handle, pos, whence);
 #endif
 
     return GAS_OK;

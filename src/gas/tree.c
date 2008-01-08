@@ -16,11 +16,12 @@
 #include <string.h>
 #include <stdio.h>
 
-#if UNIX
+#if HAVE_ASSERT_H
 #include <assert.h>
 #else
 #define assert(expr) do {} while (0)
 #endif
+
 
 static int overwrite_attributes = GAS_TRUE;
 
@@ -212,7 +213,6 @@ GASnum gas_index_of_attribute (chunk* c, const GASvoid* key, GASunum key_size)
 /**
  * @todo check for existing attribute first!
  */
-#include <unistd.h>
 GASvoid gas_set_attribute (chunk* c,
                            const GASvoid *key, GASunum key_size,
                            const GASvoid *value, GASunum value_size)

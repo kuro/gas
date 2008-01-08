@@ -157,7 +157,7 @@ chunk* gas_read_parser (gas_parser *p)
     }
     if ( ! cont) {
         GASunum jump = c->size - encoded_size(c->id_size) - c->id_size;
-        p->context->seek(p->handle, jump, p->context->user_data);
+        p->context->seek(p->handle, jump, SEEK_CUR, p->context->user_data);
         gas_destroy(c);
         return NULL;
     }
@@ -187,7 +187,8 @@ chunk* gas_read_parser (gas_parser *p)
         c->payload_size = gas_read_encoded_num_parser(p);
         c->payload = NULL;
         p->context->seek(p->handle, c->payload_size,
-                                  p->context->user_data);
+                         SEEK_CUR,
+                         p->context->user_data);
     }
 
     if (p->on_push_chunk) {

@@ -96,7 +96,7 @@ GASnum my_write (void *handle, void *buffer, unsigned int sizebytes,
     return GAS_OK;
 }
 
-GASnum my_seek (void *handle, unsigned int pos, void *userdata)
+GASnum my_seek (void *handle, unsigned int pos, int whence, void *userdata)
 {
     if (!handle) {
         return GAS_ERR_INVALID_PARAM;
@@ -104,7 +104,7 @@ GASnum my_seek (void *handle, unsigned int pos, void *userdata)
 
     /*fseek((FILE *)handle, pos, SEEK_SET);*/
     /** @todo make this configurable */
-    fseek((FILE *)handle, pos, SEEK_CUR);
+    fseek((FILE *)handle, pos, whence);
 
     return GAS_OK;
 }

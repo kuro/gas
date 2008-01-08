@@ -2,7 +2,12 @@
 #include <gas/swap.h>
 #include <gas/gas.h>
 
+#if HAVE_ASSERT_H
 #include <assert.h>
+#else
+#define assert(expr) do {} while (0)
+#endif
+
 
 #ifdef DEBUG
 #include <stdio.h>

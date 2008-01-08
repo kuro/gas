@@ -11,10 +11,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <errno.h>
-
-#if UNIX
 #include <unistd.h>
-#endif
 
 /* gas_write_encoded_num_fd() {{{*/
 void gas_write_encoded_num_fd (int fd, GASunum value)

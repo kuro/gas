@@ -41,6 +41,7 @@ typedef GASnum (*GAS_FILE_WRITE_CALLBACK) (void *handle, void *buffer,
  */
 typedef GASnum (*GAS_FILE_SEEK_CALLBACK)  (void *handle,
                                            unsigned int pos,
+                                           int whence,
                                            void *userdata);
 
 typedef struct _gas_context gas_context;
