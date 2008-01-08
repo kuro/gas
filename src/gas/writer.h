@@ -9,6 +9,13 @@
 
 #include <gas/context.h>
 
+#ifdef __cplusplus
+extern "C"
+{
+/*}*/
+#endif
+
+
 typedef struct _gas_writer gas_writer;
 struct _gas_writer
 {
@@ -18,6 +25,10 @@ struct _gas_writer
 
 void gas_write_encoded_num_writer (gas_writer *writer, GASunum value);
 void gas_write_writer (gas_writer *writer, chunk* self);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* GAS_WRITER_H defined */
 
