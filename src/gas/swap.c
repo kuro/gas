@@ -9,7 +9,7 @@
 #endif
 
 
-#ifdef DEBUG
+#ifdef GAS_DEBUG
 #include <stdio.h>
 #endif
 
@@ -19,7 +19,7 @@ int gas_swap (void *buf, size_t stride, size_t bufsize)
     GASunum i;
 
     if ((bufsize % stride) != 0) {
-#ifdef DEBUG
+#ifdef GAS_DEBUG
         fprintf(stderr, "invalid stride for buffer size\n");
 #endif
         return -1;
@@ -50,7 +50,7 @@ int gas_swap (void *buf, size_t stride, size_t bufsize)
     }
 #endif
     default:
-#ifdef DEBUG
+#ifdef GAS_DEBUG
         fprintf(stderr, "invalid stride\n");
 #endif
         return -1;

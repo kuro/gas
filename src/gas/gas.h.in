@@ -1,0 +1,23 @@
+
+/**
+ * @file gas.h
+ * @brief gas definition
+ */
+
+#ifndef GAS_GAS_H
+#define GAS_GAS_H
+
+#cmakedefine GAS_DEBUG 1
+
+#cmakedefine HAVE_BYTESWAP_H 1
+#cmakedefine HAVE_STDINT_H 1
+#cmakedefine HAVE_ASSERT_H 1
+
+#define GAS_SIZEOF_VOID_P ${CMAKE_SIZEOF_VOID_P}
+#define GAS_BIG_ENDIAN ${BIG_ENDIAN}
+
+#include <gas/tree.h>
+
+#endif  /* GAS_GAS_H defined */
+
+/* vim: set sw=4 fdm=marker: */

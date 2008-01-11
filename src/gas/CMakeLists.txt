@@ -6,11 +6,11 @@ if (NOT MSVC)
 endif ()
 
 set(headers
+    ${CMAKE_CURRENT_BINARY_DIR}/gas.h
     bufio.h
     context.h
     fdio.h
     fsio.h
-    gas.h
     ntstring.h
     parser.h
     swap.h

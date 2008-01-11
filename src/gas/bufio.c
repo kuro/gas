@@ -7,10 +7,10 @@
  * However, the sanity checks require review.
  */
 
-#include "gas.h"
-#include <string.h>
+#include <gas/gas.h>
+#include <gas/ntstring.h>
 
-#include "ntstring.h"
+#include <string.h>
 #include <stdio.h>
 
 /* gas_write_encoded_num_buf() {{{*/
