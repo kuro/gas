@@ -14,7 +14,7 @@ TEST_BIG_ENDIAN(BIG_ENDIAN)
 
 string(TOUPPER "${CMAKE_BUILD_TYPE}" tmp)
 if ("${tmp}" MATCHES "DEBUG")
-    set(DEBUG 1)
+    set(GAS_DEBUG 1)
 endif ()
 
 configure_file(
