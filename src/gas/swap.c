@@ -40,7 +40,7 @@ int gas_swap (void *buf, size_t stride, size_t bufsize)
         }
         break;
     }
-#if SIZEOF_VOID_P >= 8
+#if GAS_SIZEOF_VOID_P >= 8
     case 8: {
         uint64_t *buf64 = (uint64_t*)buf;
         for (i = 0; i < count; i++) {

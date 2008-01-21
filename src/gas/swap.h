@@ -31,7 +31,7 @@
       ((x & 0xff000000U) >> 24)                                            \
     )
 
-#if SIZEOF_VOID_P >= 8
+#if GAS_SIZEOF_VOID_P >= 8
 #define swap64(x)                                                           \
     ((uint64_t)                                                             \
       ((x & 0x00000000000000ffUL) << 56) |                                  \
