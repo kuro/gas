@@ -36,7 +36,7 @@ module Gas
     self.const_set func.upcase, LIB[func, sig]
   end
   def self.parse_buffer (buf)
-    ptr = GAS_READ_BUF.call(buf, buf.size, nil)
+    ptr = GAS_READ_BUF.call(buf, buf.size, nil).first
     # ptr is the root, initialize does not set destroy for pointers, so set here
     ptr.free = GAS_DESTROY
     return Chunk.new(ptr)
@@ -133,7 +133,7 @@ module Gas
       when nil
         @c_obj = gas_call(GAS_NEW, 0, nil)
       else
-        raise GasError, 'invalid arg type'
+        raise GasError, "invalid arg type: #{arg.type}"
       end
 
       describe_chunk_struct(@c_obj)
