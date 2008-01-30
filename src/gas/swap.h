@@ -7,14 +7,16 @@
 #ifndef GAS_SWAP_H
 #define GAS_SWAP_H
 
+#include <gas/gas.h>
+
 #include <stdlib.h>
 #include <stdint.h>
 
 #if HAVE_BYTESWAP_H
 #include <byteswap.h>
-#define swap16 __bswap_16
-#define swap32 __bswap_32
-#define swap64 __bswap_64
+#define swap16 bswap_16
+#define swap32 bswap_32
+#define swap64 bswap_64
 #else
 
 #define swap16(x)                                                           \
