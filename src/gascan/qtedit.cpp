@@ -37,6 +37,9 @@ MainEditWindow::MainEditWindow (void)
     tree_view->setEnabled(false);
     tree_view->setModel(model);
     tree_view->setAlternatingRowColors(true);
+    printf("%d\n", tree_view->indentation());
+    tree_view->setIndentation(15);  // originally 20
+    tree_view->setAnimated(true);
 
     tree_selection_model = new QItemSelectionModel(model, this); 
     connect(tree_selection_model, SIGNAL(currentChanged(QModelIndex, QModelIndex)),
@@ -91,6 +94,12 @@ void MainEditWindow::create_actions (void)
     print_action->setEnabled(false);
     connect(print_action, SIGNAL(triggered()), this, SLOT(on_print()));
 
+    toggle_sanitization_action = new QAction(tr("Sanitize"), this);
+    toggle_sanitization_action->setCheckable(true);
+    toggle_sanitization_action->setChecked(true);
+    connect(toggle_sanitization_action, SIGNAL(toggled(bool)),
+            this, SLOT(on_sanitization_toggled(bool)));
+
     exit_action = new QAction(tr("E&xit"), this);
     exit_action = new QAction(tr("E&xit"), this);
     exit_action->setShortcut(tr("Ctrl+Q"));
@@ -113,6 +122,9 @@ void MainEditWindow::create_menus (void)
     file_menu->addSeparator();
     file_menu->addAction(exit_action);
 
+    view_menu = menuBar()->addMenu(tr("View"));
+    view_menu->addAction(toggle_sanitization_action);
+
     menuBar()->addSeparator();
     help_menu = menuBar()->addMenu(tr("&Help"));
     help_menu->addAction(about_action);
@@ -131,14 +143,29 @@ void MainEditWindow::create_toolbars (void)
 /*}}}*/
 /*}}}*/
 /* slots {{{*/
+void MainEditWindow::on_sanitization_toggled (bool checked)
+{
+    do_sanitize = checked;
+}
 void MainEditWindow::on_open (void)
 {
-    QString fname = QFileDialog::getOpenFileName(this);
+#if 0
+    QFileDialog dialog (this);
+    dialog.setViewMode(QFileDialog::Detail);
+    dialog.setFilter(tr("Gas (*.gas);; All Files (*)"));
+    dialog.exec();
+#else
+    QFileDialog::Options options;
+    QString fname = QFileDialog::getOpenFileName(
+        this,
+        QString(),
+        QString(), tr("Gas (*.gas);; All Files (*)")
+        );
     if (fname.isEmpty()) {
         return;
     }
-
     load(fname);
+#endif
 }
 
 void MainEditWindow::on_close (void)
@@ -184,8 +211,12 @@ void MainEditWindow::on_about (void)
     QMessageBox::about(this, tr("About Application"), tr("Gas Editor"));
 }
 
-QString sanitize (const QByteArray& in, bool wrap)
+QString MainEditWindow::sanitize (const QByteArray& in, bool wrap)
 {
+    if (not do_sanitize) {
+        return in;
+    }
+
     char buf[8];
     QString out;
     bool doit = false;
@@ -291,7 +322,7 @@ MyTreeModel::~MyTreeModel ()
 /* columnCount() {{{*/
 int MyTreeModel::columnCount (const QModelIndex &parent) const
 {
-    return 3;
+    return 4;
 }
 /*}}}*/
 /* flags() {{{*/
@@ -316,6 +347,8 @@ QVariant MyTreeModel::headerData (int section, Qt::Orientation orientation,
         case 1:
             return tr("Attributes");
         case 2:
+            return tr("Payload");
+        case 3:
             return tr("Size");
         default:
             //qDebug("unprovided header");
@@ -371,6 +404,16 @@ QVariant MyTreeModel::data (const QModelIndex &index, int role) const
             return QVariant();
         }
     case 2:
+        switch (role) {
+        case Qt::ToolTipRole:
+            return QByteArray((char*)c->payload, c->payload_size)
+                + " (" + QString::number(gas_total_size(c)) + ")";
+        case Qt::DisplayRole:
+            return QByteArray((char*)c->payload, c->payload_size);
+        default:
+            return QVariant();
+        }
+    case 3:
         switch (role) {
         case Qt::DisplayRole:
             return (unsigned int)gas_total_size(c);

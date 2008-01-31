@@ -38,6 +38,10 @@ class MainEditWindow : public QMainWindow
 {
     Q_OBJECT
 
+protected:
+    bool do_sanitize;
+    QString sanitize (const QByteArray& in, bool wrap);
+
 public:
     MainEditWindow ();
     void load (const QString& src);
@@ -49,6 +53,7 @@ private slots:
     void on_tree_selection_change (const QModelIndex& current,
                                    const QModelIndex& previous);
     void on_print (void);
+    void on_sanitization_toggled (bool checked);
 
 private:
     void create_actions (void);
@@ -60,8 +65,10 @@ private:
     QAction *exit_action;
     QAction *about_action;
     QAction *print_action;
+    QAction *toggle_sanitization_action;
 
     QMenu *file_menu;
+    QMenu *view_menu;
     QMenu *help_menu;
 
     QToolBar *file_tool_bar;

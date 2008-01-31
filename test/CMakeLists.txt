@@ -1,4 +1,7 @@
-include_directories(../src)
+include_directories(
+    ${CMAKE_CURRENT_SOURCE_DIR}/../src
+    ${CMAKE_CURRENT_BINARY_DIR}/../src
+    )
 
 foreach(test test_tree test_encoding test_io test_numbers test_parser)
     add_executable(${test} ${test}.c)

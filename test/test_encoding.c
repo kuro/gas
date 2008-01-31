@@ -3,7 +3,7 @@
  * @file encoding.c
  */
 
-#include <gas/gas.h>
+#include <gas/tree.h>
 
 #include <stdlib.h>
 #include <string.h>

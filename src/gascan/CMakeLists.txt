@@ -1,7 +1,7 @@
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/..)
 
-find_package(EXPAT)
+#find_package(EXPAT)
 find_package(Qt4 REQUIRED)
 include_directories(${EXPAT_INCLUDE_PATH})
 

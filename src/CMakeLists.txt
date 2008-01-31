@@ -8,4 +8,8 @@ if (NOT MSVC)
     add_definitions(-Werror)
 endif ()
 
-subdirs(gas gascan)
+subdirs(gas)
+if (NOT MSVC)
+    subdirs(gascan)
+endif ()
+
