@@ -273,6 +273,8 @@ GASnum gas_get_attribute (chunk* c, GASunum index,
 {
     attribute* a;
 
+    a = &c->attributes[index];
+
 #if 0
     GASunum count;
 
@@ -280,7 +282,6 @@ GASnum gas_get_attribute (chunk* c, GASunum index,
         return -1;
     }
 
-    a = &c->attributes[index];
     count = min(limit, a->value_size);
     memcpy(((GASubyte*)value), a->value, count);
     return a->value_size - limit;

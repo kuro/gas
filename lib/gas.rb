@@ -187,11 +187,6 @@ module Gas
       return @c_obj[:id_size]
     end
     def id
-      #buf = DL.malloc(id_size)
-      #bytes_left = gas_call(GAS_GET_ID, @c_obj, buf, id_size)
-      #raise GasError, 'did not consume entire id' unless bytes_left.zero?
-      #return buf.to_str
-
       id = @c_obj[:id]
       id.size = @c_obj[:id_size]
       return id.to_s
@@ -225,9 +220,9 @@ module Gas
       value_size = attribute_value_size(index)
 
       buf = DL.malloc(value_size)
-      bytes_left = gas_call(GAS_GET_ATTRIBUTE, @c_obj, index, buf, value_size)
+      bytes_read = gas_call(GAS_GET_ATTRIBUTE, @c_obj, index, buf, value_size)
 
-      raise GasError, 'bytes_left not zero' unless bytes_left.zero?
+      raise GasError, 'error getting attribute' unless bytes_read == value_size
       return buf.to_str
     end
     def set_attribute (key, val)
@@ -271,11 +266,6 @@ module Gas
       return @c_obj[:payload_size]
     end
     def payload
-      #buf = DL.malloc(payload_size)
-      #bytes_left = gas_call(GAS_GET_PAYLOAD, @c_obj, buf, payload_size)
-      #fail GasError, 'did not consume all payload bytes' unless bytes_left.zero?
-      #return buf.to_str
-
       payload = @c_obj[:payload]
       payload.size = @c_obj[:payload_size]
       return payload.to_str
