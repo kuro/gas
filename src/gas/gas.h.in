@@ -9,6 +9,10 @@
 
 #cmakedefine GAS_DEBUG 1
 
+#cmakedefine UNIX
+#cmakedefine MSVC
+#cmakedefine MINGW
+
 #cmakedefine HAVE_BYTESWAP_H 1
 #cmakedefine HAVE_STDINT_H 1
 #cmakedefine HAVE_ASSERT_H 1
@@ -16,7 +20,11 @@
 #define GAS_SIZEOF_VOID_P ${CMAKE_SIZEOF_VOID_P}
 #define GAS_BIG_ENDIAN ${BIG_ENDIAN}
 
-#include <gas/tree.h>
+#define GAS_OK 0
+#define GAS_ERR_INVALID_PARAM  -1
+#define GAS_ERR_FILE_NOT_FOUND -2
+#define GAS_ERR_FILE_EOF -3
+#define GAS_ERR_UNKNOWN -4
 
 #endif  /* GAS_GAS_H defined */
 

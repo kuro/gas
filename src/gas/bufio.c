@@ -7,7 +7,7 @@
  * However, the sanity checks require review.
  */
 
-#include <gas/gas.h>
+#include <gas/bufio.h>
 #include <gas/ntstring.h>
 
 #include <string.h>

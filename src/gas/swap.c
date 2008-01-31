@@ -15,7 +15,7 @@
 
 int gas_swap (void *buf, size_t stride, size_t bufsize)
 {
-    int count = bufsize / stride;
+    GASunum count = bufsize / stride;
     GASunum i;
 
     if ((bufsize % stride) != 0) {

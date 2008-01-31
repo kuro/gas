@@ -7,12 +7,9 @@
 #ifndef GAS_SWAP_H
 #define GAS_SWAP_H
 
-#include <gas/gas.h>
+#include <gas/types.h>
 
-#include <stdlib.h>
-#include <stdint.h>
-
-#if HAVE_BYTESWAP_H
+#ifdef HAVE_BYTESWAP_H
 #include <byteswap.h>
 #define swap16 bswap_16
 #define swap32 bswap_32
@@ -49,13 +46,15 @@
 
 #endif
 
-extern inline float swapf(float fin)
+#if defined(UNIX) || defined(__cplusplus)
+static inline float swapf(float fin)
 {
     uint32_t tmp = swap32(*(uint32_t*)&fin);
     return *(float*)&tmp;
 }
+#endif
 
-#if IS_BIG_ENDIAN
+#if GAS_BIG_ENDIAN
 # define ntohs(x)       (x)
 # define ntohl(x)       (x)
 # define ntohf(x)       (x)

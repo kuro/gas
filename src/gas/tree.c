@@ -11,7 +11,7 @@
  * - @ref parser
  */
 
-#include <gas/gas.h>
+#include <gas/tree.h>
 
 #include <string.h>
 #include <stdio.h>

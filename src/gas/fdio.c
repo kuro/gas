@@ -6,12 +6,16 @@
  */
 
 #include <gas/gas.h>
+#include <gas/fdio.h>
 
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 #include <errno.h>
+
+#if defined(UNIX) || defined(MINGW)
 #include <unistd.h>
+#endif
 
 /* gas_write_encoded_num_fd() {{{*/
 void gas_write_encoded_num_fd (int fd, GASunum value)

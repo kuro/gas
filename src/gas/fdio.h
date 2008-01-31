@@ -8,7 +8,7 @@
 #define GAS_FDIO_H
 
 
-#include <gas/gas.h>
+#include <gas/tree.h>
 
 #ifdef __cplusplus
 extern "C"

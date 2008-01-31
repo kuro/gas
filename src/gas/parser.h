@@ -8,6 +8,7 @@
 #define GAS_PARSER_H
 
 #include <gas/context.h>
+#include <gas/tree.h>
 
 #ifdef __cplusplus
 extern "C"

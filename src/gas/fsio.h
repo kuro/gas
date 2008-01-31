@@ -8,7 +8,7 @@
 #define GAS_FSIO_H
 
 
-#include <gas/gas.h>
+#include <gas/tree.h>
 #include <stdio.h>
 
 #ifdef __cplusplus

@@ -67,8 +67,8 @@
  * gas_parser::on_pop_chunk.
  */
 
-#include "parser.h"
-#include "ntstring.h"
+#include <gas/parser.h>
+#include <gas/ntstring.h>
 
 #include <string.h>
 #include <stdio.h>

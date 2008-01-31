@@ -7,7 +7,7 @@
 #ifndef GAS_SESSION_H
 #define GAS_SESSION_H
 
-#include <gas/gas.h>
+#include <gas/types.h>
 
 #ifdef __cplusplus
 extern "C"

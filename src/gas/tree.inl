@@ -58,7 +58,7 @@ inline GASvoid Chunk::add_child (Chunk* child)
 template<typename V>
 inline GASvoid Chunk::set_attribute (const GASchar* key, const V& val)
 {
-    gas_set_attribute(this, strlen(key), key, sizeof(V), &val);
+    gas_set_attribute(this, key, strlen(key), &val, sizeof(V));
 }
 
 template<typename V>

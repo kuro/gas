@@ -7,7 +7,7 @@
 #ifndef GAS_BUFIO_H
 #define GAS_BUFIO_H
 
-#include <gas/gas.h>
+#include <gas/tree.h>
 
 #ifdef __cplusplus
 extern "C"

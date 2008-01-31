@@ -7,10 +7,17 @@
 #ifndef GAS_TYPES_H
 #define GAS_TYPES_H
 
+#include <gas/gas.h>
+
 #include <stdlib.h>
 
-#if HAVE_STDINT_H
+#ifdef HAVE_STDINT_H
 #include <stdint.h>
+#else
+#ifdef MSVC
+typedef short uint16_t;
+typedef int uint32_t;
+#endif
 #endif
 
 typedef unsigned long int GASunum;
