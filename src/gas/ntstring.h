@@ -35,7 +35,7 @@ GASvoid gas_set_attribute_s (chunk* c,
                              const GASvoid *value, GASunum value_size);
 GASvoid gas_set_attribute_ss(chunk* c, const GASchar *key, const GASchar *value);
 
-int gas_get_attribute_s (chunk* c, const GASchar* key,
+GASnum gas_get_attribute_s (chunk* c, const GASchar* key,
                          GASvoid* value, GASunum limit);
 GASchar* gas_get_attribute_ss (chunk* c, const GASchar* key);
 

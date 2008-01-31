@@ -9,12 +9,6 @@
 
 #include <gas/gas.h>
 
-#define GAS_OK 0
-#define GAS_ERR_INVALID_PARAM  -1
-#define GAS_ERR_FILE_NOT_FOUND -2
-#define GAS_ERR_FILE_EOF -3
-#define GAS_ERR_UNKNOWN -4
-
 #ifdef __cplusplus
 extern "C"
 {

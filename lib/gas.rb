@@ -67,6 +67,8 @@ module Gas
     gas_update 0P
     gas_write_buf LPP
     gas_total_size LP
+    gas_delete_attribute_at LPL
+    gas_delete_child_at LPL
     /
     function_map = Hash[*function_map]
     function_map.each do |func, sig|
@@ -250,6 +252,10 @@ module Gas
         yield(key.to_str, value.to_str)
       end
     end
+    def delete_attribute_at (index)
+      status = gas_call(GAS_DELETE_ATTRIBUTE_AT, @c_obj, index)
+      raise GasError, 'invalid parameter' if status != 0
+    end
     # NOTE: read only
     def attributes
       @attributes = Hash.new
@@ -308,6 +314,10 @@ module Gas
         add_child(child)
       end
       self
+    end
+    def delete_child_at (index)
+      status = gas_call(GAS_DELETE_CHILD_AT, @c_obj, index)
+      raise GasError, 'invalid parameter' if status != 0
     end
     # NOTE: read only
     def children

@@ -35,13 +35,13 @@ void test001 (void)
     gas_update(root);
     gas_print(root);
 
-    GASunum len;
+    GASnum len;
     uint32_t num_out;
     char c[1024];
     char *c_out;
     memset(c, 0, sizeof(c));
     c[64] = 0;
-    gas_get_attribute_s(root, "class", &len, sizeof(c));
+    len = gas_get_attribute_s(root, "class", &c, sizeof(c));
     printf("class was %ld bytes and \"%s\"\n", len, c);
     c_out = gas_get_attribute_ss(root, "class");
     printf("class was again %ld bytes and \"%s\"\n", len, c_out);
@@ -52,9 +52,76 @@ void test001 (void)
     gas_destroy(root);
 }
 
+void test002 (void)
+{
+    chunk* message = gas_new_named("message");
+    gas_set_attribute_ss(message, "reason", "because i can");
+    gas_set_attribute_ss(message, "project", "GekkoWare");
+    gas_set_attribute_ss(message, "name", "Roger Smith");
+    gas_set_attribute_ss(message, "verdict", "CAST IN THE NAME OF GOD YE NOT GUILTY");
+    gas_set_payload(message, "hello world", strlen("hello world"));
+
+    gas_print(message);
+    printf("\n");
+
+    gas_delete_attribute_at(message, 0);
+    gas_print(message);
+    printf("\n");
+
+    gas_delete_attribute_at(message, 3);
+    gas_print(message);
+    printf("\n");
+
+    gas_delete_attribute_at(message, 2);
+    gas_print(message);
+    printf("\n");
+
+    gas_destroy(message);
+}
+
+void test003 (void)
+{
+    chunk* root = gas_new_named("root");
+    gas_add_child(root, gas_new_named("child0"));
+    gas_add_child(root, gas_new_named("child1"));
+    gas_add_child(root, gas_new_named("child2"));
+    gas_add_child(root, gas_new_named("child3"));
+    gas_add_child(root, gas_new_named("child4"));
+    gas_add_child(root, gas_new_named("child5"));
+    gas_add_child(root, gas_new_named("child6"));
+    gas_add_child(root, gas_new_named("child7"));
+
+    gas_print(root);
+    printf("\n");
+
+    gas_delete_child_at(root, 0);
+    gas_print(root);
+    printf("\n");
+
+    gas_delete_child_at(root, 2);
+    gas_print(root);
+    printf("\n");
+
+    gas_delete_child_at(root, 5);
+    gas_print(root);
+    printf("\n");
+
+    int status;
+    do { 
+        status = gas_delete_child_at(root, 0);
+    } while (status == GAS_OK);
+    gas_print(root);
+    printf("\n");
+
+    gas_destroy(root);
+}
+
+
 int main (void)
 {
     test001();
+    //test002();
+    //test003();
 
     return 0;
 }

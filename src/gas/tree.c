@@ -175,16 +175,25 @@ GASunum gas_id_size (chunk* c)
 #define min(a, b) (a<b?a:b)
 /* gas_get_id() {{{*/
 /**
- * @returns The number of bytes remaining.
+ * @returns The number of bytes fetched.
  * @todo add sanity checking
  */
 GASnum gas_get_id (chunk* c, GASvoid* id, GASunum limit)
 {
+#if 0
     GASunum count;
 
     count = min(limit, c->id_size);
     memcpy(((GASubyte*)id), c->id, count);
     return c->id_size - limit;
+#else
+    if (c->id_size < limit) {
+        return GAS_ERR_INVALID_PARAM;
+    }
+
+    memcpy(((GASubyte*)id), c->id, c->id_size);
+    return c->id_size;
+#endif
 }
 /*}}}*/
 /*@}*/
@@ -257,12 +266,14 @@ GASnum gas_attribute_value_size (chunk* c, GASunum index)
 /* gas_get_attribute() {{{*/
 /**
  * @note This method does not allocate or copy value data.
- * @returns bytes remaining
+ * @returns bytes fetched
  */
 GASnum gas_get_attribute (chunk* c, GASunum index,
                           GASvoid* value, GASunum limit)
 {
     attribute* a;
+
+#if 0
     GASunum count;
 
     if (index >= c->nb_attributes) {
@@ -273,6 +284,20 @@ GASnum gas_get_attribute (chunk* c, GASunum index,
     count = min(limit, a->value_size);
     memcpy(((GASubyte*)value), a->value, count);
     return a->value_size - limit;
+#else
+
+    if (index >= c->nb_attributes) {
+        return -1;
+    }
+
+    if (a->value_size < limit) {
+        return GAS_ERR_INVALID_PARAM;
+    }
+
+    a = &c->attributes[index];
+    memcpy(((GASubyte*)value), a->value, a->value_size);
+    return a->value_size;
+#endif
 }
 /*}}}*/
 /* gas_has_attribute() {{{*/
@@ -281,6 +306,23 @@ GASbool gas_has_attribute (chunk* c, GASvoid* key, GASunum key_size)
     return gas_index_of_attribute(c, key, key_size) == -1 ? 0 : 1;
 }
 /*}}}*/
+GASnum gas_delete_attribute_at (chunk* c, GASunum index)
+{
+    int trailing = 0;
+    if (index >= c->nb_attributes) {
+        return GAS_ERR_INVALID_PARAM;
+    }
+    attribute *a = &c->attributes[index];
+    free(a->value);
+    free(a->key);
+    c->nb_attributes--;
+    trailing = c->nb_attributes - index;
+    if (trailing != 0) {
+        memmove(&c->attributes[index], &c->attributes[index+1],
+                trailing * sizeof(attribute));
+    }
+    return GAS_OK;
+}
 /*@}*/
 
 /** @name payload access */
@@ -299,16 +341,25 @@ GASunum gas_payload_size (chunk* c)
 /*}}}*/
 /* gas_get_payload() {{{*/
 /**
- * @returns The number of bytes remaining.
+ * @returns The number of bytes fetched.
  * @todo add sanity checking
  */
 GASunum gas_get_payload (chunk* c, GASvoid* payload, GASunum limit)
 {
+#if 0
     GASunum count;
 
     count = min(limit, c->payload_size);
     memcpy(((GASubyte*)payload), c->payload, count);
     return c->payload_size - limit;
+#else
+    if (c->payload_size < limit) {
+        return GAS_ERR_INVALID_PARAM;
+    }
+
+    memcpy(((GASubyte*)payload), c->payload, c->payload_size);
+    return c->payload_size;
+#endif
 }
 /*}}}*/
 /*@}*/
@@ -351,6 +402,21 @@ chunk* gas_get_child_at (chunk* c, GASunum index)
     return c->children[index];
 }
 /*}}}*/
+GASnum gas_delete_child_at (chunk* c, GASunum index)
+{
+    int trailing = 0;
+    if (index >= c->nb_children) {
+        return GAS_ERR_INVALID_PARAM;
+    }
+    gas_destroy(c->children[index]);
+    c->nb_children--;
+    trailing = c->nb_children - index;
+    if (trailing != 0) {
+        memmove(&c->children[index], &c->children[index+1],
+                trailing * sizeof(chunk*));
+    }
+    return GAS_OK;
+}
 /*@}*/
 
 /** @name management */

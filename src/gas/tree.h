@@ -47,6 +47,8 @@ GASvoid gas_set_attribute (chunk* c,
 GASbool gas_has_attribute (chunk* c, GASvoid* key, GASunum key_size);
 GASnum gas_attribute_value_size (chunk* c, GASunum index);
 GASnum gas_get_attribute (chunk* c, GASunum index, GASvoid* value, GASunum limit);
+GASnum gas_delete_attribute_at (chunk* c, GASunum index);
+GASnum gas_delete_child_at (chunk* c, GASunum index);
 /*@}*/
 /** @defgroup payload */
 /*@{*/

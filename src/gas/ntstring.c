@@ -71,7 +71,7 @@ GASvoid gas_set_attribute_ss(chunk* c, const GASchar *key, const GASchar *value)
  *
  * @returns status
  */
-int gas_get_attribute_s (chunk* c, const GASchar* key,
+GASnum gas_get_attribute_s (chunk* c, const GASchar* key,
                          GASvoid* value, GASunum limit)
 {
     return gas_get_attribute(c, gas_index_of_attribute(c, key, strlen(key)),
@@ -107,7 +107,7 @@ GASchar* gas_get_attribute_ss (chunk* c, const GASchar* key)
     }
 
     status = gas_get_attribute(c, index, retval, len);
-    if (status != 0) {
+    if (status != len) {
         free(retval);
         return NULL;
     }
