@@ -1,6 +1,10 @@
 
 find_package(Doxygen)
 
+if (NOT WIN32)
+    set(DEST share/)
+endif ()
+
 if (DOT)
     set(HAVE_DOT "YES")
 else ()
@@ -37,7 +41,7 @@ else ()
             add_dependencies(pdf ${src}_pdf)
         endif()
         install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${src}
-            DESTINATION share/doc)
+            DESTINATION ${DEST}doc)
     endforeach()
 
 endif ()
@@ -49,7 +53,7 @@ if (RDOC)
         )
     file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/rdoc)
     install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/rdoc DESTINATION
-        share/doc/gas/rdoc
+        ${DEST}doc/gas/rdoc
         )
     add_dependencies(doc rdoc)
 endif ()

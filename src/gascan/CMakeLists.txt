@@ -1,18 +1,9 @@
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/..)
 
-#find_package(EXPAT)
 find_package(Qt4 REQUIRED)
-include_directories(${EXPAT_INCLUDE_PATH})
 
 set(sources test.cpp main.cpp gas2c.cpp)
-
-#if (EXPAT_FOUND)
-#    add_definitions(-DHAVE_EXPAT=1)
-#    set(sources ${sources} xml2gas.cpp)
-#else ()
-#    add_definitions(-DHAVE_EXPAT=0)
-#endif ()
 
 if (QT4_FOUND)
     include_directories(
@@ -39,7 +30,7 @@ add_executable(gascan ${sources})
 
 target_link_libraries(gascan
     gas
-    ${EXPAT_LIBRARIES}
     )
 
-install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/gascan DESTINATION bin)
+#install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/gascan${CMAKE_EXECUTABLE_SUFFIX} DESTINATION bin)
+install(TARGETS gascan RUNTIME DESTINATION bin)

@@ -34,5 +34,13 @@ set(sources
 
 add_library(gas SHARED ${headers} ${sources})
 
-install(TARGETS gas LIBRARY DESTINATION lib)
 install(FILES ${headers} DESTINATION include/gas)
+
+if (WIN32)
+    install(TARGETS gas
+        RUNTIME DESTINATION bin
+        ARCHIVE DESTINATION lib
+        )
+else ()
+    install(TARGETS gas LIBRARY DESTINATION lib)
+endif ()
