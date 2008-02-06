@@ -30,7 +30,7 @@ subdirs(src test doc)
 # ctags {{{
 find_program(CTAGS NAMES exuberant-ctags ctags)
 if (CTAGS)
-    add_custom_target(tags ALL ${CTAGS} --recurse --extra=fq ${CMAKE_CURRENT_SOURCE_DIR})
+    add_custom_target(tags ALL ${CTAGS} --recurse --extra=fq --langmap=c++:.inl.h.cpp ${CMAKE_CURRENT_SOURCE_DIR})
 endif ()
 #}}}
 
