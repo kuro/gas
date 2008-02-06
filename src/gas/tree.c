@@ -310,10 +310,11 @@ GASbool gas_has_attribute (chunk* c, GASvoid* key, GASunum key_size)
 GASnum gas_delete_attribute_at (chunk* c, GASunum index)
 {
     int trailing = 0;
+    attribute *a = NULL;
     if (index >= c->nb_attributes) {
         return GAS_ERR_INVALID_PARAM;
     }
-    attribute *a = &c->attributes[index];
+    a = &c->attributes[index];
     free(a->value);
     free(a->key);
     c->nb_attributes--;
