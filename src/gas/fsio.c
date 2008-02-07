@@ -124,11 +124,11 @@ GASunum gas_read_encoded_num_fs (FILE* fs)
 /*        printf("byte %x\n", byte);*/
         if (bytes_read == 0) {
 /*            fprintf(stderr, "eof\n");*/
-            abort();
+            return 0;
         }
         if (bytes_read != 1) {
-            fprintf(stderr, "error: %d: %s\n", errno, strerror(errno));
-            abort();
+/*            fprintf(stderr, "error: %d: %s\n", errno, strerror(errno));*/
+            return 0;
         }
         if (byte != 0x00)
             break;
@@ -153,12 +153,12 @@ GASunum gas_read_encoded_num_fs (FILE* fs)
     for (i = 0; i < additional_bytes_to_read; i++) {
         bytes_read = fread(&byte, 1, 1, fs);
         if (bytes_read == 0) {
-            fprintf(stderr, "eof\n");
-            abort();
+/*            fprintf(stderr, "eof\n");*/
+            return 0;
         }
         if (bytes_read != 1) {
-            fprintf(stderr, "error: %d: %s\n", errno, strerror(errno));
-            abort();
+/*            fprintf(stderr, "error: %d: %s\n", errno, strerror(errno));*/
+            return 0;
         }
         retval = (retval << 8) | byte;
     }

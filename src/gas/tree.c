@@ -111,7 +111,6 @@ chunk* gas_new (const GASvoid *id, GASunum id_size)
 
     c = malloc(sizeof(chunk));
     assert(c != NULL);
-
     memset(c, 0, sizeof(chunk));
 
     if (id) {
@@ -277,6 +276,10 @@ GASnum gas_get_attribute (chunk* c, GASunum index,
 
 #if 0
     GASunum count;
+
+//    if (index == -1) {
+//        return -1;
+//    }
 
     if (index >= c->nb_attributes) {
         return -1;

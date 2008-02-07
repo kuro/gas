@@ -89,8 +89,8 @@ GASunum gas_read_encoded_num_parser (gas_parser *p)
         p->context->read(p->handle, &byte, 1, &bytes_read,
                                   p->context->user_data);
         if (bytes_read != 1) {
-            fprintf(stderr, "error: %s\n", strerror(errno));
-            abort();
+/*            fprintf(stderr, "error: %s\n", strerror(errno));*/
+            return 0;
         }
         if (byte != 0x00)
             break;
@@ -113,8 +113,8 @@ GASunum gas_read_encoded_num_parser (gas_parser *p)
         p->context->read(p->handle, &byte, 1, &bytes_read,
                                   p->context->user_data);
         if (bytes_read != 1) {
-            fprintf(stderr, "error: %s\n", strerror(errno));
-            abort();
+/*            fprintf(stderr, "error: %s\n", strerror(errno));*/
+            return 0;
         }
         retval = (retval << 8) | byte;
     }
