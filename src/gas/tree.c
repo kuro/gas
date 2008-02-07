@@ -294,7 +294,7 @@ GASnum gas_get_attribute (chunk* c, GASunum index,
         return -1;
     }
 
-    if (a->value_size < limit) {
+    if (a->value_size > limit) {
         return GAS_ERR_INVALID_PARAM;
     }
 
