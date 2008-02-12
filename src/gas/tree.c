@@ -349,7 +349,7 @@ GASunum gas_payload_size (chunk* c)
  * @returns The number of bytes fetched.
  * @todo add sanity checking
  */
-GASunum gas_get_payload (chunk* c, GASvoid* payload, GASunum limit)
+GASnum gas_get_payload (chunk* c, GASvoid* payload, GASunum limit)
 {
 #if 0
     GASunum count;
