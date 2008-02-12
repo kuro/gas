@@ -76,7 +76,7 @@ GASnum gas_get_attribute_s (chunk* c, const GASchar* key,
 {
     GASnum index = gas_index_of_attribute(c, key, strlen(key));
     if (index == -1) {
-        return -1;
+        return -2;
     }
     return gas_get_attribute(c, index, value, limit);
 }
