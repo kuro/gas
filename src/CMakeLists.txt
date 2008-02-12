@@ -9,7 +9,7 @@ if (NOT MSVC)
 endif ()
 
 subdirs(gas)
-if (NOT MSVC)
+if (HAVE_QT)
     subdirs(gascan)
 endif ()
 

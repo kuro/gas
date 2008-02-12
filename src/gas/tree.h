@@ -53,7 +53,7 @@ GASnum gas_delete_child_at (chunk* c, GASunum index);
 /** @defgroup payload */
 /*@{*/
 GASvoid gas_set_payload (chunk* c, const GASvoid *payload, GASunum payload_size);
-GASunum gas_get_payload (chunk* c, GASvoid* payload, GASunum limit);
+GASnum gas_get_payload (chunk* c, GASvoid* payload, GASunum limit);
 /*@}*/
 /** @defgroup children */
 /*@{*/

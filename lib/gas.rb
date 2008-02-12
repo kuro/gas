@@ -284,8 +284,8 @@ module Gas
       return @c_obj[:nb_children]
     end
     def child_at (index)
-      #o = gas_call(GAS_GET_CHILD_AT, @c_obj, index)
-      o = (@c_obj[:children] + (index * DL.sizeof(CHUNK_STRUCT))).ptr
+      o = gas_call(GAS_GET_CHILD_AT, @c_obj, index)
+      #o = (@c_obj[:children] + (index * DL.sizeof(CHUNK_STRUCT))).ptr
       return Chunk.new(o)
     end
     def each_child
