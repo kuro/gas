@@ -2,7 +2,9 @@ set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS on)
 
 project(Gas)
 
-add_definitions(-Wall)
+if (CMAKE_COMPILER_IS_GNUCC)
+    add_definitions(-Wall)
+endif ()
 
 include(CheckIncludeFiles)
 CHECK_INCLUDE_FILES(byteswap.h HAVE_BYTESWAP_H)

@@ -4,7 +4,7 @@ include_directories(
     ${CMAKE_CURRENT_BINARY_DIR}
     )
 
-if (NOT MSVC)
+if (CMAKE_COMPILER_IS_GNUCC)
     add_definitions(-Werror)
 endif ()
 
