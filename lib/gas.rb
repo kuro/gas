@@ -1,370 +1,222 @@
 
-require 'dl'
-require 'dl/import'
-require 'pp'
-
 module Gas
 
-  CHUNK_STRUCT = 'PLLPLPLPLP'
-  ATTRIBUTE_STRUCT = 'LPLP'
+  def encode_num (value)
+    buf = String.new
 
-  class GasError < RuntimeError
-  end
-  class AttributeNotFoundError < GasError
+    coded_length = 1
+    loop do
+      break if value < ((1 << (7*coded_length))-1)
+      #break if ((coded_length * 7) > (4 * 8))
+      coded_length += 1
+    end
+
+    zero_count = coded_length - 1
+    zero_bytes = zero_count / 8
+    zero_bits = zero_count % 8
+
+    zero_bytes.times do
+      buf << "\0"
+    end
+
+    mask = 0x80
+    mask >>= zero_bits
+
+    # first masked byte
+  #  byte = if coded_length <= 4
+  #           mask | ((value >> ((coded_length - zero_bytes - 1) * 8)) & 0xff)
+  #         else
+  #           mask
+  #         end
+    byte = mask | ((value >> ((coded_length - zero_bytes - 1) * 8)) & 0xff)
+    buf << byte
+
+    # remaining bytes
+    si = coded_length - 2 - zero_bytes
+    while si >= 0
+      byte = ((value >> (si * 8)) & 0xff)
+      buf << byte
+      si -= 1
+    end
+
+    return buf
   end
 
-  LIB = case RUBY_PLATFORM
-        when /linux/
-          DL::dlopen('libgas.so')
-        when /mswin/
-          DL::dlopen('libgas.dll')
-        else
-          raise GasError, 'unsupported platform'
-        end
+  def decode_num (io)
+    byte = nil
 
-  def gas_call (target, *args)
-    ret, rs = target.call(*args)
-    return ret
-  end
+    zero_byte_count = 0
+    loop do
+      byte = io.readchar
+      break if byte != 0x00
+      zero_byte_count += 1
+    end
 
-  function_map = %w/
-    gas_read_buf PSLP
-    gas_destroy 0P
-    /
-  function_map = Hash[*function_map]
-  function_map.each do |func, sig|
-    self.const_set func.upcase, LIB[func, sig]
-  end
-  def self.parse_buffer (buf)
-    ptr = GAS_READ_BUF.call(buf, buf.size, nil).first
-    # ptr is the root, initialize does not set destroy for pointers, so set here
-    ptr.free = GAS_DESTROY
-    return Chunk.new(ptr)
+    first_bit_set = nil
+    7.downto(0) do |first_bit_set|
+      break unless byte[first_bit_set].zero?
+    end
+
+    mask = 0x0
+    0.upto(first_bit_set - 1) do |i|
+      mask |= (1 << i)
+    end
+
+    additional_bytes_to_read = (7 - first_bit_set) + (7 * zero_byte_count)
+
+    retval = mask & byte
+    additional_bytes_to_read.times do
+      byte = io.readchar
+      retval = (retval << 8) | byte
+    end
+    return retval
   end
 
   class Chunk
     include Gas
-    function_map = %w/
-    gas_new PPL
-    gas_new_named PS
-    gas_set_id 0PPL
-    gas_read_fd PL
-    gas_print 0P
-    gas_id_size LP
-    gas_get_id LPPL
-    gas_get_parent PP
-    gas_nb_children LP
-    gas_get_child_at PPL
-    gas_add_child 0PP
-    gas_set_attribute 0PPLPL
-    gas_get_attribute LPLPL
-    gas_set_id 0PPL
-    gas_set_payload 0PPL
-    gas_index_of_attribute LPPL
-    gas_attribute_value_size LPL
-    gas_payload_size LP
-    gas_get_payload LPPL
-    gas_update 0P
-    gas_write_buf LPP
-    gas_total_size LP
-    gas_delete_attribute_at LPL
-    gas_delete_child_at LPL
-    /
-    function_map = Hash[*function_map]
-    function_map.each do |func, sig|
-      self.const_set func.upcase, LIB[func, sig]
-    end
 
-    def describe_chunk_struct (ptr_data)
-      ptr_data.struct!(
-        CHUNK_STRUCT,
-        :parent, :size,
-        :id_size, :id,
-        :nb_attributes, :attributes,
-        :payload_size, :payload,
-        :nb_children, :children
-      )
-#      class << ptr_data
-#        def struct_size
-#          DL.sizeof(CHUNK_STRUCT)
-#        end
-#      end
-    end
-    def describe_attribute_chunk (ptr_data)
-      ptr_data.struct!(
-        ATTRIBUTE_STRUCT,
-        :key_size, :key,
-        :value_size, :value
-      )
-#      class << ptr_data
-#        def struct_size
-#          DL.sizeof(ATTRIBUTE_STRUCT)
-#        end
-#      end
-    end
+    attr_accessor :parent, :size, :id, :attributes, :payload, :children
 
     def initialize (arg = nil)
+      @parent = nil
+      @size = 0
+      @id = String.new
+      @attributes = Hash.new
+      @payload = String.new
+      @children = Array.new
+
       case arg
       when nil
-        @c_obj = gas_call(GAS_NEW, nil, 0)
-      when DL::PtrData
-        @c_obj = arg
-      when String
-        @c_obj = gas_call(GAS_NEW_NAMED, arg)
-      when IO
-        @c_obj = gas_call(GAS_READ_FD, arg.fileno)
-        if @c_obj.nil?
-          raise GasError, 'error reading from fd, io is probably empty'
-        end
-      when Integer
-        @c_obj = gas_call(GAS_READ_FD, arg)
+        # do nothing
       when Hash
-        @c_obj = gas_call(GAS_NEW, nil, 0)
         arg.each do |key, val|
           skey = (Fixnum === key and (0..255) === key) ? key.chr : key.to_s
           sval = (Fixnum === val and (0..255) === val) ? val.chr : val.to_s
           case skey
           when 'id'
-            set_id sval
+            @id = sval
           when 'payload'
-            set_payload sval
+            @payload = sval
           else
-            self[skey] = sval
+            @attributes[skey] = sval
           end
         end
-      when nil
-        @c_obj = gas_call(GAS_NEW, 0, nil)
+      when IO
+        read(arg)
       else
-        raise GasError, "invalid arg type: #{arg.type}"
-      end
-
-      describe_chunk_struct(@c_obj)
-
-      # pointers are created internally, and do not need to be destroyed, i
-      # think
-      @c_obj.free = GAS_DESTROY unless DL::PtrData === arg
-
-      if block_given?
-        yield self
+        fail 'invalid type'
       end
     end
-    # do not call the manual destory on elements belonging to a tree other than
-    # the root node
-    def destroy
-      unless @c_obj.nil?
-        if not parent.nil?
-          @c_obj.free = nil
-          raise GasError, 'destroy called on chunk with a valid parent'
-        end
-        @c_obj.free = nil
-        gas_call(GAS_DESTROY, @c_obj)
-        @c_obj = nil
-      end
-      nil
-    end
-    def update
-      gas_call(GAS_UPDATE, @c_obj)
-      self
-    end
-    def parent
-      #o = gas_call(GAS_GET_PARENT, @c_obj)
-      o = @c_obj[:parent]
-      return o.nil? ? nil : Chunk.new(o)
-    end
-    def print
-      gas_call(GAS_PRINT, @c_obj)
-      self
-    end
-    def size
-      return @c_obj[:size]
-    end
-    def total_size
-      return gas_call(GAS_TOTAL_SIZE, @c_obj)
-    end
-
-    def id_size
-      #return gas_call(GAS_ID_SIZE, @c_obj)
-      return @c_obj[:id_size]
-    end
-    def id
-      id = @c_obj[:id]
-      id.size = @c_obj[:id_size]
-      return id.to_s
-    end
-    def set_id (id)
-      sid = (Fixnum === id and (0..255) === id) ? id.chr : id.to_s
-      gas_call(GAS_SET_ID, @c_obj, sid, sid.size)
-      self
-    end
-    def id= (str)
-      return set_id(str)
-    end
-
-    def index_of_attribute (key)
-      skey = (Fixnum === key and (0..255) === key) ? key.chr : key.to_s
-      retval = gas_call(GAS_INDEX_OF_ATTRIBUTE, @c_obj, skey, skey.size)
-      return retval
-    end
-    def has_attribute (key)
-      return index_of_attribute(key) >= 0
-    end
-    def attribute_value_size (index)
-      return gas_call(GAS_ATTRIBUTE_VALUE_SIZE, @c_obj, index)
-    end
-    def get_attribute (key)
-      skey = (Fixnum === key and (0..255) === key) ? key.chr : key.to_s
-      index = index_of_attribute(skey)
-      if index < 0
-        raise AttributeNotFoundError, "attribute \"#{skey}\" not found"
-      end
-      value_size = attribute_value_size(index)
-
-      buf = DL.malloc(value_size)
-      bytes_read = gas_call(GAS_GET_ATTRIBUTE, @c_obj, index, buf, value_size)
-
-      raise GasError, 'error getting attribute' unless bytes_read == value_size
-      return buf.to_str
-    end
-    def set_attribute (key, val)
-      skey = (Fixnum === key and (0..255) === key) ? key.chr : key.to_s
-      sval = (Fixnum === val and (0..255) === val) ? val.chr : val.to_s
-      gas_call(GAS_SET_ATTRIBUTE, @c_obj, skey, skey.size, sval, sval.size)
-      self
-    end
-    def nb_attributes
-      @c_obj[:nb_attributes]
-    end
-    def each_attribute
-      nb_attributes.times do |i|
-        a = @c_obj[:attributes] + (i * DL.sizeof(ATTRIBUTE_STRUCT))
-        describe_attribute_chunk(a)
-
-        key = a[:key]
-        key.size = a[:key_size]
-        value = a[:value]
-        value.size = a[:value_size]
-
-        yield(key.to_str, value.to_str)
-      end
-    end
-    def delete_attribute_at (index)
-      status = gas_call(GAS_DELETE_ATTRIBUTE_AT, @c_obj, index)
-      raise GasError, 'invalid parameter' if status != 0
-    end
-    # NOTE: read only
-    def attributes
+    def read (io)
+      @size = decode_num(io)
+      id_size = decode_num(io)
+      @id = io.read(id_size)
+      nb_attributes = decode_num(io)
       @attributes = Hash.new
-      each_attribute do |key, value|
+      nb_attributes.times do
+        key_size = decode_num(io)
+        key = io.read(key_size)
+        value_size = decode_num(io)
+        value = io.read(value_size)
         @attributes[key] = value
       end
-      @attributes.freeze
-      return @attributes
-    end
-
-    def payload_size
-      #return gas_call(GAS_PAYLOAD_SIZE, @c_obj)
-      return @c_obj[:payload_size]
-    end
-    def payload
-      payload = @c_obj[:payload]
-      payload.size = @c_obj[:payload_size]
-      return payload.to_str
-    end
-    def set_payload (data)
-      sdata = (Fixnum === data and (0..255) === data) ? data.chr : data.to_s
-      gas_call(GAS_SET_PAYLOAD, @c_obj, sdata, sdata.size)
-      self
-    end
-    def payload= (data)
-      return set_payload(data)
-    end
-
-    def nb_children
-      #return gas_call(GAS_NB_CHILDREN, @c_obj)
-      return @c_obj[:nb_children]
-    end
-    def child_at (index)
-      o = gas_call(GAS_GET_CHILD_AT, @c_obj, index)
-      #o = (@c_obj[:children] + (index * DL.sizeof(CHUNK_STRUCT))).ptr
-      return Chunk.new(o)
-    end
-    def each_child
-      nb_children.times do |i|
-        yield child_at(i)
+      payload_size = decode_num(io)
+      @payload = io.read(payload_size)
+      nb_children = decode_num(io)
+      @children = Array.new
+      nb_children.times do
+        @children << Chunk.new(io)
+        @children.last.parent = self
       end
-    end
-    def add_child (child)
-      other = child.instance_variable_get(:@c_obj)
-      gas_call(GAS_ADD_CHILD, @c_obj, other)
-      other.free = nil
-      self
-    end
-    def add_children (child_array)
-      child_array.each do |child|
-        add_child(child)
-      end
-      self
-    end
-    def delete_child_at (index)
-      status = gas_call(GAS_DELETE_CHILD_AT, @c_obj, index)
-      raise GasError, 'invalid parameter' if status != 0
-    end
-    # NOTE: read only
-    def children
-      a = Array.new
-      nb_children.times do |i|
-        a << child_at(i)
-      end
-      a.freeze
-      return a
-    end
-
-    # TODO this should not crash when the attribute is not found
-    def [] (key)
-      return get_attribute(key)
-    end
-    def []= (key, val)
-      return set_attribute(key, val)
-    end
-
-    def serialize
-      # TODO automatically update or not?
-      update
-      buf = DL.malloc(total_size)
-      offset = gas_call(GAS_WRITE_BUF, @c_obj, buf)
-      raise GasError, "gas_write_buf size != offset" unless total_size == offset
-      return buf.to_str
     end
     def write (io)
-      buf = serialize
-      io.write buf
-      # TODO what about the allocated data
+      io << encode_num(@size)
+      io << encode_num(id.size)
+      io << id
+      io << encode_num(@attributes.size)
+      @attributes.each do |key, value|
+        io << encode_num(key.size)
+        io << key
+        io << encode_num(value.size)
+        io << value
+      end
+      io << encode_num(@payload.size)
+      io << @payload
+      io << encode_num(@children.size)
+      @children.each do |child|
+        child.write(io)
+      end
+      io
+    end
+    def total_size
+      encode_num(@size).size + @size
+    end
+    def update
+      @size = 0
+      @size += encode_num(@id.size).size
+      @size += @id.size
+      @size += encode_num(@attributes.size).size
+      @attributes.each do |key, value|
+        @size += encode_num(key.size).size
+        @size += key.size
+        @size += encode_num(value.size).size
+        @size += value.size
+      end
+      @size += encode_num(@payload.size).size
+      @size += @payload.size
+      @size += encode_num(@children.size).size
+      @children.each do |child|
+        child.update
+        @size += encode_num(child.size).size
+        @size += child.size
+      end
+    end
+    def << (chunk)
+      @children << chunk
+    end
+    def [] (key)
+      skey = (Fixnum === key and (0..255) === key) ? key.chr : key.to_s
+
+      case skey
+      when 'id'
+        id
+      when 'payload'
+        payload
+      else
+        @attributes[skey]
+      end
+    end
+    def []= (key, val)
+      skey = (Fixnum === key and (0..255) === key) ? key.chr : key.to_s
+      sval = (Fixnum === val and (0..255) === val) ? val.chr : val.to_s
+      case skey
+      when 'id'
+        id = sval
+      when 'payload'
+        payload = sval
+      else
+        @attributes[skey] = sval
+      end
     end
     def method_missing (meth, *args)
       case meth.to_s
       when /=\Z/
         key = meth.to_s[0..-2]
         raise GasError, 'invalid arg count' unless args.size == 1
-        set_attribute(key, args.first)
+        self[key] = args.first
       else
-        # exception will propagate
-        return get_attribute(meth)
+        return self[meth]
       end
+      self
     end
-    def << (arg)
-      case arg
-      when Array
-        add_children arg
-        return self
-      when Chunk
-        add_child(arg)
-        #return arg
-        return self
-      else
-        raise GasError, 'invalid arg type'
-      end
-    end
-
 
   end # class Chunk
+
 end # module Gas
+
+class Fixnum
+  include Gas
+  def to_gas
+    encode_num(self)
+  end
+end
