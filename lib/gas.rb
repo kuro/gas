@@ -1,4 +1,3 @@
-
 module Gas
 
   def encode_num (value)
@@ -214,6 +213,36 @@ module Gas
         return self[meth]
       end
       self
+    end
+
+    def test (depth = 0)
+      pi = proc do |data|
+        print('    ' * depth)
+        puts data
+      end
+      pi.call '---'
+      pi.call "id: #{id}"
+      counter = 0
+      @attributes.each do |key, value|
+        pi.call "#{counter}: #{key.inspect} => #{value.inspect}"
+        counter += 1
+      end
+      tmp = payload#.strip
+      unless tmp.empty?
+        lines = tmp.split("\n")
+        #lines = lines.map {|l|l.strip}
+        m = lines.collect{|l|l.size}.max
+        m = m > 78 ? 78 : m
+        puts "+" << ('-' * m)
+        lines.each do |line|
+          puts "| " << line
+          #puts "| " << line.inspect[1..-2]
+        end
+        puts "+" << ('-' * m)
+      end
+      @children.each do |child|
+        child.test(depth+1)
+      end
     end
 
   end # class Chunk
