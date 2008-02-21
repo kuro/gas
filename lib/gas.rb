@@ -101,10 +101,10 @@ module Gas
             @attributes[skey] = sval
           end
         end
-      when IO
+      when IO, StringIO
         read(arg)
       else
-        fail 'invalid type'
+        fail "invalid type: #{arg.class}"
       end
     end
     def read (io)
@@ -170,6 +170,12 @@ module Gas
         @size += encode_num(child.size).size
         @size += child.size
       end
+    end
+    def serialize
+      sio = StringIO.new
+      write sio
+      sio.rewind
+      return sio.read
     end
     def << (chunk)
       @children << chunk
