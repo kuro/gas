@@ -106,7 +106,11 @@ module Gas
         fail "invalid type: #{arg.class}"
       end
     end
-    def read (io)
+    def parse (io)
+      if String === io
+        return parse(StringIO.new(io))
+      end
+
       @size = decode_num(io)
       id_size = decode_num(io)
       @id = io.read(id_size)
@@ -127,6 +131,7 @@ module Gas
         @children << Chunk.new(io)
         @children.last.parent = self
       end
+      self
     end
     def write (io)
       io << encode_num(@size)
