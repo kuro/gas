@@ -12,12 +12,14 @@
 #include <stdlib.h>
 
 #ifdef HAVE_STDINT_H
-#include <stdint.h>
+#  include <stdint.h>
 #else
-#ifdef MSVC
+#  ifdef MSVC
 typedef short uint16_t;
 typedef int uint32_t;
-#endif
+#  else
+#    error "unable to determine system type information"
+#  endif
 #endif
 
 typedef unsigned long int GASunum;

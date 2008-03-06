@@ -13,7 +13,7 @@
 #include <stdio.h>
 #include <errno.h>
 
-#if defined(UNIX) || defined(MINGW)
+#if HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 

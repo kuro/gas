@@ -32,15 +32,18 @@ set(sources
     writer.c
     )
 
-add_library(gas SHARED ${headers} ${sources})
+# use BUILD_SHARED_LIBS as necessary
+add_library(gas ${headers} ${sources})
 
-install(FILES ${headers} DESTINATION include/gas)
+if (ENABLE_INSTALLER)
+    install(FILES ${headers} DESTINATION include/gas)
 
-if (WIN32)
-    install(TARGETS gas
-        RUNTIME DESTINATION bin
-        ARCHIVE DESTINATION lib
-        )
-else ()
-    install(TARGETS gas LIBRARY DESTINATION lib)
+    if (WIN32)
+        install(TARGETS gas
+            RUNTIME DESTINATION bin
+            ARCHIVE DESTINATION lib
+            )
+    else ()
+        install(TARGETS gas LIBRARY DESTINATION lib)
+    endif ()
 endif ()

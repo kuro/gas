@@ -5,19 +5,30 @@ project(Gas)
 if (CMAKE_COMPILER_IS_GNUCC)
     add_definitions(-Wall)
     set(GAS_ENABLE_CPP 1)
+
+    set(BUILD_SHARED_LIBS ON)
 endif ()
 
 include(CheckIncludeFiles)
 CHECK_INCLUDE_FILES(byteswap.h HAVE_BYTESWAP_H)
 CHECK_INCLUDE_FILES(stdint.h HAVE_STDINT_H)
 CHECK_INCLUDE_FILES(assert.h HAVE_ASSERT_H)
+CHECK_INCLUDE_FILES(unistd.h HAVE_UNISTD_H)
 
-include(TestBigEndian)
-TEST_BIG_ENDIAN(BIG_ENDIAN)
+if (NOT ${BIG_ENDIAN})
+    include(TestBigEndian)
+    TEST_BIG_ENDIAN(BIG_ENDIAN)
+endif ()
 
 string(TOUPPER "${CMAKE_BUILD_TYPE}" tmp)
 if ("${tmp}" MATCHES "DEBUG")
     set(GAS_DEBUG 1)
+endif ()
+
+if (CMAKE_COMPILER_IS_GNUCC)
+    set(GAS_INLINE "inline")
+else ()
+    set(GAS_INLINE "")
 endif ()
 
 configure_file(

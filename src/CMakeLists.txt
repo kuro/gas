@@ -9,6 +9,7 @@ if (CMAKE_COMPILER_IS_GNUCC)
 endif ()
 
 subdirs(gas)
+
 if (HAVE_QT)
     subdirs(gascan)
 endif ()
