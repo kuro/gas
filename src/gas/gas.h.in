@@ -17,6 +17,8 @@
 #cmakedefine HAVE_STDINT_H 1
 #cmakedefine HAVE_ASSERT_H 1
 
+#cmakedefine GAS_ENABLE_CPP
+
 #define GAS_SIZEOF_VOID_P ${CMAKE_SIZEOF_VOID_P}
 #define GAS_BIG_ENDIAN ${BIG_ENDIAN}
 

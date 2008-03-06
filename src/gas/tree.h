@@ -103,7 +103,7 @@ struct Chunk
     GASunum nb_children;
     chunk** children;
 
-#ifdef __cplusplus
+#if defined(GAS_ENABLE_CPP) && defined(__cplusplus)
 public:
     /*static GASvoid* operator new (size_t size); */
     /*static GASvoid operator delete (GASvoid *p);*/
@@ -138,7 +138,7 @@ public:
 #endif
 };
 
-#ifdef __cplusplus
+#if defined(GAS_ENABLE_CPP) && defined(__cplusplus)
 #include <gas/tree.inl>
 #endif
 

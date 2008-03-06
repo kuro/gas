@@ -4,6 +4,7 @@ project(Gas)
 
 if (CMAKE_COMPILER_IS_GNUCC)
     add_definitions(-Wall)
+    set(GAS_ENABLE_CPP 1)
 endif ()
 
 include(CheckIncludeFiles)
@@ -24,10 +25,14 @@ configure_file(
     ${CMAKE_CURRENT_BINARY_DIR}/src/gas/gas.h
     )
 
-enable_testing()
-include(CPack)
+subdirs(src doc)
 
-subdirs(src test doc)
+#include(CPack)
+
+if (CMAKE_COMPILER_IS_GNUCC)
+    enable_testing()
+    subdirs(test)
+endif ()
 
 # ctags {{{
 find_program(CTAGS NAMES exuberant-ctags ctags)
