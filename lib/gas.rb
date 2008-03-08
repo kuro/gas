@@ -101,7 +101,7 @@ module Gas
           end
         end
       when IO, StringIO
-        read(arg)
+        parse(arg)
       else
         fail "invalid type: #{arg.class}"
       end

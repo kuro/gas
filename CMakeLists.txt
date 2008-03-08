@@ -2,6 +2,9 @@ set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS on)
 
 project(Gas)
 
+option(ENABLE_INSTALLER "Enable installer commands" OFF)
+option(ENABLE_TESTS "Enable test building" OFF)
+
 if (CMAKE_COMPILER_IS_GNUCC)
     add_definitions(-Wall)
     set(GAS_ENABLE_CPP 1)
@@ -38,9 +41,9 @@ configure_file(
 
 subdirs(src doc)
 
-#include(CPack)
+include(CPack)
 
-if (CMAKE_COMPILER_IS_GNUCC)
+if (ENABLE_TESTS)
     enable_testing()
     subdirs(test)
 endif ()

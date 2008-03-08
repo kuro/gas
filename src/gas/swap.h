@@ -7,6 +7,7 @@
 #ifndef GAS_SWAP_H
 #define GAS_SWAP_H
 
+#include <gas/gas.h>
 #include <gas/types.h>
 
 #ifdef HAVE_BYTESWAP_H
@@ -46,6 +47,10 @@
     )
 #endif
 
+#endif
+
+#ifndef GAS_INLINE
+#error "GAS_INLINE not defined"
 #endif
 
 GAS_INLINE float swapf(float fin)
