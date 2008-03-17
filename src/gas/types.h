@@ -22,8 +22,13 @@ typedef int uint32_t;
 #  endif
 #endif
 
+#if GAS_USE_LONG_TYPES
 typedef unsigned long int GASunum;
 typedef          long int GASnum;
+#else
+typedef unsigned int GASunum;
+typedef          int GASnum;
+#endif
 typedef unsigned char     GASubyte;
 typedef          char     GASchar;
 typedef int               GASenum;

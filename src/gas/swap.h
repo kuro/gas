@@ -10,6 +10,8 @@
 #include <gas/gas.h>
 #include <gas/types.h>
 
+GAS_INLINE float swapf(float fin);
+
 #ifdef HAVE_BYTESWAP_H
 
 #  include <byteswap.h>

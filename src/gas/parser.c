@@ -74,6 +74,10 @@
 #include <stdio.h>
 #include <errno.h>
 
+GASunum encoded_size (GASunum value);
+GASunum gas_read_encoded_num_parser (gas_parser *p);
+chunk* gas_read_parser (gas_parser *p);
+
 /* gas_read_encoded_num_parser() {{{*/
 GASunum gas_read_encoded_num_parser (gas_parser *p)
 {
@@ -132,7 +136,6 @@ GASunum gas_read_encoded_num_parser (gas_parser *p)
         ((GASubyte*)field)[field##_size] = 0;                                 \
     } while (0)
 
-GASunum encoded_size (GASunum value);
 
 /**
  * @brief Recursive context based gas parser.
@@ -146,6 +149,7 @@ chunk* gas_read_parser (gas_parser *p)
     chunk* c = gas_new(NULL, 0);
     unsigned int bytes_read;
     GASbool cont;
+    unsigned long jump = 0;
 
     c->size = gas_read_encoded_num_parser(p);
     read_field(c->id);
@@ -156,7 +160,7 @@ chunk* gas_read_parser (gas_parser *p)
         cont = GAS_TRUE;
     }
     if ( ! cont) {
-        GASunum jump = c->size - encoded_size(c->id_size) - c->id_size;
+        jump = c->size - encoded_size(c->id_size) - c->id_size;
         p->context->seek(p->handle, jump, SEEK_CUR, p->context->user_data);
         gas_destroy(c);
         return NULL;
@@ -186,7 +190,8 @@ chunk* gas_read_parser (gas_parser *p)
     } else {
         c->payload_size = gas_read_encoded_num_parser(p);
         c->payload = NULL;
-        p->context->seek(p->handle, c->payload_size,
+        jump = c->payload_size;
+        p->context->seek(p->handle, jump,
                          SEEK_CUR,
                          p->context->user_data);
     }

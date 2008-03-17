@@ -34,7 +34,7 @@ typedef GASnum (*GAS_FILE_WRITE_CALLBACK) (void *handle, void *buffer,
  * @brief provides the ability to seek forward (SEEK_CUR).
  */
 typedef GASnum (*GAS_FILE_SEEK_CALLBACK)  (void *handle,
-                                           unsigned int pos,
+                                           unsigned long pos,
                                            int whence,
                                            void *userdata);
 

@@ -8,6 +8,18 @@
 
 #include <stdio.h>
 
+GASnum gas_default_open (const char *name, const char *mode,
+                         void **handle, void **userdata);
+GASnum gas_default_close (void *handle, void *userdata);
+GASnum gas_default_read (void *handle, void *buffer, unsigned int sizebytes,
+                         unsigned int *bytesread, void *userdata);
+GASnum gas_default_read (void *handle, void *buffer, unsigned int sizebytes,
+                         unsigned int *bytesread, void *userdata);
+GASnum gas_default_write (void *handle, void *buffer, unsigned int sizebytes,
+                          unsigned int *byteswritten, void *userdata);
+GASnum gas_default_seek (void *handle, unsigned long pos,
+                         int whence, void *userdata);
+
 #define USE_FILE 1
 /* default callbacks {{{*/
 GASnum gas_default_open (const char *name, const char *mode, void **handle, void **userdata)
@@ -105,7 +117,7 @@ GASnum gas_default_write (void *handle, void *buffer, unsigned int sizebytes,
     return GAS_OK;
 }
 
-GASnum gas_default_seek (void *handle, unsigned int pos,
+GASnum gas_default_seek (void *handle, unsigned long pos,
                          int whence, void *userdata)
 {
     if (!handle) {

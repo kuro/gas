@@ -15,6 +15,8 @@
 #define assert(expr) do {} while (0)
 #endif
 
+GASchar* gas_sanitize (const GASubyte* str, GASunum len);
+
 /** @name id access */
 /*@{*/
 /* gas_set_id_s() {{{*/

@@ -86,7 +86,7 @@ GASunum gas_read_encoded_num_fd (int fd)
         }
         if (bytes_read != 1) {
             fprintf(stderr, "error: %s\n", strerror(errno));
-            abort();
+            return 0;
         }
         if (byte != 0x00)
             break;
@@ -108,7 +108,7 @@ GASunum gas_read_encoded_num_fd (int fd)
         bytes_read = read(fd, &byte, 1);
         if (bytes_read != 1) {
             fprintf(stderr, "error: %s\n", strerror(errno));
-            abort();
+            return 0;
         }
         retval = (retval << 8) | byte;
     }

@@ -20,6 +20,8 @@ extern "C"
 /*}*/
 #endif
 
+int gas_cmp(GASunum a_len, const GASubyte *a, GASunum b_len, const GASubyte *b);
+
 /* construction {{{*/
 /** @defgroup construction */
 /*@{*/
@@ -37,6 +39,7 @@ GASvoid gas_set_id (chunk* c, const GASvoid *id, GASunum size);
 GASnum gas_get_id (chunk* c, GASvoid* id, GASunum limit);
 GASvoid gas_set_id_s (chunk* c, const GASchar* id);
 GASchar* gas_get_id_s (chunk* c);
+GASunum gas_id_size (chunk* c);
 /*@}*/
 /** @defgroup attribute */
 /*@{*/
@@ -54,6 +57,7 @@ GASnum gas_delete_child_at (chunk* c, GASunum index);
 /*@{*/
 GASvoid gas_set_payload (chunk* c, const GASvoid *payload, GASunum payload_size);
 GASnum gas_get_payload (chunk* c, GASvoid* payload, GASunum limit);
+GASunum gas_payload_size (chunk* c);
 /*@}*/
 /** @defgroup children */
 /*@{*/

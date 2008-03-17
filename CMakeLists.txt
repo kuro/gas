@@ -4,6 +4,7 @@ project(Gas)
 
 option(ENABLE_INSTALLER "Enable installer commands" OFF)
 option(ENABLE_TESTS "Enable test building" OFF)
+option(GAS_USE_LONG_TYPES "Enable use of long types" ON)
 
 if (CMAKE_COMPILER_IS_GNUCC)
     add_definitions(-Wall)

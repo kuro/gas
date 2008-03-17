@@ -19,6 +19,7 @@
 #cmakedefine HAVE_UNISTD_H 1
 
 #cmakedefine GAS_ENABLE_CPP
+#cmakedefine GAS_USE_LONG_TYPES 1
 
 #define GAS_SIZEOF_VOID_P ${CMAKE_SIZEOF_VOID_P}
 #define GAS_BIG_ENDIAN ${BIG_ENDIAN}
