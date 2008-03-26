@@ -29,7 +29,10 @@ void gas_write_encoded_num_writer (gas_writer *writer, GASunum value)
 
     byte = 0x0;
     for (i = 0; i < zero_bytes; i++) {
-        writer->context->write(writer->handle, &byte, 1, &bytes_written, writer->context->user_data);
+        writer->status = writer->context->write(writer->handle, &byte, 1, &bytes_written, writer->context->user_data);
+        if (writer->status != 0) {
+            goto abort;
+        }
     }
 
     mask = 0x80;
@@ -42,7 +45,10 @@ void gas_write_encoded_num_writer (gas_writer *writer, GASunum value)
     } else {
         byte = mask;
     }
-    writer->context->write(writer->handle, &byte, 1, &bytes_written, writer->context->user_data);
+    writer->status = writer->context->write(writer->handle, &byte, 1, &bytes_written, writer->context->user_data);
+    if (writer->status != 0) {
+        goto abort;
+    }
 
     /*
      * write remaining bytes
@@ -52,8 +58,16 @@ void gas_write_encoded_num_writer (gas_writer *writer, GASunum value)
      */
     for (si = coded_length - 2 - zero_bytes; si >= 0; si--) {
         byte = ((value >> (si*8)) & 0xff);
-        writer->context->write(writer->handle, &byte, 1, &bytes_written, writer->context->user_data);
+        writer->status = writer->context->write(writer->handle, &byte, 1, &bytes_written, writer->context->user_data);
+        if (writer->status != 0) {
+            goto abort;
+        }
+
     }
+
+abort:  // seems i wasn't returning anything useful anyway... yet
+
+    return;
 }
 /*}}}*/
 
@@ -62,9 +76,12 @@ void gas_write_encoded_num_writer (gas_writer *writer, GASunum value)
 #define write_field(field)                                                  \
     do {                                                                    \
         gas_write_encoded_num_writer(writer, self->field##_size);           \
-        writer->context->write(writer->handle, self->field,                 \
-                               self->field##_size, &bytes_written,          \
-                               writer->context->user_data);                 \
+        if (writer->status != GAS_OK) { goto abort; }                       \
+        writer->status = writer->context->write(                            \
+            writer->handle, self->field,                                    \
+            self->field##_size, &bytes_written,                             \
+            writer->context->user_data);                                    \
+        if (writer->status != GAS_OK) { goto abort; }                       \
     } while(0)
 
 void gas_write_writer (gas_writer *writer, chunk* self)
@@ -74,9 +91,11 @@ void gas_write_writer (gas_writer *writer, chunk* self)
 
     /* this chunk's size */
     gas_write_encoded_num_writer(writer, self->size);
+    if (writer->status != GAS_OK) { goto abort; }
     write_field(id);
     /* attributes */
     gas_write_encoded_num_writer(writer, self->nb_attributes);
+    if (writer->status != GAS_OK) { goto abort; }
     for (i = 0; i < self->nb_attributes; i++) {
         write_field(attributes[i].key);
         write_field(attributes[i].value);
@@ -84,9 +103,13 @@ void gas_write_writer (gas_writer *writer, chunk* self)
     write_field(payload);
     /* children */
     gas_write_encoded_num_writer(writer, self->nb_children);
+    if (writer->status != GAS_OK) { goto abort; }
     for (i = 0; i < self->nb_children; i++) {
         gas_write_writer(writer, self->children[i]);
     }
+
+abort:
+    return;
 }
 /*}}}*/
 

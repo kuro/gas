@@ -31,6 +31,9 @@
 #define GAS_ERR_FILE_EOF -103
 #define GAS_ERR_UNKNOWN -104
 
+extern int gas_error;
+int gas_get_error (void);
+
 #endif  /* GAS_GAS_H defined */
 
 /* vim: set sw=4 fdm=marker: */

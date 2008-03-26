@@ -92,14 +92,10 @@ GASnum gas_read_encoded_num_buf (GASubyte* buf, GASunum limit, GASunum* result)
 
     /* find first non 0x00 byte */
     for (zero_byte_count = 0; 1; zero_byte_count++) {
-/*        bytes_read = read(fd, &byte, 1);                    */
-/*        if (bytes_read != 1) {                              */
-/*            fprintf(stderr, "error: %s\n", strerror(errno));*/
-/*            abort();                                        */
-/*        }                                                   */
         byte = buf[offset++];
         if (offset > limit) {
             puts("offset was limit");
+            gas_error = GAS_ERR_UNKNOWN;
             return GAS_FALSE;
         }
         if (byte != 0x00)
@@ -123,13 +119,9 @@ GASnum gas_read_encoded_num_buf (GASubyte* buf, GASunum limit, GASunum* result)
         byte = buf[offset++];
         if (offset > limit) {
             puts("offset was limit 2");
+            gas_error = GAS_ERR_UNKNOWN;
             return GAS_FALSE;
         }
-/*        bytes_read = read(fd, &byte, 1);                    */
-/*        if (bytes_read != 1) {                              */
-/*            fprintf(stderr, "error: %s\n", strerror(errno));*/
-/*            abort();                                        */
-/*        }                                                   */
         retval = (retval << 8) | byte;
     }
     *result = retval;
@@ -141,6 +133,7 @@ GASnum gas_read_encoded_num_buf (GASubyte* buf, GASunum limit, GASunum* result)
 #define write_field(field)                                                  \
     do {                                                                    \
         off += gas_write_encoded_num_buf(buf+off, self->field##_size);      \
+        if (gas_error != GAS_OK) { return 0; }                              \
         memcpy(buf+off, self->field, self->field##_size);                   \
         off += self->field##_size;                                          \
     } while(0)
@@ -163,6 +156,7 @@ GASnum gas_write_buf (chunk* self, GASubyte* buf)
     off += gas_write_encoded_num_buf(buf+off, self->nb_children);
     for (i = 0; i < self->nb_children; i++) {
         off += gas_write_buf(self->children[i], buf + off);
+        if (gas_error != GAS_OK) { return 0; }
     }
 
     return off;
@@ -179,12 +173,15 @@ GASnum gas_write_buf (chunk* self, GASubyte* buf)
         ((GASubyte*)field)[field##_size] = 0;                                 \
     } while (0)
 
+/**
+ * @todo redundant error checking
+ */
 #define read_num(field) \
     tmp = gas_read_encoded_num_buf(buf + offset, limit - offset, &field); \
-    if (tmp < 1) { \
-        gas_destroy(c); \
-        return NULL; \
-    } \
+    if (tmp < 1 || gas_error != GAS_OK) {                                 \
+        gas_destroy(c);                                                   \
+        return NULL;                                                      \
+    }                                                                     \
     offset += tmp;
 
 
@@ -211,7 +208,7 @@ chunk* gas_read_buf (GASubyte* buf, GASunum limit, GASnum* out_offset)
     for (i = 0; i < c->nb_children; i++) {
         c->children[i] = gas_read_buf(buf + offset, limit - offset, &tmp);
         c->children[i]->parent = c;
-        if (c->children[i] == NULL) {
+        if (c->children[i] == NULL || gas_error != GAS_OK) {
             gas_destroy(c);
             return NULL;
         }

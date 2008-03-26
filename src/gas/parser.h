@@ -37,6 +37,8 @@ typedef GASvoid (*GAS_POP_CHUNK)    (chunk* c, void *user_data);
 
 struct _gas_parser
 {
+    int status;
+
     gas_context* context;
     void *handle;
 

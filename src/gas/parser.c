@@ -1,4 +1,5 @@
 
+/* page: The Gas Parser {{{*/
 /**
  * @page parser The Gas Parser
  *
@@ -66,6 +67,7 @@
  * @ref gas_parser::on_pre_chunk, @ref gas_parser::on_push_chunk, and @ref
  * gas_parser::on_pop_chunk.
  */
+/*}}}*/
 
 #include <gas/parser.h>
 #include <gas/ntstring.h>
@@ -94,6 +96,7 @@ GASunum gas_read_encoded_num_parser (gas_parser *p)
                                   p->context->user_data);
         if (bytes_read != 1) {
 /*            fprintf(stderr, "error: %s\n", strerror(errno));*/
+            p->status = GAS_ERR_FILE_EOF;
             return 0;
         }
         if (byte != 0x00)
@@ -118,6 +121,7 @@ GASunum gas_read_encoded_num_parser (gas_parser *p)
                                   p->context->user_data);
         if (bytes_read != 1) {
 /*            fprintf(stderr, "error: %s\n", strerror(errno));*/
+            p->status = GAS_ERR_FILE_EOF;
             return 0;
         }
         retval = (retval << 8) | byte;
@@ -127,13 +131,14 @@ GASunum gas_read_encoded_num_parser (gas_parser *p)
 /*}}}*/
 /* gas_read_parser() {{{*/
 
-#define read_field(field)                                                     \
-    do {                                                                      \
-        field##_size = gas_read_encoded_num_parser(p);                        \
-        field = malloc(field##_size + 1);                                     \
-        p->context->read(p->handle, field, field##_size,             \
-                                  &bytes_read, p->context->user_data);        \
-        ((GASubyte*)field)[field##_size] = 0;                                 \
+#define read_field(field)                                                   \
+    do {                                                                    \
+        field##_size = gas_read_encoded_num_parser(p);                      \
+        if (p->status != GAS_OK) { goto abort; }                            \
+        field = malloc(field##_size + 1);                                   \
+        p->context->read(p->handle, field, field##_size,                    \
+                                  &bytes_read, p->context->user_data);      \
+        ((GASubyte*)field)[field##_size] = 0;                               \
     } while (0)
 
 
@@ -152,6 +157,8 @@ chunk* gas_read_parser (gas_parser *p)
     unsigned long jump = 0;
 
     c->size = gas_read_encoded_num_parser(p);
+    if (p->status != GAS_OK) { goto abort; }
+
     read_field(c->id);
 
     if (p->on_pre_chunk) {
@@ -171,6 +178,7 @@ chunk* gas_read_parser (gas_parser *p)
     }
 
     c->nb_attributes = gas_read_encoded_num_parser(p);
+    if (p->status != GAS_OK) { goto abort; }
     c->attributes = malloc(c->nb_attributes * sizeof(attribute));
     for (i = 0; i < c->nb_attributes; i++) {
         read_field(c->attributes[i].key);
@@ -189,6 +197,7 @@ chunk* gas_read_parser (gas_parser *p)
         }
     } else {
         c->payload_size = gas_read_encoded_num_parser(p);
+        if (p->status != GAS_OK) { goto abort; }
         c->payload = NULL;
         jump = c->payload_size;
         p->context->seek(p->handle, jump,
@@ -201,9 +210,11 @@ chunk* gas_read_parser (gas_parser *p)
     }
 
     c->nb_children = gas_read_encoded_num_parser(p);
+    if (p->status != GAS_OK) { goto abort; }
     c->children = malloc(c->nb_children * sizeof(chunk*));
     for (i = 0; i < c->nb_children; i++) {
         c->children[i] = gas_read_parser(p);
+        if (p->status != GAS_OK) { goto abort; }
         c->children[i]->parent = c;
     }
     if (p->on_pop_chunk) {
@@ -219,6 +230,10 @@ chunk* gas_read_parser (gas_parser *p)
         gas_destroy(c);
         return NULL;
     }
+
+abort:
+    gas_destroy(c);
+    return NULL;
 }
 /*}}}*/
 /* parser routines {{{*/
@@ -260,6 +275,8 @@ chunk* gas_parse (gas_parser* p, const char *resource)
 
     status = s->open(resource, "rb", &p->handle, &s->user_data);
     c = gas_read_parser(p);
+    // i don't know what the parser returned, but it does not really matter, as
+    // the error will find its way to the user anyway
     status = s->close(p->handle, s->user_data);
 
     return c;

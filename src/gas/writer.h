@@ -20,6 +20,8 @@ extern "C"
 typedef struct _gas_writer gas_writer;
 struct _gas_writer
 {
+    int status;
+
     gas_context* context;
     void *handle;
 };
