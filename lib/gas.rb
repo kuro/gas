@@ -46,7 +46,7 @@ module Gas
 
     zero_byte_count = 0
     loop do
-      byte = io.readchar
+      byte = io.read(1)[0]
       break if byte != 0x00
       zero_byte_count += 1
     end
@@ -65,7 +65,7 @@ module Gas
 
     retval = mask & byte
     additional_bytes_to_read.times do
-      byte = io.readchar
+      byte = io.read(1)[0]
       retval = (retval << 8) | byte
     end
     return retval
