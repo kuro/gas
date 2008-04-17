@@ -13,14 +13,12 @@
 #include <errno.h>
 
 /* gas_write_encoded_num_fs() {{{*/
-void gas_write_encoded_num_fs (FILE* fs, GASunum value)
+GASresult gas_write_encoded_num_fs (FILE* fs, GASunum value)
 {
     GASunum i, coded_length;
     GASubyte byte, mask;
     GASunum zero_count, zero_bytes, zero_bits;
     GASnum si;  /* a signed i */
-
-/*    printf("orig %lx\n", value);*/
 
     for (i = 1; 1; i++) {
         if (value < ((1L << (7L*i))-1L)) {
@@ -33,28 +31,20 @@ void gas_write_encoded_num_fs (FILE* fs, GASunum value)
         }
     }
     coded_length = i;  /* not including header */
-/*    printf("coded length %ld\n", coded_length);*/
 
     zero_count = coded_length - 1;
     zero_bytes = zero_count / 8;
     zero_bits = zero_count % 8;
 
-/*    printf("zero count %ld\n", zero_count);*/
-/*    printf("zero bytes %ld\n", zero_bytes);*/
-/*    printf("zero bits %ld\n", zero_bits);*/
-
     byte = 0x0;
     for (i = 0; i < zero_bytes; i++) {
-/*        printf("writing %x\n", byte);*/
         if (fwrite(&byte, 1, 1, fs) != 1) {
-            gas_error = GAS_ERR_UNKNOWN;
-            goto abort;
+            return GAS_ERR_UNKNOWN;
         }
     }
 
     mask = 0x80;
     mask >>= zero_bits;
-/*    printf("mask %x\n", mask);*/
 
     /* write the first masked byte */
     /*if ((coded_length - 1) <= sizeof(GASunum)) {*/
@@ -63,10 +53,8 @@ void gas_write_encoded_num_fs (FILE* fs, GASunum value)
     } else {
         byte = mask;
     }
-/*    printf("writing %x\n", byte);*/
     if (fwrite(&byte, 1, 1, fs) != 1) {
-        gas_error = GAS_ERR_UNKNOWN;
-        goto abort;
+        return GAS_ERR_UNKNOWN;
     }
 
     /*
@@ -77,44 +65,42 @@ void gas_write_encoded_num_fs (FILE* fs, GASunum value)
      */
     for (si = coded_length - 2 - zero_bytes; si >= 0; si--) {
         byte = ((value >> (si*8)) & 0xff);
-/*        printf("writing %x\n", byte);*/
         if (fwrite(&byte, 1, 1, fs) != 1) {
-            gas_error = GAS_ERR_UNKNOWN;
-            goto abort;
+            return GAS_ERR_UNKNOWN;
         }
     }
 
-abort:
-    return;
+    return GAS_OK;
 }
 /*}}}*/
 /* gas_write_fs() {{{*/
 #define write_field(field)                                                  \
     do {                                                                    \
-        gas_write_encoded_num_fs(fs, self->field##_size);                   \
-        if (gas_error != GAS_OK) {                                          \
-            goto abort;                                                     \
+        result = gas_write_encoded_num_fs(fs, self->field##_size);          \
+        if (result != GAS_OK) {                                             \
+            return result;                                                  \
         }                                                                   \
         if (fwrite(self->field,1,self->field##_size,fs)!=self->field##_size)\
         {                                                                   \
-            goto abort;                                                     \
+            return GAS_ERR_UNKNOWN;                                         \
         }                                                                   \
     } while(0)
 
-void gas_write_fs (chunk* self, FILE* fs)
+GASresult gas_write_fs (FILE* fs, chunk* self)
 {
+    GASresult result;
     int i;
 
     /* this chunk's size */
-    gas_write_encoded_num_fs(fs, self->size);
-    if (gas_error != GAS_OK) {
-        goto abort;
+    result = gas_write_encoded_num_fs(fs, self->size);
+    if (result != GAS_OK) {
+        return result;
     }
     write_field(id);
     /* attributes */
-    gas_write_encoded_num_fs(fs, self->nb_attributes);
-    if (gas_error != GAS_OK) {
-        goto abort;
+    result = gas_write_encoded_num_fs(fs, self->nb_attributes);
+    if (result != GAS_OK) {
+        return result;
     }
     for (i = 0; i < self->nb_attributes; i++) {
         write_field(attributes[i].key);
@@ -122,24 +108,23 @@ void gas_write_fs (chunk* self, FILE* fs)
     }
     write_field(payload);
     /* children */
-    gas_write_encoded_num_fs(fs, self->nb_children);
-    if (gas_error != GAS_OK) {
-        goto abort;
+    result = gas_write_encoded_num_fs(fs, self->nb_children);
+    if (result != GAS_OK) {
+        return result;
     }
     for (i = 0; i < self->nb_children; i++) {
-        gas_write_fs(self->children[i], fs);
-        if (gas_error != GAS_OK) {
-            goto abort;
+        result = gas_write_fs(fs, self->children[i]);
+        if (result != GAS_OK) {
+            return result;
         }
     }
 
-abort:
-    return;
+    return GAS_OK;
 }
 /*}}}*/
 
 /* gas_read_encoded_num_fs() {{{*/
-GASunum gas_read_encoded_num_fs (FILE* fs)
+GASresult gas_read_encoded_num_fs (FILE* fs, GASunum *value)
 {
     GASunum retval = 0x0;
     int i, bytes_read, zero_byte_count, first_bit_set;
@@ -150,12 +135,10 @@ GASunum gas_read_encoded_num_fs (FILE* fs)
     for (zero_byte_count = 0; 1; zero_byte_count++) {
         bytes_read = fread(&byte, 1, 1, fs);
         if (bytes_read == 0) {
-            gas_error = GAS_ERR_UNKNOWN;
-            return 0;
+            return GAS_ERR_UNKNOWN;
         }
         if (bytes_read != 1) {
-            gas_error = GAS_ERR_UNKNOWN;
-            return 0;
+            return GAS_ERR_UNKNOWN;
         }
         if (byte != 0x00)
             break;
@@ -176,59 +159,59 @@ GASunum gas_read_encoded_num_fs (FILE* fs)
     for (i = 0; i < additional_bytes_to_read; i++) {
         bytes_read = fread(&byte, 1, 1, fs);
         if (bytes_read == 0) {
-            gas_error = GAS_ERR_UNKNOWN;
-            return 0;
+            return GAS_ERR_UNKNOWN;
         }
         if (bytes_read != 1) {
-            gas_error = GAS_ERR_UNKNOWN;
-            return 0;
+            return GAS_ERR_UNKNOWN;
         }
         retval = (retval << 8) | byte;
     }
-    return retval;
+
+    *value = retval;
+    return GAS_OK;
 }
 /*}}}*/
 /* gas_read_fs() {{{*/
 
 #define read_field(field)                                                   \
     do {                                                                    \
-        field##_size = gas_read_encoded_num_fs(fs);                         \
-        if (gas_error != GAS_OK) { goto abort; }                            \
+        result = gas_read_encoded_num_fs(fs, &field##_size);                 \
+        if (result != GAS_OK) { return result; }                            \
         field = malloc(field##_size + 1);                                   \
         if (fread(field, 1, field##_size, fs) != field##_size) {            \
-            gas_error = GAS_ERR_UNKNOWN;                                    \
-            goto abort;                                                     \
+            return GAS_ERR_UNKNOWN;                                         \
         }                                                                   \
         ((GASubyte*)field)[field##_size] = 0;                               \
     } while (0)
 
-chunk* gas_read_fs (FILE* fs)
+GASresult gas_read_fs (FILE* fs, chunk **out)
 {
+    GASresult result;
     int i;
     chunk* c = gas_new(NULL, 0);
-    c->size = gas_read_encoded_num_fs(fs);
-    if (gas_error != GAS_OK) { goto abort; }
+
+    result = gas_read_encoded_num_fs(fs, &c->size);
+    if (result != GAS_OK) { return result; }
     read_field(c->id);
-    c->nb_attributes = gas_read_encoded_num_fs(fs);
-    if (gas_error != GAS_OK) { goto abort; }
+    result = gas_read_encoded_num_fs(fs, &c->nb_attributes);
+    if (result != GAS_OK) { return result; }
     c->attributes = malloc(c->nb_attributes * sizeof(attribute));
     for (i = 0; i < c->nb_attributes; i++) {
         read_field(c->attributes[i].key);
         read_field(c->attributes[i].value);
     }
     read_field(c->payload);
-    c->nb_children = gas_read_encoded_num_fs(fs);
-    if (gas_error != GAS_OK) { goto abort; }
+    result = gas_read_encoded_num_fs(fs, &c->nb_children);
+    if (result != GAS_OK) { return result; }
     c->children = malloc(c->nb_children * sizeof(chunk*));
     for (i = 0; i < c->nb_children; i++) {
-        c->children[i] = gas_read_fs(fs);
-        if (gas_error != GAS_OK) { goto abort; }
+         result = gas_read_fs(fs, &c->children[i]);
+        if (result != GAS_OK) { return result; }
         c->children[i]->parent = c;
     }
-    return c;
 
-abort:
-    return NULL;
+    *out = c;
+    return GAS_OK;
 }
 /*}}}*/
 

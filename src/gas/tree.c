@@ -27,9 +27,6 @@ static int overwrite_attributes = GAS_TRUE;
 
 GASunum encoded_size (GASunum value);
 
-/// @todo remove
-GASresult gas_error;
-
 /** @name helper functions */
 /*@{*/
 /* gas_cmp() {{{*/

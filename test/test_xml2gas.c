@@ -109,7 +109,7 @@ void test0002 (void)
     // so when reading the file back, there may be multiple top chunks
     int i;
     for (i = 0; i < cur->nb_children; i++) {
-        gas_write_fd(cur->children[i], fd);
+        gas_write_fd(fd, cur->children[i]);
     }
     close(fd);
 }

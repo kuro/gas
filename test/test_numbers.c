@@ -26,7 +26,7 @@ int try (FILE* fs, GASunum num)
     gas_write_encoded_num_fs(fs, num);
 
     rewind(fs);
-    out = gas_read_encoded_num_fs(fs);
+    gas_read_encoded_num_fs(fs, &out);
 
     if (num == out) {
         successes++;
@@ -53,7 +53,7 @@ void test_range (int start, int end)
         //printf("i=%lx\n", i);
 
         rewind(fs);
-        j = gas_read_encoded_num_fs(fs);
+        gas_read_encoded_num_fs(fs, &j);
         //printf("j=%lx\n", j);
 
         if (i != j) {
@@ -146,7 +146,8 @@ int main (void)
 //    test_range(0xfffffffffffffff0, 0xffffffffffffffff);
 
     puts("testing random masked numbers");
-    test_random(10000000, 0xffffffff);
+    test_random(100, 0xffffffff);
+    puts("testing random masked numbers");
     test_random(100, 0x00000000);
     test_random(100, 0x00000000);
     test_random(100, 0x00000000);

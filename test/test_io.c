@@ -48,12 +48,13 @@ void test0001 (void)
 
     FILE* fs = fopen("dump.gas", "w");
     gas_update(root);
-    gas_write_fs(root, fs);
+    gas_write_fs(fs, root);
     fclose(fs);
     system("xxd dump.gas");
 
     fs = fopen("dump.gas", "r");
-    chunk* root2 = gas_read_fs(fs);
+    chunk* root2 = NULL;
+    gas_read_fs(fs, &root2);
     gas_print(root2);
     gas_destroy(root2);
     fclose(fs);
@@ -68,12 +69,13 @@ void test0002 (void)
 
     FILE *fs = fopen("1attr.gas", "w");
     gas_update(root);
-    gas_write_fs(root, fs);
+    gas_write_fs(fs, root);
     fclose(fs);
     system("xxd 1attr.gas");
 
     fs = fopen("1attr.gas", "r");
-    chunk* root2 = gas_read_fs(fs);
+    chunk* root2 = NULL;
+    gas_read_fs(fs, &root2);
     gas_print(root2);
     gas_destroy(root2);
     fclose(fs);
@@ -87,12 +89,13 @@ void test0003 (void)
 
     FILE* fs = fopen("empty.gas", "w");
     gas_update(root);
-    gas_write_fs(root, fs);
+    gas_write_fs(fs, root);
     fclose(fs);
     system("xxd empty.gas");
 
     fs = fopen("empty.gas", "r");
-    chunk* root2 = gas_read_fs(fs);
+    chunk* root2 = NULL;
+    gas_read_fs(fs, &root2);
     gas_print(root2);
     gas_destroy(root2);
     fclose(fs);
@@ -105,16 +108,18 @@ void test0004 (void)
 
     FILE* fs = fopen("double.gas", "w");
     gas_update(root);
-    gas_write_fs(root, fs);
-    gas_write_fs(root, fs);
+    gas_write_fs(fs, root);
+    gas_write_fs(fs, root);
     fclose(fs);
     system("xxd double.gas");
 
     fs = fopen("double.gas", "r");
-    chunk* root3 = gas_read_fs(fs);
+    chunk* root3 = NULL;
+    gas_read_fs(fs, &root3);
     gas_print(root3);
     gas_destroy(root3);
-    chunk* root2 = gas_read_fs(fs);
+    chunk* root2 = NULL;
+    gas_read_fs(fs, &root2);
     gas_print(root2);
     gas_destroy(root2);
     fclose(fs);

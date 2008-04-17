@@ -18,12 +18,13 @@
 #endif
 
 /* gas_write_encoded_num_fd() {{{*/
-void gas_write_encoded_num_fd (int fd, GASunum value)
+GASresult gas_write_encoded_num_fd (int fd, GASunum value)
 {
     GASunum i, coded_length;
     GASubyte byte, mask;
     GASunum zero_count, zero_bytes, zero_bits;
     GASnum si;  /* a signed i */
+    ssize_t bytes_written;
 
     for (i = 1; 1; i++) {
         if (value < ((1L << (7L*i))-1L)) {
@@ -43,7 +44,10 @@ void gas_write_encoded_num_fd (int fd, GASunum value)
 
     byte = 0x0;
     for (i = 0; i < zero_bytes; i++) {
-        write(fd, &byte, 1);
+        bytes_written = write(fd, &byte, 1);
+        if (bytes_written != 1) {
+            return GAS_ERR_UNKNOWN;
+        }
     }
 
     mask = 0x80;
@@ -56,7 +60,10 @@ void gas_write_encoded_num_fd (int fd, GASunum value)
     } else {
         byte = mask;
     }
-    write(fd, &byte, 1);
+    bytes_written = write(fd, &byte, 1);
+    if (bytes_written != 1) {
+        return GAS_ERR_UNKNOWN;
+    }
 
     /*
      * write remaining bytes
@@ -66,12 +73,17 @@ void gas_write_encoded_num_fd (int fd, GASunum value)
      */
     for (si = coded_length - 2 - zero_bytes; si >= 0; si--) {
         byte = ((value >> (si*8)) & 0xff);
-        write(fd, &byte, 1);
+        bytes_written = write(fd, &byte, 1);
+        if (bytes_written != 1) {
+            return GAS_ERR_UNKNOWN;
+        }
     }
+
+    return GAS_OK;
 }
 /*}}}*/
 /* gas_read_encoded_num_fd() {{{*/
-GASunum gas_read_encoded_num_fd (int fd)
+GASresult gas_read_encoded_num_fd (int fd, GASunum* value)
 {
     GASunum retval;
     int i, bytes_read, zero_byte_count, first_bit_set;
@@ -81,12 +93,8 @@ GASunum gas_read_encoded_num_fd (int fd)
     /* find first non 0x00 byte */
     for (zero_byte_count = 0; 1; zero_byte_count++) {
         bytes_read = read(fd, &byte, 1);
-        if (bytes_read == 0) {
-            return 0;
-        }
         if (bytes_read != 1) {
-            fprintf(stderr, "error: %s\n", strerror(errno));
-            return 0;
+            return GAS_ERR_UNKNOWN;
         }
         if (byte != 0x00)
             break;
@@ -107,24 +115,27 @@ GASunum gas_read_encoded_num_fd (int fd)
     for (i = 0; i < additional_bytes_to_read; i++) {
         bytes_read = read(fd, &byte, 1);
         if (bytes_read != 1) {
-            fprintf(stderr, "error: %s\n", strerror(errno));
-            return 0;
+            return GAS_ERR_UNKNOWN;
         }
         retval = (retval << 8) | byte;
     }
-    return retval;
+
+    *value = retval;
+    return GAS_OK;
 }
 /*}}}*/
 
 /* gas_write_fd() {{{*/
 #define write_field(field)                                                  \
     do {                                                                    \
-        gas_write_encoded_num_fd(fd, self->field##_size);                   \
-        write(fd, self->field, self->field##_size);                        \
+        result = gas_write_encoded_num_fd(fd, self->field##_size);          \
+        if (result != self->field##_size) { return result; }                \
+        write(fd, self->field, self->field##_size);                         \
     } while(0)
 
-void gas_write_fd (chunk* self, int fd)
+GASresult gas_write_fd (int fd, chunk* self)
 {
+    GASresult result;
     int i;
 
     /* this chunk's size */
@@ -140,26 +151,38 @@ void gas_write_fd (chunk* self, int fd)
     /* children */
     gas_write_encoded_num_fd(fd, self->nb_children);
     for (i = 0; i < self->nb_children; i++) {
-        gas_write_fd(self->children[i], fd);
+        result = gas_write_fd(fd, self->children[i]);
+        if (result != GAS_OK) {
+            return result;
+        }
     }
+
+    return GAS_OK;
 }
 /*}}}*/
 /* gas_read_fd() {{{*/
 
-#define read_field(field)                                                     \
-    do {                                                                      \
-        field##_size = gas_read_encoded_num_fd(fd);                           \
-        field = malloc(field##_size + 1);                                     \
-        read(fd, field, field##_size);                                        \
-        ((GASubyte*)field)[field##_size] = 0;                                 \
+#define read_field(field)                                                   \
+    do {                                                                    \
+        result = gas_read_encoded_num_fd(fd, &field##_size);                \
+        if (result != GAS_OK) { return result; }                            \
+        field = malloc(field##_size + 1);                                   \
+        bytes_read = read(fd, field, field##_size);                         \
+        if (bytes_read != field##_size) { return GAS_ERR_UNKNOWN; }         \
+        ((GASubyte*)field)[field##_size] = 0;                               \
     } while (0)
 
-chunk* gas_read_fd (int fd)
+GASresult gas_read_fd (int fd, chunk** out)
 {
+    GASresult result;
     int i;
     chunk* c = gas_new(NULL, 0);
+    ssize_t bytes_read;
 
-    c->size = gas_read_encoded_num_fd(fd);
+    result = gas_read_encoded_num_fd(fd, &c->size);
+    if (result != GAS_OK) {
+        return result;
+    }
 
     /**
      * @todo gas_read_encoded_num_fd() returns an unsigned value.  This is a
@@ -168,24 +191,36 @@ chunk* gas_read_fd (int fd)
      */
     if (c->size == 0) {
         gas_destroy(c);
-        return NULL;
+        return GAS_ERR_UNKNOWN;
     }
 
     read_field(c->id);
-    c->nb_attributes = gas_read_encoded_num_fd(fd);
+    result = gas_read_encoded_num_fd(fd, &c->nb_attributes);
+    if (result != GAS_OK) {
+        return result;
+    }
     c->attributes = malloc(c->nb_attributes * sizeof(attribute));
     for (i = 0; i < c->nb_attributes; i++) {
         read_field(c->attributes[i].key);
         read_field(c->attributes[i].value);
     }
     read_field(c->payload);
-    c->nb_children = gas_read_encoded_num_fd(fd);
+    result = gas_read_encoded_num_fd(fd, &c->nb_children);
+    if (result != GAS_OK) {
+        return result;
+    }
     c->children = malloc(c->nb_children * sizeof(chunk*));
     for (i = 0; i < c->nb_children; i++) {
-        c->children[i] = gas_read_fd(fd);
+        result = gas_read_fd(fd, &c->children[i]);
+        if (result != GAS_OK) {
+            gas_destroy(c);
+            return result;
+        }
         c->children[i]->parent = c;
     }
-    return c;
+
+    *out = c;
+    return GAS_OK;
 }
 /*}}}*/
 

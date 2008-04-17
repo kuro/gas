@@ -20,11 +20,13 @@ extern "C"
 /** @name fd io */
 /*@{*/
 
-void gas_write_fd (chunk* self, int fd);
-chunk* gas_read_fd (int fd);
 
-void gas_write_encoded_num_fd (int fd, GASunum value);
-GASunum gas_read_encoded_num_fd (int fd);
+GASresult gas_write_fd (int fd, chunk* self);
+GASresult gas_read_fd (int fd, chunk** out);
+
+GASresult gas_write_encoded_num_fd (int fd, GASunum value);
+GASresult gas_read_encoded_num_fd (int fd, GASunum* value);
+
 
 /*@}*/
 

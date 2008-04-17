@@ -21,11 +21,11 @@ extern "C"
 /** @name fs io */
 /*@{*/
 
-void gas_write_fs (chunk* self, FILE* fs);
-chunk* gas_read_fs (FILE* fs);
+GASresult gas_write_fs (FILE* fs, chunk* self);
+GASresult gas_read_fs (FILE* fs, chunk **out);
 
-void gas_write_encoded_num_fs (FILE* fs, GASunum value);
-GASunum gas_read_encoded_num_fs (FILE* fs);
+GASresult gas_write_encoded_num_fs (FILE* fs, GASunum value);
+GASresult gas_read_encoded_num_fs (FILE* fs, GASunum *value);
 
 /*@}*/
 
