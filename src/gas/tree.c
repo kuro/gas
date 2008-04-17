@@ -27,19 +27,8 @@ static int overwrite_attributes = GAS_TRUE;
 
 GASunum encoded_size (GASunum value);
 
-int gas_error = GAS_OK;
-
-/**
- * Returns error state.
- *
- * @note will be deprecated during the eventual api overhaul.
- */
-int gas_get_error (void)
-{
-    int retval = gas_error;
-    gas_error = GAS_OK;
-    return retval;
-}
+/// @todo remove
+GASresult gas_error;
 
 /** @name helper functions */
 /*@{*/

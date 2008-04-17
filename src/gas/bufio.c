@@ -5,6 +5,12 @@
  *
  * @todo This should perform acceptable when there are no error conditions.
  * However, the sanity checks require review.
+ *
+ * @note The following functions are offset based.  As such, GAS_OK is not
+ * returned upon success.  Instead, success is indicated by positive return
+ * values.  Return values of 0 are not possible, as even an empty chunk
+ * consumes 5 bytes.  Most importantly, negative return values are error
+ * conditions.
  */
 
 #include <gas/bufio.h>
@@ -14,7 +20,12 @@
 #include <stdio.h>
 
 /* gas_write_encoded_num_buf() {{{*/
-GASnum gas_write_encoded_num_buf (GASubyte* buf, GASunum value)
+/**
+ * @return When positive, the new buffer offset.  Otherwise, an error code.
+ *
+ * @todo limit failure conditions
+ */
+GASnum gas_write_encoded_num_buf (GASubyte* buf, GASunum limit, GASunum value)
 {
     GASnum off = 0;
     GASunum i, coded_length;
@@ -40,6 +51,9 @@ GASnum gas_write_encoded_num_buf (GASubyte* buf, GASunum value)
 
     byte = 0x0;
     for (i = 0; i < zero_bytes; i++) {
+        if (off >= limit) {
+            return GAS_ERR_UNKNOWN;
+        }
         memcpy(buf+off, &byte, 1);
         off++;
     }
@@ -54,6 +68,11 @@ GASnum gas_write_encoded_num_buf (GASubyte* buf, GASunum value)
     } else {
         byte = mask;
     }
+
+    if (off >= limit) {
+        return GAS_ERR_UNKNOWN;
+    }
+
     memcpy(buf+off, &byte, 1);
     off++;
 
@@ -65,6 +84,11 @@ GASnum gas_write_encoded_num_buf (GASubyte* buf, GASunum value)
      */
     for (si = (GASnum)(coded_length - 2 - zero_bytes); si >= 0; si--) {
         byte = (GASubyte)((value >> ((GASunum)si*8)) & 0xffL);
+
+        if (off >= limit) {
+            return GAS_ERR_UNKNOWN;
+        }
+
         memcpy(buf+off, &byte, 1);
         off++;
     }
@@ -77,13 +101,12 @@ GASnum gas_write_encoded_num_buf (GASubyte* buf, GASunum value)
  * @brief decode a number from a memory buffer.
  * @param limit The length of the buffer.  Serves as a limiter.  However, limit
  * bytes may or may not be used.
- * @return The status.  When >0, the number of bytes used.  When <=0, error.
- * @retval 0 error
+ *
+ * @return When positive, the new buffer offset.  Otherwise, an error code.
  */
 GASnum gas_read_encoded_num_buf (GASubyte* buf, GASunum limit, GASunum* result)
 {
     GASunum offset;
-    GASunum retval;
     int i, zero_byte_count, first_bit_set;
     GASubyte byte, mask = 0x00;
     GASunum additional_bytes_to_read;
@@ -94,9 +117,7 @@ GASnum gas_read_encoded_num_buf (GASubyte* buf, GASunum limit, GASunum* result)
     for (zero_byte_count = 0; 1; zero_byte_count++) {
         byte = buf[offset++];
         if (offset > limit) {
-            puts("offset was limit");
-            gas_error = GAS_ERR_UNKNOWN;
-            return GAS_FALSE;
+            return GAS_ERR_UNKNOWN;
         }
         if (byte != 0x00)
             break;
@@ -113,18 +134,16 @@ GASnum gas_read_encoded_num_buf (GASubyte* buf, GASunum limit, GASunum* result)
 
     additional_bytes_to_read = (7-first_bit_set) + (7*zero_byte_count);
 
-    /* at this point, i have enough information to construct retval */
-    retval = mask & byte;
+    /* at this point, i have enough information to construct *result */
+    *result = mask & byte;
     for (i = 0; i < additional_bytes_to_read; i++) {
         byte = buf[offset++];
         if (offset > limit) {
-            puts("offset was limit 2");
-            gas_error = GAS_ERR_UNKNOWN;
-            return GAS_FALSE;
+            return GAS_ERR_UNKNOWN;
         }
-        retval = (retval << 8) | byte;
+        *result = (*result << 8) | byte;
     }
-    *result = retval;
+
     return offset;
 }
 /*}}}*/
@@ -132,31 +151,42 @@ GASnum gas_read_encoded_num_buf (GASubyte* buf, GASunum limit, GASunum* result)
 /* gas_write_buf() {{{*/
 #define write_field(field)                                                  \
     do {                                                                    \
-        off += gas_write_encoded_num_buf(buf+off, self->field##_size);      \
-        if (gas_error != GAS_OK) { return 0; }                              \
+        result = gas_write_encoded_num_buf(buf+off, 0, self->field##_size); \
+        if (result <= 0) { return 0; }                                      \
+        off += result;                                                      \
         memcpy(buf+off, self->field, self->field##_size);                   \
         off += self->field##_size;                                          \
     } while(0)
-GASnum gas_write_buf (chunk* self, GASubyte* buf)
+
+/**
+ * @return When positive, the new buffer offset.  Otherwise, an error code.
+ *
+ * @todo limit failure conditions
+ * @todo changes zeros to limits
+ */
+GASnum gas_write_buf (GASubyte* buf, GASunum limit, chunk* self)
 {
+    GASresult result;
     GASunum i;
     GASnum off = 0;
 
     /* this chunk's size */
-    off += gas_write_encoded_num_buf(buf+off, self->size);
+    off += gas_write_encoded_num_buf(buf+off, 0, self->size);
     write_field(id);
     /* attributes */
-    off += gas_write_encoded_num_buf(buf+off, self->nb_attributes);
+    off += gas_write_encoded_num_buf(buf+off, 0, self->nb_attributes);
     for (i = 0; i < self->nb_attributes; i++) {
         write_field(attributes[i].key);
         write_field(attributes[i].value);
     }
     write_field(payload);
     /* children */
-    off += gas_write_encoded_num_buf(buf+off, self->nb_children);
+    off += gas_write_encoded_num_buf(buf+off, 0, self->nb_children);
     for (i = 0; i < self->nb_children; i++) {
-        off += gas_write_buf(self->children[i], buf + off);
-        if (gas_error != GAS_OK) { return 0; }
+        /// @todo replace the 0
+        result = gas_write_buf(buf + off, 0, self->children[i]);
+        if (result <= 0) { return result; }
+        off += result;
     }
 
     return off;
@@ -164,30 +194,29 @@ GASnum gas_write_buf (chunk* self, GASubyte* buf)
 /*}}}*/
 /* gas_read_buf() {{{*/
 
-#define read_field(field)                                                     \
-    do {                                                                      \
-        read_num(field##_size);                                               \
-        field = malloc(field##_size + 1);                                     \
-        memcpy(field, buf+offset, field##_size);                              \
-        offset += field##_size;                                               \
-        ((GASubyte*)field)[field##_size] = 0;                                 \
+#define read_field(field)                                                   \
+    do {                                                                    \
+        read_num(field##_size);                                             \
+        field = malloc(field##_size + 1);                                   \
+        memcpy(field, buf+offset, field##_size);                            \
+        offset += field##_size;                                             \
+        ((GASubyte*)field)[field##_size] = 0;                               \
     } while (0)
 
 /**
  * @todo redundant error checking
  */
 #define read_num(field) \
-    tmp = gas_read_encoded_num_buf(buf + offset, limit - offset, &field); \
-    if (tmp < 1 || gas_error != GAS_OK) {                                 \
-        gas_destroy(c);                                                   \
-        return NULL;                                                      \
-    }                                                                     \
-    offset += tmp;
+    result = gas_read_encoded_num_buf(buf + offset, limit - offset, &field); \
+    if (result <= 1) {                                                      \
+        gas_destroy(c);                                                     \
+        return result;                                                      \
+    }                                                                       \
+    offset += result;
 
-
-chunk* gas_read_buf (GASubyte* buf, GASunum limit, GASnum* out_offset)
+GASnum gas_read_buf (GASubyte* buf, GASunum limit, chunk** out)
 {
-    GASnum tmp;
+    GASresult result;
     GASunum offset = 0;
 
     int i;
@@ -206,20 +235,17 @@ chunk* gas_read_buf (GASubyte* buf, GASunum limit, GASnum* out_offset)
     c->children = malloc(c->nb_children * sizeof(chunk*));
     memset(c->children, 0, c->nb_children * sizeof(chunk*));
     for (i = 0; i < c->nb_children; i++) {
-        c->children[i] = gas_read_buf(buf + offset, limit - offset, &tmp);
-        c->children[i]->parent = c;
-        if (c->children[i] == NULL || gas_error != GAS_OK) {
+        result = gas_read_buf(buf + offset, limit - offset, &c->children[i]);
+        if (result <= 0) {
             gas_destroy(c);
-            return NULL;
+            return result;
         }
-        offset += tmp;
+        c->children[i]->parent = c;
+        offset += result;
     }
 
-    if (out_offset != NULL) {
-        *out_offset = offset;
-    }
-
-    return c;
+    *out = c;
+    return offset;
 }
 /*}}}*/
 

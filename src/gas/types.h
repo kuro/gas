@@ -32,6 +32,7 @@ typedef          int GASnum;
 typedef unsigned char     GASubyte;
 typedef          char     GASchar;
 typedef int               GASenum;
+typedef int               GASresult;
 typedef void     GASvoid;
 
 #ifdef __cplusplus

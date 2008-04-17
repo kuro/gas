@@ -26,3 +26,28 @@ endif()
 #add_test(test_half ${EXECUTABLE_OUTPUT_PATH}/test_half)
 
 add_test(ruby_dl ruby -I${CMAKE_CURRENT_SOURCE_DIR}/../lib -I${CMAKE_CURRENT_BINARY_DIR}/../src ${CMAKE_CURRENT_SOURCE_DIR}/dl.rb)
+
+find_package(Qt4)
+if (QT4_FOUND)
+    include_directories(
+        ${QT_INCLUDE_DIR}
+        ${QT_QTCORE_INCLUDE_DIR}
+        ${QT_QTGUI_INCLUDE_DIR}
+        ${QT_QTXML_INCLUDE_DIR}
+        ${QT_QTTEST_INCLUDE_DIR}
+        ${CMAKE_CURRENT_BINARY_DIR}
+        )
+    foreach(test bufio)
+        qt4_automoc(test_${test}.cpp)
+        add_executable(test_${test} test_${test}.cpp)
+        target_link_libraries(test_${test}
+            gas
+            ${QT_QTCORE_LIBRARY}
+            ${QT_QTGUI_LIBRARY}
+            ${QT_QTXML_LIBRARY}
+            ${QT_QTTEST_LIBRARY}
+            )
+        add_test(${test}
+            valgrind -q --tool=memcheck --leak-check=yes ./test_${test})
+    endforeach ()
+endif ()
