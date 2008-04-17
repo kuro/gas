@@ -31,6 +31,7 @@ else ()
         file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${src})
         add_custom_target(${src}_doc
             COMMAND ${DOXYGEN} ${CMAKE_CURRENT_BINARY_DIR}/${src}.dox
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
             )
         add_dependencies(doc ${src}_doc)
         if (CMAKE_MAKE_PROGRAM)
