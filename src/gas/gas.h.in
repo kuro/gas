@@ -2,6 +2,9 @@
 /**
  * @file gas.h
  * @brief gas definition
+ *
+ * @note This file is automatically configured.  The derived file, gas.h, is
+ * platform specific.
  */
 
 #ifndef GAS_GAS_H

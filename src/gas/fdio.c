@@ -5,7 +5,6 @@
  * @brief File descriptor based io.
  */
 
-#include <gas/gas.h>
 #include <gas/fdio.h>
 
 #include <stdlib.h>

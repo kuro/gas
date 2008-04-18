@@ -14,7 +14,6 @@
  */
 
 #include <gas/bufio.h>
-#include <gas/ntstring.h>
 
 #include <string.h>
 #include <stdio.h>

@@ -7,7 +7,6 @@
 #ifndef GAS_SWAP_H
 #define GAS_SWAP_H
 
-#include <gas/gas.h>
 #include <gas/types.h>
 
 GAS_INLINE float swapf(float fin);

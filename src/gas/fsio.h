@@ -18,7 +18,7 @@ extern "C"
 #endif
 
 
-/** @name fs io */
+/** @defgroup fsio File Stream IO */
 /*@{*/
 
 GASresult gas_write_fs (FILE* fs, chunk* self);

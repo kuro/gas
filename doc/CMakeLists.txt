@@ -11,6 +11,12 @@ else ()
     set(HAVE_DOT "NO")
 endif ()
 
+execute_process(
+    COMMAND ./versionfilter.sh
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    OUTPUT_VARIABLE PROJECT_NUMBER
+    )
+
 if (NOT DOXYGEN_FOUND)
     message("Could not find Doxygen")
 else ()

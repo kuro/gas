@@ -1,6 +1,5 @@
 
 #include <gas/swap.h>
-#include <gas/gas.h>
 
 #if HAVE_ASSERT_H
 #include <assert.h>

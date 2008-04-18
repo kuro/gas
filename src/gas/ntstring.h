@@ -16,7 +16,7 @@ extern "C"
 #endif
 
 /**
- * @defgroup ntstring
+ * @defgroup ntstring Null Terminated String Support
  * @brief null-terminated string support.
  *
  * The primary gas functions know nothing about data types.  The ntstring set

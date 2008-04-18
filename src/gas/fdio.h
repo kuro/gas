@@ -17,7 +17,7 @@ extern "C"
 #endif
 
 
-/** @name fd io */
+/** @defgroup fdio File Descriptor IO */
 /*@{*/
 
 

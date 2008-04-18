@@ -16,7 +16,7 @@ extern "C"
 #endif
 
 
-/** @name buffer io */
+/** @defgroup bufio Buffer IO */
 /*@{*/
 
 GASnum gas_read_buf (GASubyte* buf, GASunum limit, chunk** out);

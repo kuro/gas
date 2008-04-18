@@ -70,7 +70,6 @@
 /*}}}*/
 
 #include <gas/parser.h>
-#include <gas/ntstring.h>
 
 #include <string.h>
 #include <stdio.h>
