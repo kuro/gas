@@ -77,11 +77,11 @@
 #include <errno.h>
 
 GASunum encoded_size (GASunum value);
-GASunum gas_read_encoded_num_parser (gas_parser *p);
-chunk* gas_read_parser (gas_parser *p);
+GASresult gas_read_encoded_num_parser (gas_parser *p, GASunum *out);
+GASresult gas_read_parser (gas_parser *p, chunk **out);
 
 /* gas_read_encoded_num_parser() {{{*/
-GASunum gas_read_encoded_num_parser (gas_parser *p)
+GASresult gas_read_encoded_num_parser (gas_parser *p, GASunum *out)
 {
     GASunum retval;
     unsigned int bytes_read;
@@ -91,13 +91,10 @@ GASunum gas_read_encoded_num_parser (gas_parser *p)
 
     /* find first non 0x00 byte */
     for (zero_byte_count = 0; 1; zero_byte_count++) {
-        /*bytes_read = read(fd, &byte, 1);*/
         p->context->read(p->handle, &byte, 1, &bytes_read,
                                   p->context->user_data);
         if (bytes_read != 1) {
-/*            fprintf(stderr, "error: %s\n", strerror(errno));*/
-            p->status = GAS_ERR_FILE_EOF;
-            return 0;
+            return GAS_ERR_FILE_EOF;
         }
         if (byte != 0x00)
             break;
@@ -116,25 +113,23 @@ GASunum gas_read_encoded_num_parser (gas_parser *p)
     /* at this point, i have enough information to construct retval */
     retval = mask & byte;
     for (i = 0; i < additional_bytes_to_read; i++) {
-        /*bytes_read = read(fd, &byte, 1);*/
         p->context->read(p->handle, &byte, 1, &bytes_read,
                                   p->context->user_data);
         if (bytes_read != 1) {
-/*            fprintf(stderr, "error: %s\n", strerror(errno));*/
-            p->status = GAS_ERR_FILE_EOF;
-            return 0;
+            return GAS_ERR_FILE_EOF;
         }
         retval = (retval << 8) | byte;
     }
-    return retval;
+    *out = retval;
+    return GAS_OK;
 }
 /*}}}*/
 /* gas_read_parser() {{{*/
 
 #define read_field(field)                                                   \
     do {                                                                    \
-        field##_size = gas_read_encoded_num_parser(p);                      \
-        if (p->status != GAS_OK) { goto abort; }                            \
+        result = gas_read_encoded_num_parser(p, &field##_size);             \
+        if (result != GAS_OK) { goto abort; }                            \
         field = malloc(field##_size + 1);                                   \
         p->context->read(p->handle, field, field##_size,                    \
                                   &bytes_read, p->context->user_data);      \
@@ -148,17 +143,19 @@ GASunum gas_read_encoded_num_parser (gas_parser *p)
  * @warning Unlike other similar functions in the library, gas_read_parser is
  * intended for internal use only, via gas_parse().
  */
-chunk* gas_read_parser (gas_parser *p)
+GASresult gas_read_parser (gas_parser *p, chunk **out)
 {
+    GASresult result = GAS_OK;
     int i;
     chunk* c = gas_new(NULL, 0);
     unsigned int bytes_read;
     GASbool cont;
     unsigned long jump = 0;
 
-    c->size = gas_read_encoded_num_parser(p);
-    if (p->status != GAS_OK) { goto abort; }
+    result = gas_read_encoded_num_parser(p, &c->size);
+    if (result != GAS_OK) { goto abort; }
 
+/* id {{{*/
     read_field(c->id);
 
     if (p->on_pre_chunk) {
@@ -166,19 +163,23 @@ chunk* gas_read_parser (gas_parser *p)
     } else {
         cont = GAS_TRUE;
     }
+/*}}}*/
+
     if ( ! cont) {
         jump = c->size - encoded_size(c->id_size) - c->id_size;
         p->context->seek(p->handle, jump, SEEK_CUR, p->context->user_data);
         gas_destroy(c);
-        return NULL;
+        *out = NULL;
+        return GAS_OK;
     }
 
     if (p->on_push_id) {
         p->on_push_id(c->id_size, c->id, p->context->user_data);
     }
 
-    c->nb_attributes = gas_read_encoded_num_parser(p);
-    if (p->status != GAS_OK) { goto abort; }
+/* attributes {{{*/
+    result = gas_read_encoded_num_parser(p, &c->nb_attributes);
+    if (result != GAS_OK) { goto abort; }
     c->attributes = malloc(c->nb_attributes * sizeof(attribute));
     for (i = 0; i < c->nb_attributes; i++) {
         read_field(c->attributes[i].key);
@@ -189,34 +190,42 @@ chunk* gas_read_parser (gas_parser *p)
                          p->context->user_data);
         }
     }
-
+/*}}}*/
+/* payloads {{{*/
     if (p->get_payloads) {
         read_field(c->payload);
         if (p->on_payload) {
             p->on_payload(c->payload_size, c->payload, p->context->user_data);
         }
     } else {
-        c->payload_size = gas_read_encoded_num_parser(p);
-        if (p->status != GAS_OK) { goto abort; }
+        result = gas_read_encoded_num_parser(p, &c->payload_size);
+        if (result != GAS_OK) { goto abort; }
         c->payload = NULL;
         jump = c->payload_size;
         p->context->seek(p->handle, jump,
                          SEEK_CUR,
                          p->context->user_data);
     }
+/*}}}*/
 
     if (p->on_push_chunk) {
         p->on_push_chunk(c, p->context->user_data);
     }
 
-    c->nb_children = gas_read_encoded_num_parser(p);
-    if (p->status != GAS_OK) { goto abort; }
+/* children {{{*/
+    result = gas_read_encoded_num_parser(p, &c->nb_children);
+    if (result != GAS_OK) { goto abort; }
     c->children = malloc(c->nb_children * sizeof(chunk*));
     for (i = 0; i < c->nb_children; i++) {
-        c->children[i] = gas_read_parser(p);
-        if (p->status != GAS_OK) { goto abort; }
-        c->children[i]->parent = c;
+        result = gas_read_parser(p, &c->children[i]);
+        if (result != GAS_OK) { goto abort; }
+        if (p->build_tree) {
+            // if we are not building the tree, then the child will be null
+            c->children[i]->parent = c;
+        }
     }
+/*}}}*/
+
     if (p->on_pop_chunk) {
         p->on_pop_chunk(c, p->context->user_data);
     }
@@ -225,15 +234,17 @@ chunk* gas_read_parser (gas_parser *p)
     }
 
     if (p->build_tree) {
-        return c;
+        *out = c;
     } else {
         gas_destroy(c);
-        return NULL;
+        *out = NULL;
     }
+    return GAS_OK;
 
 abort:
     gas_destroy(c);
-    return NULL;
+    *out = NULL;
+    return result;
 }
 /*}}}*/
 /* parser routines {{{*/
@@ -249,16 +260,6 @@ gas_parser* gas_parser_new (gas_context* context)
     p->build_tree = GAS_TRUE;
     p->get_payloads = GAS_TRUE;
 
-#if 0
-    p->on_pre_chunk   = gas_default_pre_chunk;
-    p->on_push_id     = gas_default_push_id;    
-    p->on_push_chunk  = gas_default_push_chunk; 
-    p->on_attribute   = gas_default_on_attribute;  
-    p->on_payload     = gas_default_on_payload;    
-    p->on_pop_id      = gas_default_pop_id;     
-    p->on_pop_chunk   = gas_default_pop_chunk;  
-#endif
-
     return p;
 }
 
@@ -267,19 +268,21 @@ void gas_parser_destroy (gas_parser *p)
     free(p);
 }
 
-chunk* gas_parse (gas_parser* p, const char *resource)
+GASresult gas_parse (gas_parser* p, const char *resource, chunk **out)
 {
+    GASresult result;
     chunk *c = NULL;
     GASnum status;
     gas_context *s = p->context;
 
     status = s->open(resource, "rb", &p->handle, &s->user_data);
-    c = gas_read_parser(p);
+    result = gas_read_parser(p, &c);
     // i don't know what the parser returned, but it does not really matter, as
     // the error will find its way to the user anyway
     status = s->close(p->handle, s->user_data);
 
-    return c;
+    *out = c;
+    return result;
 }
 /*}}}*/
 

@@ -19,24 +19,24 @@ extern "C"
 /** @name fd io */
 /*@{*/
 
-typedef GASnum (*GAS_FILE_OPEN_CALLBACK)  (const char *name, const char *mode,
-                                           void **handle, void **userdata);
-typedef GASnum (*GAS_FILE_CLOSE_CALLBACK) (void *handle, void *userdata);
-typedef GASnum (*GAS_FILE_READ_CALLBACK)  (void *handle, void *buffer,
-                                           unsigned int sizebytes,
-                                           unsigned int *bytesread,
-                                           void *userdata);
-typedef GASnum (*GAS_FILE_WRITE_CALLBACK) (void *handle, void *buffer,
-                                           unsigned int sizebytes,
-                                           unsigned int *byteswritten,
-                                           void *userdata);
+typedef GASresult (*GAS_FILE_OPEN_CALLBACK)  (const char *name, const char *mode,
+                                              void **handle, void **userdata);
+typedef GASresult (*GAS_FILE_CLOSE_CALLBACK) (void *handle, void *userdata);
+typedef GASresult (*GAS_FILE_READ_CALLBACK)  (void *handle, void *buffer,
+                                              unsigned int sizebytes,
+                                              unsigned int *bytesread,
+                                              void *userdata);
+typedef GASresult (*GAS_FILE_WRITE_CALLBACK) (void *handle, void *buffer,
+                                              unsigned int sizebytes,
+                                              unsigned int *byteswritten,
+                                              void *userdata);
 /**
  * @brief provides the ability to seek forward (SEEK_CUR).
  */
-typedef GASnum (*GAS_FILE_SEEK_CALLBACK)  (void *handle,
-                                           unsigned long pos,
-                                           int whence,
-                                           void *userdata);
+typedef GASresult (*GAS_FILE_SEEK_CALLBACK)  (void *handle,
+                                              unsigned long pos,
+                                              int whence,
+                                              void *userdata);
 
 typedef struct _gas_context gas_context;
 

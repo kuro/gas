@@ -58,6 +58,7 @@ void my_on_payload (GASunum payload_size, void *payload, void *user_data)
 
 int main (void)
 {
+    GASresult r;
 #if 1
     chunk *c;
     gas_context *ctx;
@@ -76,9 +77,10 @@ int main (void)
     p->on_attribute = my_on_attribute;
     p->on_pop_id = my_pop_id;
 
-    //c = gas_parse(p, "dump.gas");
-    //c = gas_parse(p, "xslspec.gas");
-    c = gas_parse(p, "physx-test.gas");
+    r = gas_parse(p, "dump.gas", &c);
+    //r = gas_parse(p, "xslspec.gas", &c);
+    //r = gas_parse(p, "physx-test.gas", &c);
+    printf("%d\n", r);
 
     gas_parser_destroy(p);
     gas_print(c);

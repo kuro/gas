@@ -37,8 +37,6 @@ typedef GASvoid (*GAS_POP_CHUNK)    (chunk* c, void *user_data);
 
 struct _gas_parser
 {
-    int status;
-
     gas_context* context;
     void *handle;
 
@@ -61,15 +59,10 @@ struct _gas_parser
     GAS_POP_CHUNK    on_pop_chunk;
 };
 
-/**
- * @param build_tree When true, return a parsed tree.  When false, scan the
- * tree only, invoking any set callbacks in the process.
- *
- * @see gas_parser::build_tree
- */
 gas_parser* gas_parser_new (gas_context* context);
-chunk* gas_parse (gas_parser* p, const char *resource);
 void gas_parser_destroy (gas_parser *p);
+
+GASresult gas_parse (gas_parser* p, const char *resource, chunk **out);
 
 #ifdef __cplusplus
 }
