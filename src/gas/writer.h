@@ -20,14 +20,12 @@ extern "C"
 typedef struct _gas_writer gas_writer;
 struct _gas_writer
 {
-    int status;
-
     gas_context* context;
     void *handle;
 };
 
-void gas_write_encoded_num_writer (gas_writer *writer, GASunum value);
-void gas_write_writer (gas_writer *writer, chunk* self);
+GASresult gas_write_encoded_num_writer (gas_writer *writer, GASunum value);
+GASresult gas_write_writer (gas_writer *writer, chunk* self);
 
 #ifdef __cplusplus
 }

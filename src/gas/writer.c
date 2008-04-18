@@ -3,8 +3,9 @@
 
 
 /* gas_write_encoded_num_writer() {{{*/
-void gas_write_encoded_num_writer (gas_writer *writer, GASunum value)
+GASresult gas_write_encoded_num_writer (gas_writer *writer, GASunum value)
 {
+    GASresult result = GAS_OK;
     unsigned int bytes_written;
     GASunum i, coded_length;
     GASubyte byte, mask;
@@ -29,9 +30,9 @@ void gas_write_encoded_num_writer (gas_writer *writer, GASunum value)
 
     byte = 0x0;
     for (i = 0; i < zero_bytes; i++) {
-        writer->status = writer->context->write(writer->handle, &byte, 1, &bytes_written, writer->context->user_data);
-        if (writer->status != 0) {
-            goto abort;
+        result = writer->context->write(writer->handle, &byte, 1, &bytes_written, writer->context->user_data);
+        if (result != 0) {
+            return result;
         }
     }
 
@@ -45,9 +46,9 @@ void gas_write_encoded_num_writer (gas_writer *writer, GASunum value)
     } else {
         byte = mask;
     }
-    writer->status = writer->context->write(writer->handle, &byte, 1, &bytes_written, writer->context->user_data);
-    if (writer->status != 0) {
-        goto abort;
+    result = writer->context->write(writer->handle, &byte, 1, &bytes_written, writer->context->user_data);
+    if (result != 0) {
+        return result;
     }
 
     /*
@@ -58,16 +59,13 @@ void gas_write_encoded_num_writer (gas_writer *writer, GASunum value)
      */
     for (si = coded_length - 2 - zero_bytes; si >= 0; si--) {
         byte = ((value >> (si*8)) & 0xff);
-        writer->status = writer->context->write(writer->handle, &byte, 1, &bytes_written, writer->context->user_data);
-        if (writer->status != 0) {
-            goto abort;
+        result = writer->context->write(writer->handle, &byte, 1, &bytes_written, writer->context->user_data);
+        if (result != 0) {
+            return result;
         }
-
     }
 
-abort:  // seems i wasn't returning anything useful anyway... yet
-
-    return;
+    return GAS_OK;
 }
 /*}}}*/
 
@@ -75,41 +73,41 @@ abort:  // seems i wasn't returning anything useful anyway... yet
 /* gas_write_writer() {{{*/
 #define write_field(field)                                                  \
     do {                                                                    \
-        gas_write_encoded_num_writer(writer, self->field##_size);           \
-        if (writer->status != GAS_OK) { goto abort; }                       \
-        writer->status = writer->context->write(                            \
+        result = gas_write_encoded_num_writer(writer, self->field##_size);  \
+        if (result != GAS_OK) { return result; }                            \
+        result = writer->context->write(                                    \
             writer->handle, self->field,                                    \
             self->field##_size, &bytes_written,                             \
             writer->context->user_data);                                    \
-        if (writer->status != GAS_OK) { goto abort; }                       \
+        if (result != GAS_OK) { return result; }                            \
     } while(0)
 
-void gas_write_writer (gas_writer *writer, chunk* self)
+GASresult gas_write_writer (gas_writer *writer, chunk* self)
 {
+    GASresult result = GAS_OK;
     int i;
     unsigned int bytes_written;
 
     /* this chunk's size */
     gas_write_encoded_num_writer(writer, self->size);
-    if (writer->status != GAS_OK) { goto abort; }
+    if (result != GAS_OK) { return result; }
     write_field(id);
     /* attributes */
     gas_write_encoded_num_writer(writer, self->nb_attributes);
-    if (writer->status != GAS_OK) { goto abort; }
+    if (result != GAS_OK) { return result; }
     for (i = 0; i < self->nb_attributes; i++) {
         write_field(attributes[i].key);
         write_field(attributes[i].value);
     }
     write_field(payload);
     /* children */
-    gas_write_encoded_num_writer(writer, self->nb_children);
-    if (writer->status != GAS_OK) { goto abort; }
+    result = gas_write_encoded_num_writer(writer, self->nb_children);
+    if (result != GAS_OK) { return result; }
     for (i = 0; i < self->nb_children; i++) {
         gas_write_writer(writer, self->children[i]);
     }
 
-abort:
-    return;
+    return result;
 }
 /*}}}*/
 
