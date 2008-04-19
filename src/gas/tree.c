@@ -7,7 +7,9 @@
 /**
  * @mainpage
  *
- * Topics:
+ * @htmlinclude README.html
+ *
+ * Additional Topics:
  * - @ref parser
  */
 
