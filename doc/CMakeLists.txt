@@ -60,7 +60,7 @@ if (RDOC)
     add_custom_target(rdoc
         COMMAND ${RDOC} -o ${CMAKE_CURRENT_BINARY_DIR}/rdoc ${CMAKE_CURRENT_SOURCE_DIR}/../lib
         )
-    file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/rdoc)
+    #file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/rdoc)
     if (ENABLE_INSTALLER)
         install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/rdoc DESTINATION
             ${DEST}doc/gas/rdoc
@@ -68,3 +68,5 @@ if (RDOC)
     endif()
     add_dependencies(doc rdoc)
 endif ()
+
+add_dependencies(gas_doc README.html)
