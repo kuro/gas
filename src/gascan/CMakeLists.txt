@@ -1,8 +1,6 @@
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/..)
 
-find_package(Qt4 REQUIRED)
-
 set(sources test.cpp main.cpp gas2c.cpp)
 
 if (QT4_FOUND)

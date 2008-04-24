@@ -262,7 +262,7 @@ int xml2gas_main (int argc, char **argv)
     unsigned int i;
     for (i = 0; i < cur->nb_children; i++) {
         printf("total size: %ld\n", gas_total_size(cur->children[i]));
-        gas_write_fd(cur->children[i], fd);
+        gas_write_fd(fd, cur->children[i]);
     }
     close(fd);
     gas_destroy(cur);

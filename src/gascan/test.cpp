@@ -28,7 +28,7 @@
 int total_bytes_read;
 
 /* custom context {{{*/
-GASnum my_open (const char *name, const char *mode, void **handle, void **userdata)
+GASresult my_open (const char *name, const char *mode, void **handle, void **userdata)
 {
     *userdata = NULL;
 
@@ -53,7 +53,7 @@ GASnum my_open (const char *name, const char *mode, void **handle, void **userda
     return GAS_OK;
 }
 
-GASnum my_close (void *handle, void *userdata)
+GASresult my_close (void *handle, void *userdata)
 {
     if (!handle) {
         return GAS_ERR_INVALID_PARAM;
@@ -64,7 +64,7 @@ GASnum my_close (void *handle, void *userdata)
     return GAS_OK;
 }
 
-GASnum my_read (void *handle, void *buffer, unsigned int sizebytes,
+GASresult my_read (void *handle, void *buffer, unsigned int sizebytes,
                          unsigned int *bytesread, void *userdata)
 {
     if (!handle) {
@@ -93,7 +93,7 @@ GASnum my_read (void *handle, void *buffer, unsigned int sizebytes,
     return GAS_OK;
 }
 
-GASnum my_write (void *handle, void *buffer, unsigned int sizebytes,
+GASresult my_write (void *handle, void *buffer, unsigned int sizebytes,
                           unsigned int *byteswritten, void *userdata)
 {
     if (!handle) {
@@ -111,7 +111,7 @@ GASnum my_write (void *handle, void *buffer, unsigned int sizebytes,
     return GAS_OK;
 }
 
-GASnum my_seek (void *handle, unsigned int pos, int whence, void *userdata)
+GASresult my_seek (void *handle, unsigned long pos, int whence, void *userdata)
 {
     if (!handle) {
         return GAS_ERR_INVALID_PARAM;
@@ -208,9 +208,9 @@ int test_main (int argc, char **argv)
     //c = gas_parse(p, "xslspec.gas");
     printf("%d\n", argc);
     if (argc == 1) {
-        c = gas_parse(p, "-");
+        gas_parse(p, "-", &c);
     } else if (argc == 2) {
-        c = gas_parse(p, argv[1]);
+        gas_parse(p, argv[1], &c);
     } else {
         fprintf(stderr, "test: invalid usage\n");
     }

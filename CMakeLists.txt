@@ -2,6 +2,8 @@ set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS on)
 
 project(Gas)
 
+find_package(Qt4)
+
 option(ENABLE_INSTALLER "Enable installer commands" OFF)
 option(ENABLE_TESTS "Enable test building" OFF)
 option(GAS_USE_LONG_TYPES "Enable use of long types" ON)

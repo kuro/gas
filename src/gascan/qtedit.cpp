@@ -310,7 +310,8 @@ void MainEditWindow::load (const QString& src)
     }
 
     root = gas_new("root", 4);
-    chunk *doc = gas_parse(parser, src.toAscii());
+    chunk *doc = NULL;
+    gas_parse(parser, src.toAscii(), &doc);
     gas_add_child(root, doc);
 
     progress_bar->hide();

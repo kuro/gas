@@ -90,14 +90,15 @@ int gas2c (int argc, char **argv)
 
     varname = argv[1];
 
-    size = gas_read_encoded_num_fd(fileno(input));
+    gas_read_encoded_num_fd(fileno(input), &size);
     bytes_remaining = size;
 
     fprintf(output, "unsigned char %s[] = {\n", varname.c_str());
 
 /* write the first line, which contains the number {{{*/
     // write out the number
-    GASunum size_size = gas_write_encoded_num_buf(size_buf, size);
+    GASunum size_size;
+    gas_write_encoded_num_buf(size_buf, size, size_size);
     bytes_remaining -= 8 - size_size;
 
     // just the number

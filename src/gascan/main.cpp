@@ -50,9 +50,10 @@ void print_gas_file (string fname)
     chunk *c;
 
     fd = open(fname.c_str(), O_RDONLY);
-    c = gas_read_fd(fd);
+    gas_read_fd(fd, &c);
     close(fd);
 
+    exit(0);
     gas_print(c);
 
     gas_destroy(c);

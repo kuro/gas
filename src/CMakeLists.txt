@@ -10,7 +10,7 @@ endif ()
 
 subdirs(gas)
 
-if (HAVE_QT)
+if (QT4_FOUND)
     subdirs(gascan)
 endif ()
 
