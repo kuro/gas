@@ -174,6 +174,7 @@ module Gas
         @size += encode_num(child.size).size
         @size += child.size
       end
+      self
     end
     def serialize
       sio = StringIO.new
