@@ -61,7 +61,7 @@ void start (void *data, const char *el, const char **attr)
 void character_data (void *data, const char *str, int length)
 {
     int total_new_len = length + cur->payload_size;
-    cur->payload = realloc(cur->payload, total_new_len + 1);
+    cur->payload = (GASubyte*)realloc(cur->payload, total_new_len + 1);
     memcpy(cur->payload + cur->payload_size, str, length);
     ((char*)cur->payload)[total_new_len] = 0;
     cur->payload_size = total_new_len;
@@ -122,7 +122,7 @@ void test0002 (void)
     fd = open("test.gas", O_WRONLY|O_CREAT|O_TRUNC, 0600);
     // i do not need to write the top root element,
     // so when reading the file back, there may be multiple top chunks
-    int i;
+    GASunum i;
     for (i = 0; i < cur->nb_children; i++) {
         gas_write_fd(fd, cur->children[i]);
     }

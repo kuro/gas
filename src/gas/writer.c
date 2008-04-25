@@ -28,7 +28,7 @@ GASresult gas_write_encoded_num_writer (gas_writer *writer, GASunum value)
     GASnum si;  /* a signed i */
 
     for (i = 1; 1; i++) {
-        if (value < ((1L << (7L*i))-1L)) {
+        if (value < ((1UL << (7UL*i))-1UL)) {
             break;
         }
         if ((i * 7L) > (sizeof(GASunum) * 8L)) {
@@ -70,6 +70,8 @@ GASresult gas_write_encoded_num_writer (gas_writer *writer, GASunum value)
      * write remaining bytes
      * from coded length, subtract 1 byte because we count down to zero
      * subtract an addition byte because one was already or'ed with the mask
+     *
+     * @internal
      * @todo figure out why zero_bytes is subtracted
      */
     for (si = coded_length - 2 - zero_bytes; si >= 0; si--) {
@@ -100,7 +102,7 @@ GASresult gas_write_encoded_num_writer (gas_writer *writer, GASunum value)
 GASresult gas_write_writer (gas_writer *writer, chunk* self)
 {
     GASresult result = GAS_OK;
-    int i;
+    GASunum i;
     unsigned int bytes_written;
 
     /* this chunk's size */

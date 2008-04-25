@@ -140,8 +140,6 @@ GASresult gas_default_seek (void *handle, unsigned long pos,
     }
 
 #if USE_FILE
-    /*fseek((FILE *)handle, pos, SEEK_SET);*/
-    /** @todo make this configurable */
     fseek((FILE *)handle, pos, whence);
 #else
     lseek((long)handle, pos, whence);
@@ -154,7 +152,7 @@ GASresult gas_default_seek (void *handle, unsigned long pos,
 gas_context* gas_context_new (void)
 {
     gas_context *s;
-    s = malloc(sizeof(gas_context));
+    s = (gas_context*)malloc(sizeof(gas_context));
     s->open = gas_default_open;
     s->close = gas_default_close;
     s->read = gas_default_read;

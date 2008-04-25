@@ -99,7 +99,7 @@ GASresult gas_read_encoded_num_parser (gas_parser *p, GASunum *out)
 {
     GASunum retval;
     unsigned int bytes_read;
-    int i, zero_byte_count, first_bit_set;
+    GASunum i, zero_byte_count, first_bit_set;
     GASubyte byte, mask = 0x00;
     GASunum additional_bytes_to_read;
 
@@ -143,8 +143,8 @@ GASresult gas_read_encoded_num_parser (gas_parser *p, GASunum *out)
 #define read_field(field)                                                   \
     do {                                                                    \
         result = gas_read_encoded_num_parser(p, &field##_size);             \
-        if (result != GAS_OK) { goto abort; }                            \
-        field = malloc(field##_size + 1);                                   \
+        if (result != GAS_OK) { goto abort; }                               \
+        field = (GASubyte*)malloc(field##_size + 1);                        \
         p->context->read(p->handle, field, field##_size,                    \
                                   &bytes_read, p->context->user_data);      \
         ((GASubyte*)field)[field##_size] = 0;                               \
@@ -160,7 +160,7 @@ GASresult gas_read_encoded_num_parser (gas_parser *p, GASunum *out)
 GASresult gas_read_parser (gas_parser *p, chunk **out)
 {
     GASresult result = GAS_OK;
-    int i;
+    GASunum i;
     chunk* c = gas_new(NULL, 0);
     unsigned int bytes_read;
     GASbool cont;
@@ -194,7 +194,7 @@ GASresult gas_read_parser (gas_parser *p, chunk **out)
 /* attributes {{{*/
     result = gas_read_encoded_num_parser(p, &c->nb_attributes);
     if (result != GAS_OK) { goto abort; }
-    c->attributes = malloc(c->nb_attributes * sizeof(attribute));
+    c->attributes = (attribute*)malloc(c->nb_attributes * sizeof(attribute));
     for (i = 0; i < c->nb_attributes; i++) {
         read_field(c->attributes[i].key);
         read_field(c->attributes[i].value);
@@ -229,7 +229,7 @@ GASresult gas_read_parser (gas_parser *p, chunk **out)
 /* children {{{*/
     result = gas_read_encoded_num_parser(p, &c->nb_children);
     if (result != GAS_OK) { goto abort; }
-    c->children = malloc(c->nb_children * sizeof(chunk*));
+    c->children = (chunk**)malloc(c->nb_children * sizeof(chunk*));
     for (i = 0; i < c->nb_children; i++) {
         result = gas_read_parser(p, &c->children[i]);
         if (result != GAS_OK) { goto abort; }
@@ -266,7 +266,7 @@ gas_parser* gas_parser_new (gas_context* context)
 {
     gas_parser *p;
 
-    p = malloc(sizeof(gas_parser));
+    p = (gas_parser*)malloc(sizeof(gas_parser));
 
     memset(p, 0, sizeof(gas_parser));
 

@@ -36,7 +36,7 @@ GASresult gas_write_encoded_num_fs (FILE* fs, GASunum value)
     GASnum si;  /* a signed i */
 
     for (i = 1; 1; i++) {
-        if (value < ((1L << (7L*i))-1L)) {
+        if (value < ((1UL << (7UL*i))-1UL)) {
             break;
         }
         if ((i * 7L) > (sizeof(GASunum) * 8L)) {
@@ -76,6 +76,8 @@ GASresult gas_write_encoded_num_fs (FILE* fs, GASunum value)
      * write remaining bytes
      * from coded length, subtract 1 byte because we count down to zero
      * subtract an addition byte because one was already or'ed with the mask
+     *
+     * @internal
      * @todo figure out why zero_bytes is subtracted
      */
     for (si = coded_length - 2 - zero_bytes; si >= 0; si--) {
@@ -104,7 +106,7 @@ GASresult gas_write_encoded_num_fs (FILE* fs, GASunum value)
 GASresult gas_write_fs (FILE* fs, chunk* self)
 {
     GASresult result;
-    int i;
+    GASunum i;
 
     /* this chunk's size */
     result = gas_write_encoded_num_fs(fs, self->size);
@@ -142,7 +144,7 @@ GASresult gas_write_fs (FILE* fs, chunk* self)
 GASresult gas_read_encoded_num_fs (FILE* fs, GASunum *value)
 {
     GASunum retval = 0x0;
-    int i, bytes_read, zero_byte_count, first_bit_set;
+    GASunum i, bytes_read, zero_byte_count, first_bit_set;
     GASubyte byte, mask = 0x00;
     GASunum additional_bytes_to_read;
 
@@ -190,9 +192,9 @@ GASresult gas_read_encoded_num_fs (FILE* fs, GASunum *value)
 
 #define read_field(field)                                                   \
     do {                                                                    \
-        result = gas_read_encoded_num_fs(fs, &field##_size);                 \
+        result = gas_read_encoded_num_fs(fs, &field##_size);                \
         if (result != GAS_OK) { return result; }                            \
-        field = malloc(field##_size + 1);                                   \
+        field = (GASubyte*)malloc(field##_size + 1);                        \
         if (fread(field, 1, field##_size, fs) != field##_size) {            \
             return GAS_ERR_UNKNOWN;                                         \
         }                                                                   \
@@ -202,7 +204,7 @@ GASresult gas_read_encoded_num_fs (FILE* fs, GASunum *value)
 GASresult gas_read_fs (FILE* fs, chunk **out)
 {
     GASresult result;
-    int i;
+    GASunum i;
     chunk* c = gas_new(NULL, 0);
 
     result = gas_read_encoded_num_fs(fs, &c->size);
@@ -210,7 +212,7 @@ GASresult gas_read_fs (FILE* fs, chunk **out)
     read_field(c->id);
     result = gas_read_encoded_num_fs(fs, &c->nb_attributes);
     if (result != GAS_OK) { return result; }
-    c->attributes = malloc(c->nb_attributes * sizeof(attribute));
+    c->attributes = (attribute*)malloc(c->nb_attributes * sizeof(attribute));
     for (i = 0; i < c->nb_attributes; i++) {
         read_field(c->attributes[i].key);
         read_field(c->attributes[i].value);
@@ -218,7 +220,7 @@ GASresult gas_read_fs (FILE* fs, chunk **out)
     read_field(c->payload);
     result = gas_read_encoded_num_fs(fs, &c->nb_children);
     if (result != GAS_OK) { return result; }
-    c->children = malloc(c->nb_children * sizeof(chunk*));
+    c->children = (chunk**)malloc(c->nb_children * sizeof(chunk*));
     for (i = 0; i < c->nb_children; i++) {
          result = gas_read_fs(fs, &c->children[i]);
         if (result != GAS_OK) { return result; }

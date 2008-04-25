@@ -27,12 +27,12 @@
 #include <unistd.h>
 #include <string.h>
 
-#define _GNU_SOURCE
 #include <stdio.h>
 
-int successes = 0, failures = 0;
+int successes = 0;
+int failures = 0;
 
-int try (FILE* fs, GASunum num)
+int tryit (FILE* fs, GASunum num)
 {
     GASunum out;
     //printf("%lx\n", num);
@@ -54,7 +54,7 @@ int try (FILE* fs, GASunum num)
     return num == out;
 }
 
-void test_range (int start, int end)
+void test_range (GASunum start, GASunum end)
 {
     FILE* fs;
     GASunum i, j;
@@ -103,7 +103,7 @@ void test_random (int count, GASunum mask)
         fread(&num, sizeof(num), 1, fs_rand);
         num &= mask;
 
-        if ( ! try(fs, num)) {
+        if ( ! tryit(fs, num)) {
             char cmd[1024];
             cmd[0] = '\0';
             strcat(cmd, "xxd ");
@@ -127,7 +127,7 @@ void test_number (GASunum num)
     fname = "/dev/shm/dump";
     fs = fopen(fname, "w+");
 
-    if ( ! try(fs, num)) {
+    if ( ! tryit(fs, num)) {
         char cmd[1024];
         cmd[0] = '\0';
         strcat(cmd, "xxd ");

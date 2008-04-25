@@ -47,7 +47,7 @@ GASunum encoded_size (GASunum value);
 /** @name helper functions */
 /*@{*/
 /* gas_cmp() {{{*/
-int gas_cmp (GASunum a_len, const GASubyte *a, GASunum b_len, const GASubyte *b)
+int gas_cmp (const GASubyte *a, GASunum a_len, const GASubyte *b, GASunum b_len)
 {
     int result;
     unsigned int i = 0;
@@ -85,7 +85,7 @@ GASunum encoded_size (GASunum value)
 
     for (i = 1; 1; i++) {
         /*if (value < (unsigned int)pow(2, 7*i)-2) {*/
-        if (value < ((1L << (7L*i))-1L)) {
+        if (value < ((1UL << (7UL*i))-1UL)) {
             break;
         }
     }
@@ -103,7 +103,7 @@ GASunum encoded_size (GASunum value)
 #define copy_to_field(field)                                                \
     do {                                                                    \
         c->field##_size = field##_size;                                     \
-        c->field = realloc(c->field, field##_size + 1);                     \
+        c->field = (GASubyte*)realloc(c->field, field##_size + 1);          \
         memcpy(c->field, field, field##_size);                              \
         ((GASubyte*)c->field)[field##_size] = 0;                            \
     } while (0)
@@ -112,7 +112,7 @@ GASunum encoded_size (GASunum value)
 #define copy_to_attribute(field)                                            \
     do {                                                                    \
         a->field##_size = field##_size;                                     \
-        ctmp = realloc(a->field, field##_size + 1);                         \
+        ctmp = (GASubyte*)realloc(a->field, field##_size + 1);              \
         assert(ctmp != NULL);                                               \
         a->field = ctmp;                                                    \
         memcpy(a->field, field, field##_size);                              \
@@ -128,7 +128,7 @@ chunk* gas_new (const GASvoid *id, GASunum id_size)
 {
     chunk *c;
 
-    c = malloc(sizeof(chunk));
+    c = (chunk*)malloc(sizeof(chunk));
     assert(c != NULL);
     memset(c, 0, sizeof(chunk));
 
@@ -154,7 +154,7 @@ chunk* gas_new_named (const char *id)
  */
 GASvoid gas_destroy (chunk* c)
 {
-    int i;
+    GASubyte i;
 
     if (c == NULL) {
         return;
@@ -194,24 +194,15 @@ GASunum gas_id_size (chunk* c)
 /* gas_get_id() {{{*/
 /**
  * @returns The number of bytes fetched.
- * @todo add sanity checking
  */
 GASnum gas_get_id (chunk* c, GASvoid* id, GASunum limit)
 {
-#if 0
-    GASunum count;
-
-    count = min(limit, c->id_size);
-    memcpy(((GASubyte*)id), c->id, count);
-    return c->id_size - limit;
-#else
     if (c->id_size < limit) {
         return GAS_ERR_INVALID_PARAM;
     }
 
     memcpy(((GASubyte*)id), c->id, c->id_size);
     return c->id_size;
-#endif
 }
 /*}}}*/
 /*@}*/
@@ -229,7 +220,9 @@ GASnum gas_index_of_attribute (chunk* c, const GASvoid* key, GASunum key_size)
     attribute* a;
     for (i = 0; i < c->nb_attributes; i++ ) {
         a = &c->attributes[i];
-        if (gas_cmp(a->key_size, a->key, key_size, key) == 0) {
+        if (gas_cmp((GASubyte*)a->key, a->key_size,
+                    (GASubyte*)key, key_size) == 0)
+        {
             return i;
         }
     }
@@ -237,9 +230,6 @@ GASnum gas_index_of_attribute (chunk* c, const GASvoid* key, GASunum key_size)
 }
 /*}}}*/
 /* gas_set_attribute() {{{*/
-/**
- * @todo check for existing attribute first!
- */
 GASvoid gas_set_attribute (chunk* c,
                            const GASvoid *key, GASunum key_size,
                            const GASvoid *value, GASunum value_size)
@@ -258,7 +248,8 @@ GASvoid gas_set_attribute (chunk* c,
         /* not found, append at end */
         c->nb_attributes++;
 
-        tmp = realloc(c->attributes, c->nb_attributes*sizeof(attribute));
+        tmp = (attribute*)realloc(c->attributes,
+                                  c->nb_attributes*sizeof(attribute));
         assert(tmp);
         c->attributes = tmp;
 
@@ -366,24 +357,15 @@ GASunum gas_payload_size (chunk* c)
 /* gas_get_payload() {{{*/
 /**
  * @returns The number of bytes fetched.
- * @todo add sanity checking
  */
 GASnum gas_get_payload (chunk* c, GASvoid* payload, GASunum limit)
 {
-#if 0
-    GASunum count;
-
-    count = min(limit, c->payload_size);
-    memcpy(((GASubyte*)payload), c->payload, count);
-    return c->payload_size - limit;
-#else
     if (c->payload_size < limit) {
         return GAS_ERR_INVALID_PARAM;
     }
 
     memcpy(((GASubyte*)payload), c->payload, c->payload_size);
     return c->payload_size;
-#endif
 }
 /*}}}*/
 /*@}*/
@@ -403,7 +385,7 @@ GASvoid gas_add_child(chunk* parent, chunk* child)
 
     parent->nb_children++;
 
-    tmp = realloc(parent->children, parent->nb_children*sizeof(chunk*));
+    tmp = (chunk**)realloc(parent->children,parent->nb_children*sizeof(chunk*));
     assert(tmp);
     parent->children = tmp;
 
@@ -448,7 +430,7 @@ GASnum gas_delete_child_at (chunk* c, GASunum index)
 /* gas_update() {{{*/
 GASvoid gas_update (chunk* c)
 {
-    int i;
+    GASunum i;
 
     GASunum sum;
     /*GASunum a, b;*/

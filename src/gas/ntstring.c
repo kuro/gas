@@ -49,7 +49,7 @@ GASvoid gas_set_id_s (chunk* c, const GASchar* id)
 GASchar* gas_get_id_s (chunk* c)
 {
     GASchar *retval;
-    retval = malloc(c->id_size + 1);
+    retval = (GASchar*)malloc(c->id_size + 1);
     assert(retval != NULL);
     if (retval == NULL) {
         return NULL;
@@ -106,10 +106,11 @@ GASnum gas_get_attribute_s (chunk* c, const GASchar* key,
  * Allocates memory.
  *
  * @returns An allocated copy of the requested attribute.
+ * @todo redundant checks
  */
 GASchar* gas_get_attribute_ss (chunk* c, const GASchar* key)
 {
-    int status;
+    GASnum status;
     GASunum len;
     GASnum index;
     GASchar *retval;
@@ -120,14 +121,18 @@ GASchar* gas_get_attribute_ss (chunk* c, const GASchar* key)
     }
 
     len = gas_attribute_value_size(c, index);
-    retval = malloc(len + 1);
+    retval = (GASchar*)malloc(len + 1);
     assert(retval != NULL);
     if (retval == NULL) {
         return NULL;
     }
 
     status = gas_get_attribute(c, index, retval, len);
-    if (status != len) {
+    if (status < 0) {
+        free(retval);
+        return NULL;
+    }
+    if (status != (GASnum)len) {
         free(retval);
         return NULL;
     }
@@ -154,7 +159,7 @@ GASvoid gas_set_payload_s (chunk* c, const GASchar* payload)
 GASchar* gas_get_payload_s (chunk* c)
 {
     GASchar *retval;
-    retval = malloc(c->payload_size + 1);
+    retval = (GASchar*)malloc(c->payload_size + 1);
     assert(retval != NULL);
     if (retval == NULL) {
         return NULL;
@@ -214,7 +219,7 @@ GASchar* gas_sanitize (const GASubyte* str, GASunum len)
 
 GASvoid gas_print (chunk* c)
 {
-    int i;
+    GASunum i;
     static int level = 0;
     static int level_iter;
 
@@ -230,7 +235,7 @@ GASvoid gas_print (chunk* c)
     for (i = 0; i < c->nb_attributes; i++) {
         indent();
         printf(
-            "attr %d of %ld: \"%s\" ",
+            "attr %ld of %ld: \"%s\" ",
             i,
             c->nb_attributes,
             gas_sanitize(c->attributes[i].key, c->attributes[i].key_size)

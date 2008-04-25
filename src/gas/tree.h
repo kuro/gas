@@ -35,7 +35,7 @@ extern "C"
 /*}*/
 #endif
 
-int gas_cmp(GASunum a_len, const GASubyte *a, GASunum b_len, const GASubyte *b);
+int gas_cmp(const GASubyte *a, GASunum a_len, const GASubyte *b, GASunum b_len);
 
 /* construction {{{*/
 /** @defgroup construction */

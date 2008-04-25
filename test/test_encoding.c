@@ -60,7 +60,7 @@ void write_size (int fd, GASunum val)
 GASunum read_size (int fd)
 {
     GASunum retval;
-    int i, bytes_read, zero_byte_count, first_bit_set;
+    GASunum i, bytes_read, zero_byte_count, first_bit_set;
     GASubyte byte, mask = 0x00;
 
     // find first non 0x00 byte
