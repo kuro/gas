@@ -154,7 +154,9 @@ module Gas
       io << encode_num(id.size)
       io << id
       io << encode_num(@attributes.size)
-      @attributes.each do |key, value|
+      #@attributes.each do |key, value|
+      @attributes.keys.sort.each do |key|
+        value = @attributes[key]
         io << encode_num(key.size)
         io << key
         io << encode_num(value.size)
@@ -245,7 +247,9 @@ module Gas
       pi.call '---'
       pi.call "id: #{id}"
       counter = 0
-      @attributes.each do |key, value|
+      #@attributes.each do |key, value|
+      @attributes.keys.sort.each do |key|
+        value = @attributes[key]
         pi.call "#{counter}: #{key.inspect} => #{value.inspect}"
         counter += 1
       end
