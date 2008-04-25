@@ -150,12 +150,12 @@ GASresult gas_read_encoded_num_fd (int fd, GASunum* value)
         write(fd, self->field, self->field##_size);                         \
     } while(0)
 
-GASresult gas_write_fd (int fd, chunk* self)
+GASresult gas_write_fd (int fd, GASchunk* self)
 {
     GASresult result;
     GASunum i;
 
-    /* this chunk's size */
+    /* this GASchunk's size */
     gas_write_encoded_num_fd(fd, self->size);
     write_field(id);
     /* attributes */
@@ -190,11 +190,11 @@ GASresult gas_write_fd (int fd, chunk* self)
         ((GASubyte*)field)[field##_size] = 0;                               \
     } while (0)
 
-GASresult gas_read_fd (int fd, chunk** out)
+GASresult gas_read_fd (int fd, GASchunk** out)
 {
     GASresult result;
     GASunum i;
-    chunk* c = gas_new(NULL, 0);
+    GASchunk* c = gas_new(NULL, 0);
     ssize_t bytes_read;
 
     result = gas_read_encoded_num_fd(fd, &c->size);
@@ -212,7 +212,7 @@ GASresult gas_read_fd (int fd, chunk** out)
     if (result != GAS_OK) {
         return result;
     }
-    c->attributes = (attribute*)malloc(c->nb_attributes * sizeof(attribute));
+    c->attributes = (GASattribute*)malloc(c->nb_attributes * sizeof(GASattribute));
     for (i = 0; i < c->nb_attributes; i++) {
         read_field(c->attributes[i].key);
         read_field(c->attributes[i].value);
@@ -222,7 +222,7 @@ GASresult gas_read_fd (int fd, chunk** out)
     if (result != GAS_OK) {
         return result;
     }
-    c->children = (chunk**)malloc(c->nb_children * sizeof(chunk*));
+    c->children = (GASchunk**)malloc(c->nb_children * sizeof(GASchunk*));
     for (i = 0; i < c->nb_children; i++) {
         result = gas_read_fd(fd, &c->children[i]);
         if (result != GAS_OK) {

@@ -18,7 +18,7 @@
 
 
 /* gas_write_encoded_num_writer() {{{*/
-GASresult gas_write_encoded_num_writer (gas_writer *writer, GASunum value)
+GASresult gas_write_encoded_num_writer (GASwriter *writer, GASunum value)
 {
     GASresult result = GAS_OK;
     unsigned int bytes_written;
@@ -99,7 +99,7 @@ GASresult gas_write_encoded_num_writer (gas_writer *writer, GASunum value)
         if (result != GAS_OK) { return result; }                            \
     } while(0)
 
-GASresult gas_write_writer (gas_writer *writer, chunk* self)
+GASresult gas_write_writer (GASwriter *writer, GASchunk* self)
 {
     GASresult result = GAS_OK;
     GASunum i;

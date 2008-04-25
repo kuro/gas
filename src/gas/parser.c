@@ -24,11 +24,11 @@
  * @section parser_tuning Parser Tuning
  *
  * The parser's behavior is determined based upon a few factors, including the
- * seetings gas_parser::build_tree, as well as the state of user callbacks.
+ * seetings GASparser::build_tree, as well as the state of user callbacks.
  *
  * @subsection tree_extraction Tree Generation
  *
- * The @ref gas_parser contains a @ref gas_parser::build_tree flag.  When
+ * The @ref GASparser contains a @ref GASparser::build_tree flag.  When
  * false, gas_parse will return NULL, and the parser will act as a scanner
  * only.  When true, gas_parse returns a tree.
  *
@@ -38,19 +38,19 @@
  * NULL, the parser ignores them.
  *
  * The following callback allows for parse time pruning.
- * - @ref gas_parser::on_pre_chunk
+ * - @ref GASparser::on_pre_chunk
  *
  * The following are typical callbacks.
  *
- * - @ref gas_parser::on_push_chunk
- * - @ref gas_parser::on_pop_chunk
+ * - @ref GASparser::on_push_chunk
+ * - @ref GASparser::on_pop_chunk
  *
  * The following fine grained callbacks are provided for any unforseen purposes.
  *
- * - @ref gas_parser::on_push_id
- * - @ref gas_parser::on_attribute
- * - @ref gas_parser::on_payload
- * - @ref gas_parser::on_pop_id
+ * - @ref GASparser::on_push_id
+ * - @ref GASparser::on_attribute
+ * - @ref GASparser::on_payload
+ * - @ref GASparser::on_pop_id
  *
  * @note Even when tree building is turned off, consider the following.  The
  * chunks provided in the push and pop callbacks will not contain children.
@@ -58,14 +58,14 @@
  *
  * @section context File System Context
  *
- * Gas supports custom file systems.  Support is courtesty of @ref gas_context
+ * Gas supports custom file systems.  Support is courtesty of @ref GAScontext
  * callbacks.
  *
  * @section pruning Tree Prunning
  *
  * Gas, like XML, is designed to be extensible.  Thus, it should be easy for an
  * application to ignore unsupported chunks.  One way of accomplishing this is
- * setting a @ref GAS_PRE_CHUNK function (in @ref gas_parser::on_pre_chunk),
+ * setting a @ref GAS_PRE_CHUNK function (in @ref GASparser::on_pre_chunk),
  * and returning false to ignore or prune a chunk (as well as any contained
  * children).
  *
@@ -73,14 +73,14 @@
  *
  * Consider a scenario where the goal is to quickly extract information from a
  * tree, but the payload content is not necessary.  The parser contains a flag,
- * gas_parser::get_payloads, that is true by default.  When set to false, the
+ * GASparser::get_payloads, that is true by default.  When set to false, the
  * parser will seek over payload information, setting the payload pointers to
  * null.
  *
- * For the ultimate fast scan, set both gas_parser::get_payloads and
- * gas_parser::build_tree to false, and assign any necessary callbacks, such as
- * @ref gas_parser::on_pre_chunk, @ref gas_parser::on_push_chunk, and @ref
- * gas_parser::on_pop_chunk.
+ * For the ultimate fast scan, set both GASparser::get_payloads and
+ * GASparser::build_tree to false, and assign any necessary callbacks, such as
+ * @ref GASparser::on_pre_chunk, @ref GASparser::on_push_chunk, and @ref
+ * GASparser::on_pop_chunk.
  */
 /*}}}*/
 
@@ -91,11 +91,11 @@
 #include <errno.h>
 
 GASunum encoded_size (GASunum value);
-GASresult gas_read_encoded_num_parser (gas_parser *p, GASunum *out);
-GASresult gas_read_parser (gas_parser *p, chunk **out);
+GASresult gas_read_encoded_num_parser (GASparser *p, GASunum *out);
+GASresult gas_read_parser (GASparser *p, GASchunk **out);
 
 /* gas_read_encoded_num_parser() {{{*/
-GASresult gas_read_encoded_num_parser (gas_parser *p, GASunum *out)
+GASresult gas_read_encoded_num_parser (GASparser *p, GASunum *out)
 {
     GASunum retval;
     unsigned int bytes_read;
@@ -157,11 +157,11 @@ GASresult gas_read_encoded_num_parser (gas_parser *p, GASunum *out)
  * @warning Unlike other similar functions in the library, gas_read_parser is
  * intended for internal use only, via gas_parse().
  */
-GASresult gas_read_parser (gas_parser *p, chunk **out)
+GASresult gas_read_parser (GASparser *p, GASchunk **out)
 {
     GASresult result = GAS_OK;
     GASunum i;
-    chunk* c = gas_new(NULL, 0);
+    GASchunk* c = gas_new(NULL, 0);
     unsigned int bytes_read;
     GASbool cont;
     unsigned long jump = 0;
@@ -194,7 +194,7 @@ GASresult gas_read_parser (gas_parser *p, chunk **out)
 /* attributes {{{*/
     result = gas_read_encoded_num_parser(p, &c->nb_attributes);
     if (result != GAS_OK) { goto abort; }
-    c->attributes = (attribute*)malloc(c->nb_attributes * sizeof(attribute));
+    c->attributes = (GASattribute*)malloc(c->nb_attributes * sizeof(GASattribute));
     for (i = 0; i < c->nb_attributes; i++) {
         read_field(c->attributes[i].key);
         read_field(c->attributes[i].value);
@@ -229,7 +229,7 @@ GASresult gas_read_parser (gas_parser *p, chunk **out)
 /* children {{{*/
     result = gas_read_encoded_num_parser(p, &c->nb_children);
     if (result != GAS_OK) { goto abort; }
-    c->children = (chunk**)malloc(c->nb_children * sizeof(chunk*));
+    c->children = (GASchunk**)malloc(c->nb_children * sizeof(GASchunk*));
     for (i = 0; i < c->nb_children; i++) {
         result = gas_read_parser(p, &c->children[i]);
         if (result != GAS_OK) { goto abort; }
@@ -262,13 +262,13 @@ abort:
 }
 /*}}}*/
 /* parser routines {{{*/
-gas_parser* gas_parser_new (gas_context* context)
+GASparser* gas_parser_new (GAScontext* context)
 {
-    gas_parser *p;
+    GASparser *p;
 
-    p = (gas_parser*)malloc(sizeof(gas_parser));
+    p = (GASparser*)malloc(sizeof(GASparser));
 
-    memset(p, 0, sizeof(gas_parser));
+    memset(p, 0, sizeof(GASparser));
 
     p->context = context;
     p->build_tree = GAS_TRUE;
@@ -277,17 +277,17 @@ gas_parser* gas_parser_new (gas_context* context)
     return p;
 }
 
-void gas_parser_destroy (gas_parser *p)
+void gas_parser_destroy (GASparser *p)
 {
     free(p);
 }
 
-GASresult gas_parse (gas_parser* p, const char *resource, chunk **out)
+GASresult gas_parse (GASparser* p, const char *resource, GASchunk **out)
 {
     GASresult result;
-    chunk *c = NULL;
+    GASchunk *c = NULL;
     GASnum status;
-    gas_context *s = p->context;
+    GAScontext *s = p->context;
 
     status = s->open(resource, "rb", &p->handle, &s->user_data);
     result = gas_read_parser(p, &c);

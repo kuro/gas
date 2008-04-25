@@ -37,7 +37,7 @@
 #include <iostream>
 
 using namespace std;
-chunk* cur = NULL;
+GASchunk* cur = NULL;
 
 int depth;
 
@@ -51,7 +51,7 @@ void start (void *data, const char *el, const char **attr)
 
     //indent();
     //printf("%s", el);
-    chunk* n = gas_new_named(el);
+    GASchunk* n = gas_new_named(el);
 
     for (i = 0; attr[i]; i += 2) {
         //printf(" %s='%s'", attr[i], attr[i+1]);
@@ -205,7 +205,7 @@ int xml2gas_main (int argc, char **argv)
         input->open(QIODevice::ReadOnly);
     }
 
-    chunk *cur = gas_new_named("fake_root");
+    GASchunk *cur = gas_new_named("fake_root");
 
     QXmlStreamReader xml (input);
     while ( ! xml.atEnd()) {
@@ -216,7 +216,7 @@ int xml2gas_main (int argc, char **argv)
         if (xml.isStartElement()) {
             //QXmlStreamAttributes& attr = xml.attributes();
 
-            chunk* n = gas_new((const char*)xml.name().toString().toAscii(),
+            GASchunk* n = gas_new((const char*)xml.name().toString().toAscii(),
                                xml.name().size());
 
             foreach(QXmlStreamAttribute attr, xml.attributes()) {

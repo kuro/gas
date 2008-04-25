@@ -28,14 +28,14 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-chunk* cur = NULL;
+GASchunk* cur = NULL;
 
 int depth;
 
 int indent_i;
 #define indent() for (indent_i = 0; indent_i < depth; indent_i++){printf("  ");}
 
-void gas_print (chunk* c);
+void gas_print (GASchunk* c);
 
 void start (void *data, const char *el, const char **attr)
 {
@@ -43,7 +43,7 @@ void start (void *data, const char *el, const char **attr)
 
     //indent();
     //printf("%s", el);
-    chunk* n = gas_new_named(el);
+    GASchunk* n = gas_new_named(el);
 
     for (i = 0; attr[i]; i += 2) {
         //printf(" %s='%s'", attr[i], attr[i+1]);

@@ -34,11 +34,11 @@
 #include <unistd.h>
 //#include <linux/types.h>
 
-void gas_print (chunk* c);
+void gas_print (GASchunk* c);
 
 void test0001 (void)
 {
-    chunk* root = gas_new_named("header");
+    GASchunk* root = gas_new_named("header");
     gas_set_attribute_ss(root, "class", "samurai");
     gas_set_attribute_ss(root, "checksum", "11235");
 
@@ -46,17 +46,17 @@ void test0001 (void)
     gas_set_payload(root, &num, sizeof(num));
 
 
-    chunk* message = gas_new_named("message");
+    GASchunk* message = gas_new_named("message");
     gas_set_attribute_ss(message, "reason", "because i can");
     gas_set_attribute_ss(message, "project", "GekkoWare");
     gas_set_payload(message, "hello world", strlen("hello world"));
     gas_add_child(root, message);
 
-    chunk* media = gas_new_named("media");
+    GASchunk* media = gas_new_named("media");
     gas_add_child(root, media);
 
 
-    chunk* movie = gas_new_named("movie");
+    GASchunk* movie = gas_new_named("movie");
     gas_set_attribute_ss(movie, "title", "TMNT");
     gas_add_child(media, movie);
 
@@ -68,7 +68,7 @@ void test0001 (void)
     system("xxd dump.gas");
 
     fs = fopen("dump.gas", "r");
-    chunk* root2 = NULL;
+    GASchunk* root2 = NULL;
     gas_read_fs(fs, &root2);
     gas_print(root2);
     gas_destroy(root2);
@@ -79,7 +79,7 @@ void test0001 (void)
 
 void test0002 (void)
 {
-    chunk* root = gas_new_named("head");
+    GASchunk* root = gas_new_named("head");
     gas_set_attribute_ss(root, "foo", "bar");
 
     FILE *fs = fopen("1attr.gas", "w");
@@ -89,7 +89,7 @@ void test0002 (void)
     system("xxd 1attr.gas");
 
     fs = fopen("1attr.gas", "r");
-    chunk* root2 = NULL;
+    GASchunk* root2 = NULL;
     gas_read_fs(fs, &root2);
     gas_print(root2);
     gas_destroy(root2);
@@ -100,7 +100,7 @@ void test0002 (void)
 
 void test0003 (void)
 {
-    chunk* root = gas_new(NULL, 0);
+    GASchunk* root = gas_new(NULL, 0);
 
     FILE* fs = fopen("empty.gas", "w");
     gas_update(root);
@@ -109,7 +109,7 @@ void test0003 (void)
     system("xxd empty.gas");
 
     fs = fopen("empty.gas", "r");
-    chunk* root2 = NULL;
+    GASchunk* root2 = NULL;
     gas_read_fs(fs, &root2);
     gas_print(root2);
     gas_destroy(root2);
@@ -119,7 +119,7 @@ void test0003 (void)
 }
 void test0004 (void)
 {
-    chunk* root = gas_new(NULL, 0);
+    GASchunk* root = gas_new(NULL, 0);
 
     FILE* fs = fopen("double.gas", "w");
     gas_update(root);
@@ -129,11 +129,11 @@ void test0004 (void)
     system("xxd double.gas");
 
     fs = fopen("double.gas", "r");
-    chunk* root3 = NULL;
+    GASchunk* root3 = NULL;
     gas_read_fs(fs, &root3);
     gas_print(root3);
     gas_destroy(root3);
-    chunk* root2 = NULL;
+    GASchunk* root2 = NULL;
     gas_read_fs(fs, &root2);
     gas_print(root2);
     gas_destroy(root2);

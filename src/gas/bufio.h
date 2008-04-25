@@ -34,8 +34,8 @@ extern "C"
 /** @defgroup bufio Buffer IO */
 /*@{*/
 
-GASnum gas_read_buf (GASubyte* buf, GASunum limit, chunk** out);
-GASnum gas_write_buf (GASubyte* buf, GASunum limit, chunk* self);
+GASnum gas_read_buf (GASubyte* buf, GASunum limit, GASchunk** out);
+GASnum gas_write_buf (GASubyte* buf, GASunum limit, GASchunk* self);
 
 GASnum gas_read_encoded_num_buf (GASubyte* buf, GASunum limit, GASunum* result);
 GASnum gas_write_encoded_num_buf (GASubyte* buf, GASunum limit, GASunum value);

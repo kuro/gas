@@ -31,9 +31,9 @@
 #include <gas/parser.h>
 #include <gas/ntstring.h>
 
-static gas_context *ctx;
-static gas_parser *parser;
-static chunk *root;
+static GAScontext *ctx;
+static GASparser *parser;
+static GASchunk *root;
 
 /* MainEditWindow {{{*/
 /* cons {{{*/
@@ -266,7 +266,7 @@ QString MainEditWindow::sanitize (const QByteArray& in, bool wrap)
 void MainEditWindow::on_tree_selection_change (const QModelIndex& current,
                                                const QModelIndex& previous)
 {
-    chunk *c = static_cast<chunk*>(current.internalPointer());
+    GASchunk *c = static_cast<GASchunk*>(current.internalPointer());
 
     attr_table->clearContents();
     attr_table->setRowCount(c->nb_attributes);
@@ -310,7 +310,7 @@ void MainEditWindow::load (const QString& src)
     }
 
     root = gas_new("root", 4);
-    chunk *doc = NULL;
+    GASchunk *doc = NULL;
     gas_parse(parser, src.toAscii(), &doc);
     gas_add_child(root, doc);
 
@@ -384,7 +384,7 @@ QVariant MyTreeModel::data (const QModelIndex &index, int role) const
         return QVariant();
     }
 
-    chunk *c = static_cast<chunk*>(index.internalPointer());
+    GASchunk *c = static_cast<GASchunk*>(index.internalPointer());
 
     switch (index.column()) {
     case 0:
@@ -445,7 +445,7 @@ QVariant MyTreeModel::data (const QModelIndex &index, int role) const
 /* rowCount() {{{*/
 int MyTreeModel::rowCount (const QModelIndex &parent) const
 {
-    chunk *parent_chunk;
+    GASchunk *parent_chunk;
 
     if (root == NULL) {
         return 0;
@@ -458,7 +458,7 @@ int MyTreeModel::rowCount (const QModelIndex &parent) const
     if (not parent.isValid()) {
         parent_chunk = root;
     } else {
-        parent_chunk = static_cast<chunk*>(parent.internalPointer());
+        parent_chunk = static_cast<GASchunk*>(parent.internalPointer());
     }
 
     return parent_chunk->nb_children;
@@ -468,7 +468,7 @@ int MyTreeModel::rowCount (const QModelIndex &parent) const
 QModelIndex MyTreeModel::index (int row, int col,
         const QModelIndex &parent) const
 {
-    chunk *parent_chunk;
+    GASchunk *parent_chunk;
 
 //    if (root == NULL) {
 //        return QModelIndex();
@@ -481,7 +481,7 @@ QModelIndex MyTreeModel::index (int row, int col,
     if (not parent.isValid()) {
         parent_chunk = root;
     } else {
-        parent_chunk = static_cast<chunk*>(parent.internalPointer());
+        parent_chunk = static_cast<GASchunk*>(parent.internalPointer());
     }
 
     //qDebug("parent was %s\n", (char*)parent_chunk->id);
@@ -502,8 +502,8 @@ QModelIndex MyTreeModel::parent (const QModelIndex &child) const
         return QModelIndex();
     }
    
-    chunk *child_chunk = static_cast<chunk*>(child.internalPointer());
-    chunk *parent_chunk = child_chunk->parent;;
+    GASchunk *child_chunk = static_cast<GASchunk*>(child.internalPointer());
+    GASchunk *parent_chunk = child_chunk->parent;;
 
     //qDebug("parent for %s", (char*)child_chunk->id);
 

@@ -53,7 +53,7 @@ typedef GASresult (*GAS_FILE_SEEK_CALLBACK)  (void *handle,
                                               int whence,
                                               void *userdata);
 
-typedef struct _gas_context gas_context;
+typedef struct _gas_context GAScontext;
 
 /**
  * @see _gas_context
@@ -68,8 +68,8 @@ struct _gas_context
     void *user_data;
 };
 
-gas_context* gas_context_new (void);
-void gas_context_destroy (gas_context* s);
+GAScontext* gas_context_new (void);
+void gas_context_destroy (GAScontext* s);
 
 
 /*@}*/

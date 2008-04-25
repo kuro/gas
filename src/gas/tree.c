@@ -15,7 +15,7 @@
  */
 
 /**
- * @file gas.c
+ * @file tree.c
  * @brief gas implementation
  */
 
@@ -124,13 +124,13 @@ GASunum encoded_size (GASunum value)
 /** @name cons/decons */
 /*@{*/
 /* gas_new() {{{*/
-chunk* gas_new (const GASvoid *id, GASunum id_size)
+GASchunk* gas_new (const GASvoid *id, GASunum id_size)
 {
-    chunk *c;
+    GASchunk *c;
 
-    c = (chunk*)malloc(sizeof(chunk));
+    c = (GASchunk*)malloc(sizeof(GASchunk));
     assert(c != NULL);
-    memset(c, 0, sizeof(chunk));
+    memset(c, 0, sizeof(GASchunk));
 
     if (id) {
         copy_to_field(id);
@@ -140,7 +140,7 @@ chunk* gas_new (const GASvoid *id, GASunum id_size)
 }
 /*}}}*/
 /* gas_new_named() {{{*/
-chunk* gas_new_named (const char *id)
+GASchunk* gas_new_named (const char *id)
 {
     return gas_new(id, strlen(id));
 }
@@ -152,9 +152,9 @@ chunk* gas_new_named (const char *id)
  * @note This does not release data for id, or the data contained in the
  * attributes, or the payload data.
  */
-GASvoid gas_destroy (chunk* c)
+GASvoid gas_destroy (GASchunk* c)
 {
-    GASubyte i;
+    GASunum i;
 
     if (c == NULL) {
         return;
@@ -179,13 +179,13 @@ GASvoid gas_destroy (chunk* c)
 /** @name id access */
 /*@{*/
 /* gas_set_id() {{{*/
-GASvoid gas_set_id (chunk* c, const GASvoid *id, GASunum id_size)
+GASvoid gas_set_id (GASchunk* c, const GASvoid *id, GASunum id_size)
 {
     copy_to_field(id);
 }
 /*}}}*/
 /* gas_id_size() {{{ */
-GASunum gas_id_size (chunk* c)
+GASunum gas_id_size (GASchunk* c)
 {
     return c->id_size;
 }
@@ -195,7 +195,7 @@ GASunum gas_id_size (chunk* c)
 /**
  * @returns The number of bytes fetched.
  */
-GASnum gas_get_id (chunk* c, GASvoid* id, GASunum limit)
+GASnum gas_get_id (GASchunk* c, GASvoid* id, GASunum limit)
 {
     if (c->id_size < limit) {
         return GAS_ERR_INVALID_PARAM;
@@ -207,17 +207,17 @@ GASnum gas_get_id (chunk* c, GASvoid* id, GASunum limit)
 /*}}}*/
 /*@}*/
 
-/** @name attribute access */
+/** @name GASattribute access */
 /*@{*/
 /* gas_index_of_attribute() {{{*/
 /**
  * @return signed index
  * @retval -1 failure, attribute not found
  */
-GASnum gas_index_of_attribute (chunk* c, const GASvoid* key, GASunum key_size)
+GASnum gas_index_of_attribute (GASchunk* c, const GASvoid* key, GASunum key_size)
 {
     GASunum i;
-    attribute* a;
+    GASattribute* a;
     for (i = 0; i < c->nb_attributes; i++ ) {
         a = &c->attributes[i];
         if (gas_cmp((GASubyte*)a->key, a->key_size,
@@ -230,11 +230,11 @@ GASnum gas_index_of_attribute (chunk* c, const GASvoid* key, GASunum key_size)
 }
 /*}}}*/
 /* gas_set_attribute() {{{*/
-GASvoid gas_set_attribute (chunk* c,
+GASvoid gas_set_attribute (GASchunk* c,
                            const GASvoid *key, GASunum key_size,
                            const GASvoid *value, GASunum value_size)
 {
-	attribute* tmp, *a;
+	GASattribute* tmp, *a;
     GASnum index;
     GASubyte *ctmp;
 
@@ -248,8 +248,8 @@ GASvoid gas_set_attribute (chunk* c,
         /* not found, append at end */
         c->nb_attributes++;
 
-        tmp = (attribute*)realloc(c->attributes,
-                                  c->nb_attributes*sizeof(attribute));
+        tmp = (GASattribute*)realloc(c->attributes,
+                                  c->nb_attributes*sizeof(GASattribute));
         assert(tmp);
         c->attributes = tmp;
 
@@ -263,7 +263,7 @@ GASvoid gas_set_attribute (chunk* c,
 }
 /*}}}*/
 /* gas_attribute_value_size() {{{*/
-GASnum gas_attribute_value_size (chunk* c, GASunum index)
+GASnum gas_attribute_value_size (GASchunk* c, GASunum index)
 {
     if (index < c->nb_attributes) {
         return c->attributes[index].value_size;
@@ -277,10 +277,10 @@ GASnum gas_attribute_value_size (chunk* c, GASunum index)
  * @note This method does not allocate or copy value data.
  * @returns bytes fetched
  */
-GASnum gas_get_attribute (chunk* c, GASunum index,
+GASnum gas_get_attribute (GASchunk* c, GASunum index,
                           GASvoid* value, GASunum limit)
 {
-    attribute* a;
+    GASattribute* a;
 
     a = &c->attributes[index];
 
@@ -315,15 +315,15 @@ GASnum gas_get_attribute (chunk* c, GASunum index,
 }
 /*}}}*/
 /* gas_has_attribute() {{{*/
-GASbool gas_has_attribute (chunk* c, GASvoid* key, GASunum key_size)
+GASbool gas_has_attribute (GASchunk* c, GASvoid* key, GASunum key_size)
 {
     return gas_index_of_attribute(c, key, key_size) == -1 ? 0 : 1;
 }
 /*}}}*/
-GASnum gas_delete_attribute_at (chunk* c, GASunum index)
+GASnum gas_delete_attribute_at (GASchunk* c, GASunum index)
 {
     int trailing = 0;
-    attribute *a = NULL;
+    GASattribute *a = NULL;
     if (index >= c->nb_attributes) {
         return GAS_ERR_INVALID_PARAM;
     }
@@ -334,7 +334,7 @@ GASnum gas_delete_attribute_at (chunk* c, GASunum index)
     trailing = c->nb_attributes - index;
     if (trailing != 0) {
         memmove(&c->attributes[index], &c->attributes[index+1],
-                trailing * sizeof(attribute));
+                trailing * sizeof(GASattribute));
     }
     return GAS_OK;
 }
@@ -343,13 +343,13 @@ GASnum gas_delete_attribute_at (chunk* c, GASunum index)
 /** @name payload access */
 /*@{*/
 /* gas_set_payload() {{{*/
-GASvoid gas_set_payload (chunk* c, const GASvoid *payload, GASunum payload_size)
+GASvoid gas_set_payload (GASchunk* c, const GASvoid *payload, GASunum payload_size)
 {
     copy_to_field(payload);
 }
 /*}}}*/
 /* gas_payload_size() {{{ */
-GASunum gas_payload_size (chunk* c)
+GASunum gas_payload_size (GASchunk* c)
 {
     return c->payload_size;
 }
@@ -358,7 +358,7 @@ GASunum gas_payload_size (chunk* c)
 /**
  * @returns The number of bytes fetched.
  */
-GASnum gas_get_payload (chunk* c, GASvoid* payload, GASunum limit)
+GASnum gas_get_payload (GASchunk* c, GASvoid* payload, GASunum limit)
 {
     if (c->payload_size < limit) {
         return GAS_ERR_INVALID_PARAM;
@@ -373,19 +373,19 @@ GASnum gas_get_payload (chunk* c, GASvoid* payload, GASunum limit)
 /** @name child access */
 /*@{*/
 /* gas_get_parent() {{{*/
-chunk* gas_get_parent(chunk* c)
+GASchunk* gas_get_parent(GASchunk* c)
 {
     return c->parent;
 }
 /*}}}*/
 /* gas_add_child() {{{*/
-GASvoid gas_add_child(chunk* parent, chunk* child)
+GASvoid gas_add_child(GASchunk* parent, GASchunk* child)
 {
-    chunk** tmp;
+    GASchunk** tmp;
 
     parent->nb_children++;
 
-    tmp = (chunk**)realloc(parent->children,parent->nb_children*sizeof(chunk*));
+    tmp = (GASchunk**)realloc(parent->children,parent->nb_children*sizeof(GASchunk*));
     assert(tmp);
     parent->children = tmp;
 
@@ -394,13 +394,13 @@ GASvoid gas_add_child(chunk* parent, chunk* child)
 }
 /*}}}*/
 /* gas_nb_children() {{{*/
-GASunum gas_nb_children (chunk *c)
+GASunum gas_nb_children (GASchunk *c)
 {
     return c->nb_children;
 }
 /*}}}*/
 /* gas_get_child_at() {{{*/
-chunk* gas_get_child_at (chunk* c, GASunum index)
+GASchunk* gas_get_child_at (GASchunk* c, GASunum index)
 {
     if (index >= c->nb_children) {
         return NULL;
@@ -408,7 +408,7 @@ chunk* gas_get_child_at (chunk* c, GASunum index)
     return c->children[index];
 }
 /*}}}*/
-GASnum gas_delete_child_at (chunk* c, GASunum index)
+GASnum gas_delete_child_at (GASchunk* c, GASunum index)
 {
     int trailing = 0;
     if (index >= c->nb_children) {
@@ -419,7 +419,7 @@ GASnum gas_delete_child_at (chunk* c, GASunum index)
     trailing = c->nb_children - index;
     if (trailing != 0) {
         memmove(&c->children[index], &c->children[index+1],
-                trailing * sizeof(chunk*));
+                trailing * sizeof(GASchunk*));
     }
     return GAS_OK;
 }
@@ -428,7 +428,7 @@ GASnum gas_delete_child_at (chunk* c, GASunum index)
 /** @name management */
 /*@{*/
 /* gas_update() {{{*/
-GASvoid gas_update (chunk* c)
+GASvoid gas_update (GASchunk* c)
 {
     GASunum i;
 
@@ -453,7 +453,7 @@ GASvoid gas_update (chunk* c)
     /* children */
     sum += encoded_size(c->nb_children);
     for (i = 0; i < c->nb_children; i++) {
-        chunk* child = c->children[i];
+        GASchunk* child = c->children[i];
         gas_update(child);
         sum += encoded_size(child->size);
         sum += child->size;
@@ -469,7 +469,7 @@ GASvoid gas_update (chunk* c)
  * @brief Returns the total size of the chunk, including initial encoded size.
  * @warning The result is only valid after an update.
  */
-GASunum gas_total_size (chunk* c)
+GASunum gas_total_size (GASchunk* c)
 {
     return c->size + encoded_size(c->size);
 }

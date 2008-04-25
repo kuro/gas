@@ -25,8 +25,8 @@
 #include <gas/types.h>
 
 /* types {{{*/
-typedef struct Attribute attribute;
-typedef struct Chunk chunk;
+typedef struct Attribute GASattribute;
+typedef struct Chunk GASchunk;
 /* }}}*/
 
 #ifdef __cplusplus
@@ -40,9 +40,9 @@ int gas_cmp(const GASubyte *a, GASunum a_len, const GASubyte *b, GASunum b_len);
 /* construction {{{*/
 /** @defgroup construction */
 /*@{*/
-chunk* gas_new (const GASvoid *id, GASunum id_size);
-chunk* gas_new_named (const GASchar *id);
-GASvoid gas_destroy (chunk* c);
+GASchunk* gas_new (const GASvoid *id, GASunum id_size);
+GASchunk* gas_new_named (const GASchar *id);
+GASvoid gas_destroy (GASchunk* c);
 /*@}*/
 /* }}}*/
 /* access {{{*/
@@ -50,40 +50,40 @@ GASvoid gas_destroy (chunk* c);
 /*@{*/
 /** @defgroup id */
 /*@{*/
-GASvoid gas_set_id (chunk* c, const GASvoid *id, GASunum size);
-GASnum gas_get_id (chunk* c, GASvoid* id, GASunum limit);
-GASvoid gas_set_id_s (chunk* c, const GASchar* id);
-GASchar* gas_get_id_s (chunk* c);
-GASunum gas_id_size (chunk* c);
+GASvoid gas_set_id (GASchunk* c, const GASvoid *id, GASunum size);
+GASnum gas_get_id (GASchunk* c, GASvoid* id, GASunum limit);
+GASvoid gas_set_id_s (GASchunk* c, const GASchar* id);
+GASchar* gas_get_id_s (GASchunk* c);
+GASunum gas_id_size (GASchunk* c);
 /*@}*/
-/** @defgroup attribute */
+/** @defgroup GASattribute */
 /*@{*/
-GASnum gas_index_of_attribute (chunk* c, const GASvoid* key, GASunum key_size);
-GASvoid gas_set_attribute (chunk* c,
+GASnum gas_index_of_attribute (GASchunk* c, const GASvoid* key, GASunum key_size);
+GASvoid gas_set_attribute (GASchunk* c,
                         const GASvoid *key, GASunum key_size,
                         const GASvoid *value, GASunum value_size);
-GASbool gas_has_attribute (chunk* c, GASvoid* key, GASunum key_size);
-GASnum gas_attribute_value_size (chunk* c, GASunum index);
-GASnum gas_get_attribute (chunk* c, GASunum index, GASvoid* value, GASunum limit);
-GASnum gas_delete_attribute_at (chunk* c, GASunum index);
-GASnum gas_delete_child_at (chunk* c, GASunum index);
+GASbool gas_has_attribute (GASchunk* c, GASvoid* key, GASunum key_size);
+GASnum gas_attribute_value_size (GASchunk* c, GASunum index);
+GASnum gas_get_attribute (GASchunk* c, GASunum index, GASvoid* value, GASunum limit);
+GASnum gas_delete_attribute_at (GASchunk* c, GASunum index);
+GASnum gas_delete_child_at (GASchunk* c, GASunum index);
 /*@}*/
 /** @defgroup payload */
 /*@{*/
-GASvoid gas_set_payload (chunk* c, const GASvoid *payload, GASunum payload_size);
-GASnum gas_get_payload (chunk* c, GASvoid* payload, GASunum limit);
-GASunum gas_payload_size (chunk* c);
+GASvoid gas_set_payload (GASchunk* c, const GASvoid *payload, GASunum payload_size);
+GASnum gas_get_payload (GASchunk* c, GASvoid* payload, GASunum limit);
+GASunum gas_payload_size (GASchunk* c);
 /*@}*/
 /** @defgroup children */
 /*@{*/
-chunk* gas_get_parent(chunk* c);
-GASvoid gas_add_child(chunk* parent, chunk* child);
-GASunum gas_nb_children (chunk *c);
-chunk* gas_get_child_at (chunk* c, GASunum index);
+GASchunk* gas_get_parent(GASchunk* c);
+GASvoid gas_add_child(GASchunk* parent, GASchunk* child);
+GASunum gas_nb_children (GASchunk *c);
+GASchunk* gas_get_child_at (GASchunk* c, GASunum index);
 /*@}*/
 
-GASvoid gas_update (chunk* c);
-GASunum gas_total_size (chunk* c);
+GASvoid gas_update (GASchunk* c);
+GASunum gas_total_size (GASchunk* c);
 
 
 /*@}*/
@@ -93,7 +93,7 @@ GASunum gas_total_size (chunk* c);
 } /* extern C */
 #endif
 
-/* attribute {{{*/
+/* GASattribute {{{*/
 struct Attribute
 {
     GASunum key_size;
@@ -106,7 +106,7 @@ struct Attribute
 /* Chunk {{{*/
 struct Chunk
 {
-    chunk* parent;
+    GASchunk* parent;
 
     GASunum size;
 
@@ -120,7 +120,7 @@ struct Chunk
     GASubyte *payload;
 
     GASunum nb_children;
-    chunk** children;
+    GASchunk** children;
 
 #if defined(GAS_ENABLE_CPP) && defined(__cplusplus)
 public:

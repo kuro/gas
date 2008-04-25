@@ -32,27 +32,28 @@ extern "C"
 #endif
 
 
-typedef struct _gas_parser gas_parser;
+typedef struct _gas_parser GASparser;
 
 /**
- * @brief Previews a chunk by providing the id, and provides an early out if the chunk is not desired.
+ * @brief Previews a chunk by providing the id, and provides an early out if
+ * the chunk is not desired.
  *
  * When false is returned, the chunk will be pruned (seeked over) from the tree
  * (practically ignored).
  */
 typedef GASbool (*GAS_PRE_CHUNK)    (GASunum id_size, void *id, void *user_data);
 typedef GASvoid (*GAS_PUSH_ID)      (GASunum id_size, void *id, void *user_data);
-typedef GASvoid (*GAS_PUSH_CHUNK)   (chunk* c, void *user_data);
+typedef GASvoid (*GAS_PUSH_CHUNK)   (GASchunk* c, void *user_data);
 typedef GASvoid (*GAS_ON_ATTRIBUTE) (GASunum key_size, void *key,
                                      GASunum value_size, void *value,
                                      void *user_data);
 typedef GASvoid (*GAS_ON_PAYLOAD)   (GASunum payload_size, void *payload, void *user_data);
 typedef GASvoid (*GAS_POP_ID)       (GASunum id_size, void *id, void *user_data);
-typedef GASvoid (*GAS_POP_CHUNK)    (chunk* c, void *user_data);
+typedef GASvoid (*GAS_POP_CHUNK)    (GASchunk* c, void *user_data);
 
 struct _gas_parser
 {
-    gas_context* context;
+    GAScontext* context;
     void *handle;
 
     /**
@@ -74,10 +75,10 @@ struct _gas_parser
     GAS_POP_CHUNK    on_pop_chunk;
 };
 
-gas_parser* gas_parser_new (gas_context* context);
-void gas_parser_destroy (gas_parser *p);
+GASparser* gas_parser_new (GAScontext* context);
+void gas_parser_destroy (GASparser *p);
 
-GASresult gas_parse (gas_parser* p, const char *resource, chunk **out);
+GASresult gas_parse (GASparser* p, const char *resource, GASchunk **out);
 
 #ifdef __cplusplus
 }

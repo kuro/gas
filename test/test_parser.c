@@ -39,10 +39,10 @@ void my_push_id (GASunum id_size, void *id, void *user_data)
 {
     indent_level++;
     indent();  printf("---\n");
-    indent();  printf("chunk: \"%s\"\n", (char*)id);
+    indent();  printf("GASchunk: \"%s\"\n", (char*)id);
 }
 
-//void my_push_chunk (chunk* c, void *user_data)
+//void my_push_chunk (GASchunk* c, void *user_data)
 //{
 //    /*gas_print(c);*/
 //}
@@ -52,7 +52,7 @@ void my_pop_id (GASunum id_size, void *id, void *user_data)
     indent_level--;
 }
 
-//void my_pop_chunk (chunk* c, void *user_data)
+//void my_pop_chunk (GASchunk* c, void *user_data)
 //{
 //}
 
@@ -75,9 +75,9 @@ int main (void)
 {
     GASresult r;
 #if 1
-    chunk *c;
-    gas_context *ctx;
-    gas_parser *p;
+    GASchunk *c;
+    GAScontext *ctx;
+    GASparser *p;
 
     ctx = gas_context_new();
     p = gas_parser_new(ctx);
@@ -104,8 +104,8 @@ int main (void)
 #endif
 
 #if 0
-    chunk *c = gas_new(0, NULL);
-    gas_context *s;
+    GASchunk *c = gas_new(0, NULL);
+    GAScontext *s;
 
     s = gas_context_new();
     gas_write_cb(c, s);

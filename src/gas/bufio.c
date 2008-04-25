@@ -175,13 +175,13 @@ GASnum gas_read_encoded_num_buf (GASubyte* buf, GASunum limit, GASunum* result)
  * @todo limit failure conditions
  * @todo changes zeros to limits
  */
-GASnum gas_write_buf (GASubyte* buf, GASunum limit, chunk* self)
+GASnum gas_write_buf (GASubyte* buf, GASunum limit, GASchunk* self)
 {
     GASresult result;
     GASunum i;
     GASnum off = 0;
 
-    /* this chunk's size */
+    /* this GASchunk's size */
     off += gas_write_encoded_num_buf(buf+off, 0, self->size);
     write_field(id);
     /* attributes */
@@ -222,26 +222,26 @@ GASnum gas_write_buf (GASubyte* buf, GASunum limit, chunk* self)
     }                                                                       \
     offset += result;
 
-GASnum gas_read_buf (GASubyte* buf, GASunum limit, chunk** out)
+GASnum gas_read_buf (GASubyte* buf, GASunum limit, GASchunk** out)
 {
     GASresult result;
     GASunum offset = 0;
 
     GASunum i;
-    chunk* c = gas_new(NULL, 0);
+    GASchunk* c = gas_new(NULL, 0);
 
     read_num(c->size);
     read_field(c->id);
     read_num(c->nb_attributes);
-    c->attributes = (attribute*)malloc(c->nb_attributes * sizeof(attribute));
+    c->attributes = (GASattribute*)malloc(c->nb_attributes * sizeof(GASattribute));
     for (i = 0; i < c->nb_attributes; i++) {
         read_field(c->attributes[i].key);
         read_field(c->attributes[i].value);
     }
     read_field(c->payload);
     read_num(c->nb_children);
-    c->children = (chunk**)malloc(c->nb_children * sizeof(chunk*));
-    memset(c->children, 0, c->nb_children * sizeof(chunk*));
+    c->children = (GASchunk**)malloc(c->nb_children * sizeof(GASchunk*));
+    memset(c->children, 0, c->nb_children * sizeof(GASchunk*));
     for (i = 0; i < c->nb_children; i++) {
         result = gas_read_buf(buf + offset, limit - offset, &c->children[i]);
         if (result <= 0) {

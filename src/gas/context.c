@@ -149,10 +149,10 @@ GASresult gas_default_seek (void *handle, unsigned long pos,
 }
 /*}}}*/
 
-gas_context* gas_context_new (void)
+GAScontext* gas_context_new (void)
 {
-    gas_context *s;
-    s = (gas_context*)malloc(sizeof(gas_context));
+    GAScontext *s;
+    s = (GAScontext*)malloc(sizeof(GAScontext));
     s->open = gas_default_open;
     s->close = gas_default_close;
     s->read = gas_default_read;
@@ -162,7 +162,7 @@ gas_context* gas_context_new (void)
     return s;
 }
 
-void gas_context_destroy (gas_context* s)
+void gas_context_destroy (GAScontext* s)
 {
     free(s);
 }

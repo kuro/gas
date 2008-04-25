@@ -35,7 +35,7 @@ GASchar* gas_sanitize (const GASubyte* str, GASunum len);
 /** @name id access */
 /*@{*/
 /* gas_set_id_s() {{{*/
-GASvoid gas_set_id_s (chunk* c, const GASchar* id)
+GASvoid gas_set_id_s (GASchunk* c, const GASchar* id)
 {
     gas_set_id(c, id, strlen(id));
 }
@@ -46,7 +46,7 @@ GASvoid gas_set_id_s (chunk* c, const GASchar* id)
  *
  * Free the result when finished.
  */
-GASchar* gas_get_id_s (chunk* c)
+GASchar* gas_get_id_s (GASchunk* c)
 {
     GASchar *retval;
     retval = (GASchar*)malloc(c->id_size + 1);
@@ -62,10 +62,10 @@ GASchar* gas_get_id_s (chunk* c)
 /*@}*/
 
 
-/** @name attribute access */
+/** @name GASattribute access */
 /*@{*/
 /* gas_set_attribute_s() {{{*/
-GASvoid gas_set_attribute_s (chunk* c,
+GASvoid gas_set_attribute_s (GASchunk* c,
                           const GASchar *key,
                           const GASvoid *value, GASunum value_size)
 {
@@ -73,7 +73,7 @@ GASvoid gas_set_attribute_s (chunk* c,
 }
 /*}}}*/
 /* gas_set_attribute_ss() {{{*/
-GASvoid gas_set_attribute_ss(chunk* c, const GASchar *key, const GASchar *value)
+GASvoid gas_set_attribute_ss(GASchunk* c, const GASchar *key, const GASchar *value)
 {
     gas_set_attribute(c, key, strlen(key), value, strlen(value));
 }
@@ -88,7 +88,7 @@ GASvoid gas_set_attribute_ss(chunk* c, const GASchar *key, const GASchar *value)
  *
  * @returns status
  */
-GASnum gas_get_attribute_s (chunk* c, const GASchar* key,
+GASnum gas_get_attribute_s (GASchunk* c, const GASchar* key,
                          GASvoid* value, GASunum limit)
 {
     GASnum index = gas_index_of_attribute(c, key, strlen(key));
@@ -108,7 +108,7 @@ GASnum gas_get_attribute_s (chunk* c, const GASchar* key,
  * @returns An allocated copy of the requested attribute.
  * @todo redundant checks
  */
-GASchar* gas_get_attribute_ss (chunk* c, const GASchar* key)
+GASchar* gas_get_attribute_ss (GASchunk* c, const GASchar* key)
 {
     GASnum status;
     GASunum len;
@@ -147,7 +147,7 @@ GASchar* gas_get_attribute_ss (chunk* c, const GASchar* key)
 /** @name payload access */
 /*@{*/
 /* gas_set_payload_s() {{{*/
-GASvoid gas_set_payload_s (chunk* c, const GASchar* payload)
+GASvoid gas_set_payload_s (GASchunk* c, const GASchar* payload)
 {
     gas_set_payload(c, payload, strlen(payload));
 }
@@ -156,7 +156,7 @@ GASvoid gas_set_payload_s (chunk* c, const GASchar* payload)
 /**
  * @returns An allocated copy of the payload.
  */
-GASchar* gas_get_payload_s (chunk* c)
+GASchar* gas_get_payload_s (GASchunk* c)
 {
     GASchar *retval;
     retval = (GASchar*)malloc(c->payload_size + 1);
@@ -217,7 +217,7 @@ GASchar* gas_sanitize (const GASubyte* str, GASunum len)
     return san;
 }
 
-GASvoid gas_print (chunk* c)
+GASvoid gas_print (GASchunk* c)
 {
     GASunum i;
     static int level = 0;
@@ -228,10 +228,10 @@ GASvoid gas_print (chunk* c)
     }
 
     indent(); printf("---\n");
-    /*indent(); printf("chunk of size = %ld\n", (unsigned long)c->size);*/
+    /*indent(); printf("GASchunk of size = %ld\n", (unsigned long)c->size);*/
     indent(); printf("id[%ld]: \"%s\"\n", (unsigned long)c->id_size,
                      gas_sanitize(c->id, c->id_size));
-    /*indent(); printf("%ld attribute(s):\n", (unsigned long)c->nb_attributes);*/
+    /*indent(); printf("%ld GASattribute(s):\n", (unsigned long)c->nb_attributes);*/
     for (i = 0; i < c->nb_attributes; i++) {
         indent();
         printf(

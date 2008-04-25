@@ -103,12 +103,12 @@ GASresult gas_write_encoded_num_fs (FILE* fs, GASunum value)
         }                                                                   \
     } while(0)
 
-GASresult gas_write_fs (FILE* fs, chunk* self)
+GASresult gas_write_fs (FILE* fs, GASchunk* self)
 {
     GASresult result;
     GASunum i;
 
-    /* this chunk's size */
+    /* this GASchunk's size */
     result = gas_write_encoded_num_fs(fs, self->size);
     if (result != GAS_OK) {
         return result;
@@ -201,18 +201,18 @@ GASresult gas_read_encoded_num_fs (FILE* fs, GASunum *value)
         ((GASubyte*)field)[field##_size] = 0;                               \
     } while (0)
 
-GASresult gas_read_fs (FILE* fs, chunk **out)
+GASresult gas_read_fs (FILE* fs, GASchunk **out)
 {
     GASresult result;
     GASunum i;
-    chunk* c = gas_new(NULL, 0);
+    GASchunk* c = gas_new(NULL, 0);
 
     result = gas_read_encoded_num_fs(fs, &c->size);
     if (result != GAS_OK) { return result; }
     read_field(c->id);
     result = gas_read_encoded_num_fs(fs, &c->nb_attributes);
     if (result != GAS_OK) { return result; }
-    c->attributes = (attribute*)malloc(c->nb_attributes * sizeof(attribute));
+    c->attributes = (GASattribute*)malloc(c->nb_attributes * sizeof(GASattribute));
     for (i = 0; i < c->nb_attributes; i++) {
         read_field(c->attributes[i].key);
         read_field(c->attributes[i].value);
@@ -220,7 +220,7 @@ GASresult gas_read_fs (FILE* fs, chunk **out)
     read_field(c->payload);
     result = gas_read_encoded_num_fs(fs, &c->nb_children);
     if (result != GAS_OK) { return result; }
-    c->children = (chunk**)malloc(c->nb_children * sizeof(chunk*));
+    c->children = (GASchunk**)malloc(c->nb_children * sizeof(GASchunk*));
     for (i = 0; i < c->nb_children; i++) {
          result = gas_read_fs(fs, &c->children[i]);
         if (result != GAS_OK) { return result; }

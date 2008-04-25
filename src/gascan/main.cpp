@@ -31,7 +31,7 @@ using namespace std;
 
 extern "C"
 {
-void gas_print (chunk* c);
+void gas_print (GASchunk* c);
 }
 
 int test_main (int argc, char **argv);
@@ -47,13 +47,12 @@ int gas2c (int argc, char **argv);
 void print_gas_file (string fname)
 {
     int fd;
-    chunk *c;
+    GASchunk *c;
 
     fd = open(fname.c_str(), O_RDONLY);
     gas_read_fd(fd, &c);
     close(fd);
 
-    exit(0);
     gas_print(c);
 
     gas_destroy(c);

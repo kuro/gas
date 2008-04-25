@@ -27,11 +27,11 @@
 #include <string.h>
 //#include <linux/types.h>
 
-void gas_print (chunk* c);
+void gas_print (GASchunk* c);
 
 void test001 (void)
 {
-    chunk* root = gas_new_named("header");
+    GASchunk* root = gas_new_named("header");
     gas_set_attribute_ss(root, "class", "samurai");
     gas_set_attribute_ss(root, "checksum", "11235");
 
@@ -40,7 +40,7 @@ void test001 (void)
     gas_set_attribute_s(root, "num", &num, sizeof(num));
 
 
-    chunk* message = gas_new_named("message");
+    GASchunk* message = gas_new_named("message");
     gas_set_attribute_ss(message, "reason", "because i can");
     gas_set_attribute_ss(message, "project", "GekkoWare");
     gas_set_payload(message, "hello world", strlen("hello world"));
@@ -69,7 +69,7 @@ void test001 (void)
 
 void test002 (void)
 {
-    chunk* message = gas_new_named("message");
+    GASchunk* message = gas_new_named("message");
     gas_set_attribute_ss(message, "reason", "because i can");
     gas_set_attribute_ss(message, "project", "GekkoWare");
     gas_set_attribute_ss(message, "name", "Roger Smith");
@@ -96,7 +96,7 @@ void test002 (void)
 
 void test003 (void)
 {
-    chunk* root = gas_new_named("root");
+    GASchunk* root = gas_new_named("root");
     gas_add_child(root, gas_new_named("child0"));
     gas_add_child(root, gas_new_named("child1"));
     gas_add_child(root, gas_new_named("child2"));

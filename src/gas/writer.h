@@ -32,15 +32,15 @@ extern "C"
 #endif
 
 
-typedef struct _gas_writer gas_writer;
+typedef struct _gas_writer GASwriter;
 struct _gas_writer
 {
-    gas_context* context;
+    GAScontext* context;
     void *handle;
 };
 
-GASresult gas_write_encoded_num_writer (gas_writer *writer, GASunum value);
-GASresult gas_write_writer (gas_writer *writer, chunk* self);
+GASresult gas_write_encoded_num_writer (GASwriter *writer, GASunum value);
+GASresult gas_write_writer (GASwriter *writer, GASchunk* self);
 
 #ifdef __cplusplus
 }
