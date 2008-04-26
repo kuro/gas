@@ -3,6 +3,11 @@ use_numbered_headers: true
 
 Gas is an extensible binary container format.
 
+| Link                | URL                                |
+| ------------------- | ---------------------------------- |
+| Home Page           | <http://gas.gekkoware.net>         |
+| Official Repository | <http://github.com/kuro7/gas/tree> |
+
 ------------------------------------------------------------------------------
 
 *Table of contents:*

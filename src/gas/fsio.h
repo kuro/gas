@@ -33,7 +33,10 @@ extern "C"
 #endif
 
 
-/** @defgroup fsio File Stream IO */
+/**
+ * @defgroup fsio File Stream IO
+ * @ingroup io
+ */
 /*@{*/
 
 GASresult gas_write_fs (FILE* fs, GASchunk* self);

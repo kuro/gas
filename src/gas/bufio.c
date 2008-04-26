@@ -110,7 +110,10 @@ GASnum gas_write_encoded_num_buf (GASubyte* buf, GASunum limit, GASunum value)
 /* gas_read_encoded_num_buf() {{{*/
 /**
  * @brief decode a number from a memory buffer.
+ *
+ * @param buf the input buffer
  * @param limit The length of the buffer.  Serves as a limiter.  However, limit
+ * @param[out] result upon success, will store the decoded number
  * bytes may or may not be used.
  *
  * @return When positive, the new buffer offset.  Otherwise, an error code.

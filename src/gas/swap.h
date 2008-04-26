@@ -97,11 +97,11 @@ extern "C"
 #endif
 
 /**
- * @param Unconditional swap routine.
+ * @brief Unconditional array swapping routine.
  *
  * @param buf array buffer to swap bytes
  * @param stride byte stride, 2 or 4 (short and long, respectively)
- * @param buffsize the total data length of the buffer
+ * @param bufsize the total data length of the buffer
  *
  * @retval 0 success, otherwise failure
  */

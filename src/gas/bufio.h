@@ -31,7 +31,10 @@ extern "C"
 #endif
 
 
-/** @defgroup bufio Buffer IO */
+/**
+ * @defgroup bufio Buffer IO
+ * @ingroup io
+ */
 /*@{*/
 
 GASnum gas_read_buf (GASubyte* buf, GASunum limit, GASchunk** out);

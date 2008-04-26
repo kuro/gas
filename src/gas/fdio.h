@@ -32,7 +32,10 @@ extern "C"
 #endif
 
 
-/** @defgroup fdio File Descriptor IO */
+/**
+ * @defgroup fdio File Descriptor IO
+ * @ingroup io
+ */
 /*@{*/
 
 

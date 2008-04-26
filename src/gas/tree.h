@@ -37,8 +37,18 @@ extern "C"
 
 int gas_cmp(const GASubyte *a, GASunum a_len, const GASubyte *b, GASunum b_len);
 
+/**
+ * @defgroup io IO
+ */
+
+/**
+ * @defgroup access Tree Access
+ */
 /* construction {{{*/
-/** @defgroup construction */
+/**
+ * @defgroup construction Tree Construction/Destruction
+ * @ingroup access
+ */
 /*@{*/
 GASchunk* gas_new (const GASvoid *id, GASunum id_size);
 GASchunk* gas_new_named (const GASchar *id);
@@ -46,9 +56,10 @@ GASvoid gas_destroy (GASchunk* c);
 /*@}*/
 /* }}}*/
 /* access {{{*/
-/** @defgroup access */
-/*@{*/
-/** @defgroup id */
+/**
+ * @defgroup id ID Access
+ * @ingroup access
+ */
 /*@{*/
 GASvoid gas_set_id (GASchunk* c, const GASvoid *id, GASunum size);
 GASnum gas_get_id (GASchunk* c, GASvoid* id, GASunum limit);
@@ -56,7 +67,10 @@ GASvoid gas_set_id_s (GASchunk* c, const GASchar* id);
 GASchar* gas_get_id_s (GASchunk* c);
 GASunum gas_id_size (GASchunk* c);
 /*@}*/
-/** @defgroup GASattribute */
+/**
+ * @defgroup attribute  Attribute Access
+ * @ingroup access
+ */
 /*@{*/
 GASnum gas_index_of_attribute (GASchunk* c, const GASvoid* key, GASunum key_size);
 GASvoid gas_set_attribute (GASchunk* c,
@@ -68,13 +82,19 @@ GASnum gas_get_attribute (GASchunk* c, GASunum index, GASvoid* value, GASunum li
 GASnum gas_delete_attribute_at (GASchunk* c, GASunum index);
 GASnum gas_delete_child_at (GASchunk* c, GASunum index);
 /*@}*/
-/** @defgroup payload */
+/**
+ * @defgroup payload Payload Access
+ * @ingroup access
+ */
 /*@{*/
 GASvoid gas_set_payload (GASchunk* c, const GASvoid *payload, GASunum payload_size);
 GASnum gas_get_payload (GASchunk* c, GASvoid* payload, GASunum limit);
 GASunum gas_payload_size (GASchunk* c);
 /*@}*/
-/** @defgroup children */
+/**
+ * @defgroup children  Child Access
+ * @ingroup access
+ */
 /*@{*/
 GASchunk* gas_get_parent(GASchunk* c);
 GASvoid gas_add_child(GASchunk* parent, GASchunk* child);
@@ -86,7 +106,6 @@ GASvoid gas_update (GASchunk* c);
 GASunum gas_total_size (GASchunk* c);
 
 
-/*@}*/
 /* }}}*/
 
 #ifdef __cplusplus

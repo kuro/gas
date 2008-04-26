@@ -59,9 +59,9 @@ endif ()
 #}}}
 
 add_custom_command(
-    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/README.html
+    OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/README.html
     DEPENDS README
-    COMMAND maruku ${CMAKE_CURRENT_SOURCE_DIR}/README -o ${CMAKE_CURRENT_BINARY_DIR}/README.html
+    COMMAND maruku ${CMAKE_CURRENT_SOURCE_DIR}/README -o ${CMAKE_CURRENT_SOURCE_DIR}/README.html
     )
 add_custom_target(README.html)
 # vim: fdm=marker
