@@ -193,7 +193,7 @@ GASunum gas_id_size (GASchunk* c)
 #define min(a, b) (a<b?a:b)
 /* gas_get_id() {{{*/
 /**
- * @returns The number of bytes fetched.
+ * @return The number of bytes fetched.
  */
 GASnum gas_get_id (GASchunk* c, GASvoid* id, GASunum limit)
 {
@@ -275,7 +275,7 @@ GASnum gas_attribute_value_size (GASchunk* c, GASunum index)
 /* gas_get_attribute() {{{*/
 /**
  * @note This method does not allocate or copy value data.
- * @returns bytes fetched
+ * @return bytes fetched
  */
 GASnum gas_get_attribute (GASchunk* c, GASunum index,
                           GASvoid* value, GASunum limit)
@@ -356,7 +356,7 @@ GASunum gas_payload_size (GASchunk* c)
 /*}}}*/
 /* gas_get_payload() {{{*/
 /**
- * @returns The number of bytes fetched.
+ * @return The number of bytes fetched.
  */
 GASnum gas_get_payload (GASchunk* c, GASvoid* payload, GASunum limit)
 {

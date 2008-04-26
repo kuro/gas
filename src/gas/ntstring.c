@@ -17,6 +17,8 @@
 /**
  * @file ntstring.c
  * @brief ntstring implementation
+ *
+ * @sa DUPLICATE_STRINGS
  */
 
 #include "ntstring.h"
@@ -30,6 +32,18 @@
 #define assert(expr) do {} while (0)
 #endif
 
+/**
+ * @brief compile time option specifying whether or not to duplicate strings.
+ *
+ * @remarks The tree routines always allocate 1 extra byte, and set it to zero.
+ * Consequently, it is not absolutely necessary to automatically duplicate the
+ * string.  Instead, if the application guarantees that contained data consists
+ * of clean strings, which it should, then the caller can call strdup() on the
+ * null-terminated strings returned here.  Again, this is the application's
+ * responsibility.  When in doubt, use the standard binary blob routines.
+ */
+#define DUPLICATE_STRINGS 0
+
 GASchar* gas_sanitize (const GASubyte* str, GASunum len);
 
 /** @name id access */
@@ -42,12 +56,22 @@ GASvoid gas_set_id_s (GASchunk* c, const GASchar* id)
 /*}}}*/
 /* gas_get_id_s() {{{*/
 /**
- * Get the id as a string.
- *
- * Free the result when finished.
+ * @brief Get the id as a string.
  */
+#if DUPLICATE_STRINGS
+/**
+ * @return An allocated copy of the chunk id.
+ * @attention Free the result when finished.
+ */
+#else
+/**
+ * @return A GASchar* that is guaranteed to be null terminated.
+ * @warning Do not free the returned value.
+ */
+#endif
 GASchar* gas_get_id_s (GASchunk* c)
 {
+#if DUPLICATE_STRINGS
     GASchar *retval;
     retval = (GASchar*)malloc(c->id_size + 1);
     assert(retval != NULL);
@@ -57,12 +81,15 @@ GASchar* gas_get_id_s (GASchunk* c)
     memcpy(retval, c->id, c->id_size);
     retval[c->id_size] = '\0';
     return retval;
+#else
+    return (GASchar*)c->id;
+#endif
 }
 /*}}}*/
 /*@}*/
 
 
-/** @name GASattribute access */
+/** @name attribute access */
 /*@{*/
 /* gas_set_attribute_s() {{{*/
 GASvoid gas_set_attribute_s (GASchunk* c,
@@ -86,10 +113,10 @@ GASvoid gas_set_attribute_ss(GASchunk* c, const GASchar *key, const GASchar *val
  *
  * No memory is allocated.
  *
- * @returns status
+ * @return status
  */
 GASnum gas_get_attribute_s (GASchunk* c, const GASchar* key,
-                         GASvoid* value, GASunum limit)
+                            GASvoid* value, GASunum limit)
 {
     GASnum index = gas_index_of_attribute(c, key, strlen(key));
     if (index == -1) {
@@ -101,25 +128,34 @@ GASnum gas_get_attribute_s (GASchunk* c, const GASchar* key,
 /* gas_get_attribute_ss() {{{*/
 /**
  * @brief Get an attribute referected by string key as a string.
- * @note Caller is responsible for freeing result.
  *
- * Allocates memory.
- *
- * @returns An allocated copy of the requested attribute.
  * @todo redundant checks
  */
+#if DUPLICATE_STRINGS
+/**
+ * @return An allocated copy of the requested attribute.
+ * @attention Free the result when finished.
+ */
+#else
+/**
+ * @return A GASchar* that is guaranteed to be null terminated.
+ * @warning Do not free the returned value.
+ */
+#endif
 GASchar* gas_get_attribute_ss (GASchunk* c, const GASchar* key)
 {
-    GASnum status;
-    GASunum len;
     GASnum index;
-    GASchar *retval;
-   
+
     index = gas_index_of_attribute(c, key, strlen(key));
     if (index < 0) {
         return NULL;
     }
 
+#if DUPLICATE_STRINGS
+    GASnum status;
+    GASunum len;
+    GASchar *retval;
+   
     len = gas_attribute_value_size(c, index);
     retval = (GASchar*)malloc(len + 1);
     assert(retval != NULL);
@@ -140,6 +176,9 @@ GASchar* gas_get_attribute_ss (GASchunk* c, const GASchar* key)
     retval[len] = '\0';
 
     return retval;
+#else
+    return (GASchar*)c->attributes[index].value;
+#endif
 }
 /*}}}*/
 /*@}*/
@@ -154,10 +193,22 @@ GASvoid gas_set_payload_s (GASchunk* c, const GASchar* payload)
 /*}}}*/
 /* gas_get_payload_s() {{{*/
 /**
- * @returns An allocated copy of the payload.
+ * @brief Fetch the payload as a null-terminated string.
  */
+#if DUPLICATE_STRINGS
+/**
+ * @return An allocated copy of the chunk payload.
+ * @attention Free the result when finished.
+ */
+#else
+/**
+ * @return A GASchar* that is guaranteed to be null terminated.
+ * @warning Do not free the returned value.
+ */
+#endif
 GASchar* gas_get_payload_s (GASchunk* c)
 {
+#if DUPLICATE_STRINGS
     GASchar *retval;
     retval = (GASchar*)malloc(c->payload_size + 1);
     assert(retval != NULL);
@@ -167,6 +218,9 @@ GASchar* gas_get_payload_s (GASchunk* c)
     memcpy(retval, c->payload, c->payload_size);
     retval[c->payload_size] = '\0';
     return retval;
+#else
+    return (GASchar*)c->payload;
+#endif
 }
 /*}}}*/
 /*@}*/
