@@ -117,8 +117,6 @@ GASresult my_seek (void *handle, unsigned long pos, int whence, void *userdata)
         return GAS_ERR_INVALID_PARAM;
     }
 
-    /*fseek((FILE *)handle, pos, SEEK_SET);*/
-    /** @todo make this configurable */
     fseek((FILE *)handle, pos, whence);
 
     return GAS_OK;

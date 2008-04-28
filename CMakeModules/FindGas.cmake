@@ -1,13 +1,14 @@
 find_path(
     GAS_INCLUDE_DIR
-    gas/gas.h
+    gas/tree.h
     ${GAS_DIR}/include
+    ${GAS_SOURCE_DIR}/src
     )
 
 find_library(
     GAS_LIBRARY
     NAMES gas
-    PATHS /usr/lib /usr/local/lib ${GAS_DIR}/lib
+    PATHS /usr/lib /usr/local/lib ${GAS_DIR}/lib ${GAS_BINARY_DIR}/src/gas
     )
 
 if (GAS_LIBRARY AND GAS_INCLUDE_DIR)

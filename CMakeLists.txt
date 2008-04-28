@@ -42,6 +42,12 @@ configure_file(
     ${CMAKE_CURRENT_BINARY_DIR}/src/gas/gas.h
     )
 
+execute_process(
+    COMMAND ${CMAKE_COMMAND} -E create_symlink 
+    ${CMAKE_CURRENT_BINARY_DIR}/src/gas/gas.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/gas/gas.h
+    )
+
 subdirs(src doc)
 
 include(CPack)
