@@ -165,8 +165,9 @@ GASnum gas_read_encoded_num_buf (GASubyte* buf, GASunum limit, GASunum* result)
 /* gas_write_buf() {{{*/
 #define write_field(field)                                                  \
     do {                                                                    \
-        result = gas_write_encoded_num_buf(buf+off, 0, self->field##_size); \
-        if (result <= 0) { return 0; }                                      \
+        result = gas_write_encoded_num_buf(                                 \
+            buf+off, limit - off, self->field##_size);                      \
+        if (result <= 0) { return result; }                                 \
         off += result;                                                      \
         memcpy(buf+off, self->field, self->field##_size);                   \
         off += self->field##_size;                                          \
@@ -174,9 +175,6 @@ GASnum gas_read_encoded_num_buf (GASubyte* buf, GASunum limit, GASunum* result)
 
 /**
  * @return When positive, the new buffer offset.  Otherwise, an error code.
- *
- * @todo limit failure conditions
- * @todo changes zeros to limits
  */
 GASnum gas_write_buf (GASubyte* buf, GASunum limit, GASchunk* self)
 {
@@ -185,20 +183,19 @@ GASnum gas_write_buf (GASubyte* buf, GASunum limit, GASchunk* self)
     GASnum off = 0;
 
     /* this GASchunk's size */
-    off += gas_write_encoded_num_buf(buf+off, 0, self->size);
+    off += gas_write_encoded_num_buf(buf+off, limit - off, self->size);
     write_field(id);
     /* attributes */
-    off += gas_write_encoded_num_buf(buf+off, 0, self->nb_attributes);
+    off += gas_write_encoded_num_buf(buf+off, limit - off, self->nb_attributes);
     for (i = 0; i < self->nb_attributes; i++) {
         write_field(attributes[i].key);
         write_field(attributes[i].value);
     }
     write_field(payload);
     /* children */
-    off += gas_write_encoded_num_buf(buf+off, 0, self->nb_children);
+    off += gas_write_encoded_num_buf(buf+off, limit - off, self->nb_children);
     for (i = 0; i < self->nb_children; i++) {
-        /// @todo replace the 0
-        result = gas_write_buf(buf + off, 0, self->children[i]);
+        result = gas_write_buf(buf + off, limit - off, self->children[i]);
         if (result <= 0) { return result; }
         off += result;
     }
@@ -217,8 +214,9 @@ GASnum gas_write_buf (GASubyte* buf, GASunum limit, GASchunk* self)
         ((GASubyte*)field)[field##_size] = 0;                               \
     } while (0)
 
-#define read_num(field) \
-    result = gas_read_encoded_num_buf(buf + offset, limit - offset, &field); \
+#define read_num(field)                                                     \
+    result = gas_read_encoded_num_buf(                                      \
+        buf + offset, limit - offset, &field);                              \
     if (result <= 1) {                                                      \
         gas_destroy(c);                                                     \
         return result;                                                      \
@@ -236,7 +234,7 @@ GASnum gas_read_buf (GASubyte* buf, GASunum limit, GASchunk** out)
     read_num(c->size);
     read_field(c->id);
     read_num(c->nb_attributes);
-    c->attributes = (GASattribute*)malloc(c->nb_attributes * sizeof(GASattribute));
+    c->attributes =(GASattribute*)malloc(c->nb_attributes*sizeof(GASattribute));
     for (i = 0; i < c->nb_attributes; i++) {
         read_field(c->attributes[i].key);
         read_field(c->attributes[i].value);

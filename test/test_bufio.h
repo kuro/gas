@@ -42,6 +42,9 @@ private slots:
     void decode_0xdeadbeef ();
     void decode_failure_undersized_buffer_0xdeadbeef ();
     void decode_failure_undersized_buffer_0x8f ();
+
+    void tree001 ();
+    void tree002 ();
 };
 
 // vim: sw=4 fdm=marker

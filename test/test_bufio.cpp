@@ -15,6 +15,7 @@
  */
 
 #include  <QtTest>
+#include  <gas/ntstring.h>
 #include "test_bufio.moc"
 
 void xdump (GASubyte* data, GASunum len)
@@ -137,6 +138,40 @@ void TestBufIO::decode_failure_undersized_buffer_0x8f ()
         QVERIFY(result < 0);
     }
 }
+
+void TestBufIO::tree001 ()
+{
+    GASresult result;
+    GASchunk *c = gas_new_named("blah");
+    gas_set_payload_s(c, "hello world");
+    result = gas_write_buf(buf, sizeof(buf), c);
+    QVERIFY(result > 0);
+}
+
+void TestBufIO::tree002 ()
+{
+    GASresult result, size;
+    GASchunk *c = gas_new_named("blah");
+    gas_set_payload_s(c, "hello world");
+
+    result = gas_write_buf(buf, sizeof(buf), c);
+    QVERIFY(result > 0);
+
+    size = result;
+
+    // for second try, ensure it uses the same number of bytes again
+    result = gas_write_buf(buf, size, c);
+    QVERIFY(result > 0);
+    QCOMPARE(result, size);
+
+    // finally, ensure that claiming 1 too few bytes causes error
+    size = result;
+    result = gas_write_buf(buf, size - 1, c);
+    QVERIFY(result < 0);
+
+    gas_destroy(c);
+}
+
 
 
 QTEST_APPLESS_MAIN(TestBufIO);

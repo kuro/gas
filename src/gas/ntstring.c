@@ -128,8 +128,6 @@ GASnum gas_get_attribute_s (GASchunk* c, const GASchar* key,
 /* gas_get_attribute_ss() {{{*/
 /**
  * @brief Get an attribute referected by string key as a string.
- *
- * @todo redundant checks
  */
 #if DUPLICATE_STRINGS
 /**
@@ -164,6 +162,10 @@ GASchar* gas_get_attribute_ss (GASchunk* c, const GASchar* key)
     }
 
     status = gas_get_attribute(c, index, retval, len);
+
+    /**
+     * @todo redundant checks
+     */
     if (status < 0) {
         free(retval);
         return NULL;
