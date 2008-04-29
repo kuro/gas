@@ -32,8 +32,6 @@ extern "C"
 #endif
 
 
-typedef struct _gas_parser GASparser;
-
 /**
  * @brief Previews a chunk by providing the id, and provides an early out if
  * the chunk is not desired.
@@ -51,7 +49,7 @@ typedef GASvoid (*GAS_ON_PAYLOAD)   (GASunum payload_size, void *payload, void *
 typedef GASvoid (*GAS_POP_ID)       (GASunum id_size, void *id, void *user_data);
 typedef GASvoid (*GAS_POP_CHUNK)    (GASchunk* c, void *user_data);
 
-struct _gas_parser
+typedef struct
 {
     GAScontext* context;
     void *handle;
@@ -73,7 +71,7 @@ struct _gas_parser
     GAS_ON_PAYLOAD   on_payload;
     GAS_POP_ID       on_pop_id;
     GAS_POP_CHUNK    on_pop_chunk;
-};
+} GASparser;
 
 GASparser* gas_parser_new (GAScontext* context);
 void gas_parser_destroy (GASparser *p);

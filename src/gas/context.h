@@ -53,12 +53,7 @@ typedef GASresult (*GAS_FILE_SEEK_CALLBACK)  (void *handle,
                                               int whence,
                                               void *userdata);
 
-typedef struct _gas_context GAScontext;
-
-/**
- * @see _gas_context
- */
-struct _gas_context
+typedef struct
 {
     GAS_FILE_OPEN_CALLBACK  open;
     GAS_FILE_CLOSE_CALLBACK close;
@@ -66,7 +61,7 @@ struct _gas_context
     GAS_FILE_WRITE_CALLBACK write;
     GAS_FILE_SEEK_CALLBACK  seek;
     void *user_data;
-};
+} GAScontext;
 
 GAScontext* gas_context_new (void);
 void gas_context_destroy (GAScontext* s);
