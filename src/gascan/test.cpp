@@ -19,11 +19,11 @@
  * @brief test implementation
  */
 
-#include <gas/parser.h>
-#include <gas/ntstring.h>
-
 #include <stdio.h>
 #include <string.h>
+
+#include <gas/parser.h>
+#include <gas/ntstring.h>
 
 int total_bytes_read;
 

@@ -119,8 +119,8 @@ GASnum gas_get_attribute_s (GASchunk* c, const GASchar* key,
                             GASvoid* value, GASunum limit)
 {
     GASnum index = gas_index_of_attribute(c, key, strlen(key));
-    if (index == -1) {
-        return -2;
+    if (index < 0) {
+        return GAS_ERR_UNKNOWN;
     }
     return gas_get_attribute(c, index, value, limit);
 }

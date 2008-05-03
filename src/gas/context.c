@@ -48,7 +48,7 @@ GASresult gas_default_open (const char *name, const char *mode, void **handle, v
     }
 
     *userdata = NULL;
-    *handle = fp;
+    *handle = (void*)fp;
 #else
     long fd = 0;
     int flags = O_CREAT;

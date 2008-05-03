@@ -37,7 +37,7 @@ if (QT4_FOUND)
         ${QT_QTTEST_INCLUDE_DIR}
         ${CMAKE_CURRENT_BINARY_DIR}
         )
-    foreach(test bufio)
+    foreach(test bufio cplusplus)
         qt4_automoc(test_${test}.cpp)
         add_executable(test_${test} test_${test}.cpp)
         target_link_libraries(test_${test}

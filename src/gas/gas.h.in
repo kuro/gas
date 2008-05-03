@@ -43,11 +43,13 @@
 #define GAS_BIG_ENDIAN ${BIG_ENDIAN}
 #define GAS_INLINE ${GAS_INLINE}
 
-#define GAS_OK 0
-#define GAS_ERR_INVALID_PARAM  -101
-#define GAS_ERR_FILE_NOT_FOUND -102
-#define GAS_ERR_FILE_EOF -103
-#define GAS_ERR_UNKNOWN -104
+#define GAS_OK                       0
+#define GAS_ERR_INVALID_PARAM     -101
+#define GAS_ERR_FILE_NOT_FOUND    -102
+#define GAS_ERR_FILE_EOF          -103
+#define GAS_ERR_ATTR_NOT_FOUND    -104
+#define GAS_ERR_OUT_OF_RANGE      -105
+#define GAS_ERR_UNKNOWN           -106
 
 #endif  /* GAS_GAS_H defined */
 

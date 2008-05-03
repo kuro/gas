@@ -16,26 +16,13 @@
 
 #include <gas/swap.h>
 
-#if HAVE_ASSERT_H
-#include <assert.h>
-#else
-#define assert(expr) do {} while (0)
-#endif
-
-#ifdef GAS_DEBUG
-#include <stdio.h>
-#endif
-
 int gas_swap (void *buf, size_t stride, size_t bufsize)
 {
     GASunum count = bufsize / stride;
     GASunum i;
 
     if ((bufsize % stride) != 0) {
-#ifdef GAS_DEBUG
-/*        fprintf(stderr, "invalid stride for buffer size\n");*/
-#endif
-        return -1;
+        return GAS_ERR_INVALID_PARAM;
     }
 
     switch (stride) {
@@ -63,10 +50,7 @@ int gas_swap (void *buf, size_t stride, size_t bufsize)
     }
 #endif
     default:
-#ifdef GAS_DEBUG
-/*        fprintf(stderr, "invalid stride\n");*/
-#endif
-        return -1;
+        return GAS_ERR_INVALID_PARAM;
     }
     return 0;
 }

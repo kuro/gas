@@ -44,6 +44,20 @@ static int overwrite_attributes = GAS_TRUE;
 
 GASunum encoded_size (GASunum value);
 
+GASchar* gas_error_string (GASresult result)
+{
+    switch (result) {
+    case GAS_OK:                 return "no error";
+    case GAS_ERR_INVALID_PARAM:  return "invalid parameter";
+    case GAS_ERR_FILE_NOT_FOUND: return "file not found";
+    case GAS_ERR_FILE_EOF:       return "end of file";
+    case GAS_ERR_ATTR_NOT_FOUND: return "attribute not found";
+    case GAS_ERR_OUT_OF_RANGE:   return "value out of range";
+    case GAS_ERR_UNKNOWN:        return "unknown error";
+    default: return (result > 0) ? "no error" : "invalid error code";
+    }
+}
+
 /** @name helper functions */
 /*@{*/
 /* gas_cmp() {{{*/
@@ -212,7 +226,7 @@ GASnum gas_get_id (GASchunk* c, GASvoid* id, GASunum limit)
 /* gas_index_of_attribute() {{{*/
 /**
  * @return signed index
- * @retval -1 failure, attribute not found
+ * @retval GAS_ERR_ATTR_NOT_FOUND failure, attribute not found
  */
 GASnum gas_index_of_attribute (GASchunk* c, const GASvoid* key, GASunum key_size)
 {
@@ -226,7 +240,7 @@ GASnum gas_index_of_attribute (GASchunk* c, const GASvoid* key, GASunum key_size
             return i;
         }
     }
-    return -1;
+    return GAS_ERR_ATTR_NOT_FOUND;
 }
 /*}}}*/
 /* gas_set_attribute() {{{*/
@@ -268,7 +282,7 @@ GASnum gas_attribute_value_size (GASchunk* c, GASunum index)
     if (index < c->nb_attributes) {
         return c->attributes[index].value_size;
     } else {
-        return -1;
+        return GAS_ERR_OUT_OF_RANGE;
     }
 }
 /*}}}*/
@@ -284,24 +298,9 @@ GASnum gas_get_attribute (GASchunk* c, GASunum index,
 
     a = &c->attributes[index];
 
-#if 0
-    GASunum count;
-
-//    if (index == -1) {
-//        return -1;
-//    }
 
     if (index >= c->nb_attributes) {
-        return -1;
-    }
-
-    count = min(limit, a->value_size);
-    memcpy(((GASubyte*)value), a->value, count);
-    return a->value_size - limit;
-#else
-
-    if (index >= c->nb_attributes) {
-        return -1;
+        return GAS_ERR_OUT_OF_RANGE;
     }
 
     if (a->value_size > limit) {
@@ -311,7 +310,6 @@ GASnum gas_get_attribute (GASchunk* c, GASunum index,
     a = &c->attributes[index];
     memcpy(((GASubyte*)value), a->value, a->value_size);
     return a->value_size;
-#endif
 }
 /*}}}*/
 /* gas_has_attribute() {{{*/

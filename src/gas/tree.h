@@ -24,11 +24,109 @@
 
 #include <gas/types.h>
 
-/* types {{{*/
-typedef struct Attribute GASattribute;
-typedef struct Chunk GASchunk;
+
+#if defined(GAS_ENABLE_CPP) && defined(__cplusplus)
+#include <exception>
+namespace Gas
+{
+/*}*/
+#endif
+
+/* GASattribute {{{*/
+struct Attribute
+{
+    GASunum key_size;
+    GASubyte *key;
+    GASunum value_size;
+    GASubyte *value;
+};
 /* }}}*/
 
+/* Chunk {{{*/
+struct Chunk
+{
+    struct Chunk* parent;
+
+    GASunum size;
+
+    GASunum id_size;
+    GASubyte *id;
+
+    GASunum nb_attributes;
+    struct Attribute* attributes;
+
+    GASunum payload_size;
+    GASubyte *payload;
+
+    GASunum nb_children;
+    struct Chunk** children;
+
+#if defined(GAS_ENABLE_CPP) && defined(__cplusplus)
+public:
+
+    inline Chunk (const GASchar *id = NULL);
+    inline Chunk (GASunum id_size, const GASvoid *id);
+    inline ~Chunk();
+
+/* attributes {{{*/
+    inline GASvoid set_attribute (const GASchar* key, const GASchar* val);
+    inline GASvoid set_attribute (const GASchar* key,       GASchar* val);
+    inline GASvoid set_attribute (      GASchar* key, const GASchar* val);
+    inline GASvoid set_attribute (      GASchar* key,       GASchar* val);
+
+    template<typename V>
+    inline GASvoid set_attribute (const GASchar* key, const V& val);
+
+    template<typename V>
+    inline GASvoid set_attribute (      GASchar* key, const V& val);
+
+    template<typename K, typename V>
+    inline GASvoid set_attribute (const K& key, const V& val);
+
+    template<typename V>
+    inline GASvoid get_attribute (const GASchar* key, V& retval);
+
+    template<typename K, typename V>
+    inline GASvoid get_attribute (const K& key, V& retval);
+/*}}}*/
+
+    inline GASvoid set_payload (const GASvoid *payload, GASunum size);
+
+    inline Chunk* add_child (Chunk* child);
+
+    inline Chunk* operator<< (Chunk* child);
+
+#endif
+};
+
+#if defined(GAS_ENABLE_CPP) && defined(__cplusplus)
+
+class Exception : public std::exception
+{
+protected:
+    char message[128];
+
+public:
+    inline Exception (char *message) throw();
+    inline virtual char* what () throw();
+};
+
+}  /* namespace Gas */
+#endif
+
+
+/* }}}*/
+
+#if defined(GAS_ENABLE_CPP) && defined(__cplusplus)
+typedef Gas::Attribute GASattribute;
+typedef Gas::Chunk GASchunk;
+#else
+typedef struct Attribute GASattribute;
+typedef struct Chunk GASchunk;
+#endif
+
+
+/* C Functions {{{*/
 #ifdef __cplusplus
 extern "C"
 {
@@ -36,6 +134,7 @@ extern "C"
 #endif
 
 int gas_cmp(const GASubyte *a, GASunum a_len, const GASubyte *b, GASunum b_len);
+GASchar* gas_error_string (GASresult result);
 
 /**
  * @defgroup io IO
@@ -111,77 +210,11 @@ GASunum gas_total_size (GASchunk* c);
 #ifdef __cplusplus
 } /* extern C */
 #endif
-
-/* GASattribute {{{*/
-struct Attribute
-{
-    GASunum key_size;
-    GASubyte *key;
-    GASunum value_size;
-    GASubyte *value;
-};
-/* }}}*/
-
-/* Chunk {{{*/
-struct Chunk
-{
-    GASchunk* parent;
-
-    GASunum size;
-
-    GASunum id_size;
-    GASubyte *id;
-
-    GASunum nb_attributes;
-    struct Attribute* attributes;
-
-    GASunum payload_size;
-    GASubyte *payload;
-
-    GASunum nb_children;
-    GASchunk** children;
-
-#if defined(GAS_ENABLE_CPP) && defined(__cplusplus)
-public:
-    /*static GASvoid* operator new (size_t size); */
-    /*static GASvoid operator delete (GASvoid *p);*/
-
-    inline Chunk (const GASchar *id = NULL);
-    inline Chunk (GASunum id_size, const GASvoid *id);
-    inline ~Chunk();
-
-    inline GASvoid add_child (Chunk* child);
-
-    inline GASvoid set_attribute (const GASchar* key, const GASchar* val);
-    inline GASvoid set_attribute (const GASchar* key,       GASchar* val);
-    inline GASvoid set_attribute (      GASchar* key, const GASchar* val);
-    inline GASvoid set_attribute (      GASchar* key,       GASchar* val);
-
-    template<typename V>
-    inline GASvoid set_attribute (const GASchar* key, const V& val);
-    template<typename V>
-    inline GASvoid set_attribute (      GASchar* key, const V& val);
-
-    template<typename K, typename V>
-    inline GASvoid set_attribute (const K& key, const V& val);
-
-    template<typename V>
-    inline GASvoid get_attribute (const GASchar* key, V& retval);
-
-    template<typename K, typename V>
-    inline GASvoid get_attribute (const K& key, V& retval);
-
-    inline GASvoid set_payload (const GASvoid *payload, GASunum size);
-
-#endif
-};
+/*}}}*/
 
 #if defined(GAS_ENABLE_CPP) && defined(__cplusplus)
 #include <gas/tree.inl>
 #endif
-
-
-/* }}}*/
 
 #endif /* GAS_TREE_H defined */
 

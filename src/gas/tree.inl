@@ -19,10 +19,35 @@
  * @brief gas definition
  */
 
-#pragma once
+#ifndef GAS_TREE_INL
+#define GAS_TREE_INL
 
 #include <string.h>
 #include <iostream>
+
+#if HAVE_ASSERT_H
+#include <assert.h>
+#else
+#define assert(expr) do {} while (0)
+#endif
+
+namespace Gas
+{
+
+/* GAS::Exception methods {{{*/
+inline Exception::Exception (char *message) throw()
+{
+    memset(this->message, 0, sizeof(this->message));
+    strncpy(this->message, message, sizeof(this->message) - 1);
+}
+inline char* Exception::what () throw()
+{
+    return message;
+}
+/*}}}*/
+
+#define GAS_CHECK_RESULT(r)                                                 \
+    if (r < 0) { throw Gas::Exception(gas_error_string(r)); }
 
 /* macro copy_to_field() {{{*/
 #define copy_to_field(field)                                                \
@@ -34,24 +59,43 @@
     } while (0)
 /*}}}*/
 
-inline Chunk::Chunk (GASunum id_size, const GASvoid *id)
+inline Chunk::Chunk (GASunum id_size, const GASvoid *id) :/*{{{*/
+    parent(0),
+    size(0),
+    id_size(0),
+    id(0),
+    nb_attributes(0),
+    attributes(0),
+    payload_size(0),
+    payload(0),
+    nb_children(0),
+    children(0)
 {
-    memset(this, 0, sizeof(Chunk));
     if (id) {
         copy_to_field(id);
     }
-}
-inline Chunk::Chunk (const GASchar *id)
+}/*}}}*/
+inline Chunk::Chunk (const GASchar *id) :/*{{{*/
+    parent(0),
+    size(0),
+    id_size(0),
+    id(0),
+    nb_attributes(0),
+    attributes(0),
+    payload_size(0),
+    payload(0),
+    nb_children(0),
+    children(0)
 {
-    GASunum id_size = strlen(id);
-    memset(this, 0, sizeof(Chunk));
     if (id) {
+        id_size = strlen(id);
         copy_to_field(id);
     }
-}
-inline Chunk::~Chunk ()
+}/*}}}*/
+inline Chunk::~Chunk ()/*{{{*/
 {
     GASunum i;
+
     free(id);
     for (i = 0; i < nb_attributes; i++) {
         free(attributes[i].key);
@@ -63,76 +107,95 @@ inline Chunk::~Chunk ()
         delete children[i];
     }
     free(children);
-}
-
-inline GASvoid Chunk::add_child (Chunk* child)
-{
-    gas_add_child(this, child);
-}
+}/*}}}*/
 
 template<typename V>
-inline GASvoid Chunk::set_attribute (const GASchar* key, const V& val)
+inline GASvoid Chunk::set_attribute (const GASchar* key, const V& val)/*{{{*/
 {
     gas_set_attribute(this, key, strlen(key), &val, sizeof(V));
-}
+}/*}}}*/
 
 template<typename V>
-inline GASvoid Chunk::set_attribute (GASchar* key, const V& val)
+inline GASvoid Chunk::set_attribute (GASchar* key, const V& val)/*{{{*/
 {
     gas_set_attribute(this, key, strlen(key), &val, sizeof(V));
-}
+}/*}}}*/
 
-inline GASvoid Chunk::set_attribute (const GASchar* key, const GASchar* val)
+inline GASvoid Chunk::set_attribute (const GASchar* key, const GASchar* val)/*{{{*/
 {
     gas_set_attribute(this, key, strlen(key), val, strlen(val));
-}
+}/*}}}*/
 
-inline GASvoid Chunk::set_attribute (GASchar* key, const GASchar* val)
+inline GASvoid Chunk::set_attribute (GASchar* key, const GASchar* val)/*{{{*/
 {
     gas_set_attribute(this, key, strlen(key), val, strlen(val));
-}
+}/*}}}*/
 
-inline GASvoid Chunk::set_attribute (const GASchar* key, GASchar* val)
+inline GASvoid Chunk::set_attribute (const GASchar* key, GASchar* val)/*{{{*/
 {
     gas_set_attribute(this, key, strlen(key), val, strlen(val));
-}
+}/*}}}*/
 
-inline GASvoid Chunk::set_attribute (GASchar* key, GASchar* val)
+inline GASvoid Chunk::set_attribute (GASchar* key, GASchar* val)/*{{{*/
 {
     gas_set_attribute(this, key, strlen(key), val, strlen(val));
-}
+}/*}}}*/
 
 template<typename K, typename V>
-inline GASvoid Chunk::set_attribute (const K& key, const V& val)
+inline GASvoid Chunk::set_attribute (const K& key, const V& val)/*{{{*/
 {
-    //std::clog << typeid(K).name() << std::endl;
-    std::clog << typeid(key).name() << std::endl;
-    std::clog << typeid(typeof(key)).name() << std::endl;
-    std::clog << (typeid(key).name() == typeid(GASchar*).name()) << std::endl;
-    std::clog << (1 xor 1) << std::endl;
     gas_set_attribute(this, &key, sizeof(K), &val, sizeof(V));
-}
+}/*}}}*/
 
 template<typename V>
-inline GASvoid Chunk::get_attribute (const GASchar* key, V& retval)
+inline GASvoid Chunk::get_attribute (const GASchar* key, V& retval)/*{{{*/
 {
-    gas_get_attribute_s(this, key, &retval, sizeof(retval));
-}
+    GASresult r;
+#if GAS_DEBUG
+    GASnum index;
+    index = gas_index_of_attribute(this, key, strlen(key));
+    if (sizeof(retval) != this->attributes[index].value_size) {
+        fprintf(stderr, "gas warning: value size mismatch\n");
+    }
+#endif
+    r = gas_get_attribute_s(this, key, &retval, sizeof(retval));
+    GAS_CHECK_RESULT(r);
+}/*}}}*/
 
 template<typename K, typename V>
-inline GASvoid Chunk::get_attribute (const K& key, V& retval)
+inline GASvoid Chunk::get_attribute (const K& key, V& retval)/*{{{*/
 {
-    puts(";)");
-    GASnum index;
-    index = gas_index_of_attribute(this, sizeof(K), &key);
-    gas_get_attribute(this, index, &retval, sizeof(V));
-}
+    GASnum r;
 
-inline GASvoid Chunk::set_payload (const GASvoid *payload, GASunum size)
+    r = gas_index_of_attribute(this, &key, sizeof(K));
+    GAS_CHECK_RESULT(r);
+
+    r = gas_get_attribute(this, r, &retval, sizeof(V));
+    GAS_CHECK_RESULT(r);
+}/*}}}*/
+
+inline GASvoid Chunk::set_payload (const GASvoid *payload, GASunum size)/*{{{*/
 {
     gas_set_payload(this, payload, size);
-}
+}/*}}}*/
 
+inline Chunk* Chunk::add_child (Chunk* child)/*{{{*/
+{
+    gas_add_child(this, child);
+    return this;
+}/*}}}*/
+
+inline Chunk* Chunk::operator<< (Chunk* child)/*{{{*/
+{
+    gas_add_child(this, child);
+    return this;
+}/*}}}*/
+
+} // naemspace Gas
+
+#undef GAS_CHECK_RESULT
 #undef copy_to_field
+
+#endif // GAS_TREE_INL defined
 
 // vim: sw=4 fdm=marker

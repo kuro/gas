@@ -31,6 +31,8 @@
 #include <gas/parser.h>
 #include <gas/ntstring.h>
 
+using namespace Gas;
+
 static GAScontext *ctx;
 static GASparser *parser;
 static GASchunk *root;
