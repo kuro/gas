@@ -1,7 +1,9 @@
 *~
 .*.sw?
 .sw?
-tags
 cscope.*
+
+tags
 README.html
+
 src/gas/gas.h

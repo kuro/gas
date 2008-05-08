@@ -32,6 +32,7 @@
 
 #include <string.h>
 #include <stdio.h>
+#include <ctype.h>
 
 #if HAVE_ASSERT_H
 #include <assert.h>
@@ -87,6 +88,51 @@ int gas_cmp (const GASubyte *a, GASunum a_len, const GASubyte *b, GASunum b_len)
     return result;
 }
 /*}}}*/
+
+void gas_hexdump (GASvoid *input, GASunum size)
+{
+    GASunum i, x, o;
+    GASubyte *buf = (GASubyte*)input;
+    GASchar characters[17];
+    characters[16] = '\0';
+
+    o = 0;
+    for (i = 0; i < (size >> 4); i++) {
+        printf("%07lx: ", i << 4);
+        for (x = 0; x < 8; x++) {
+            printf("%02x%02x ", buf[o], buf[o+1]);
+            characters[x << 1] = isprint(buf[o]) ? buf[o] : '.';
+            characters[( x << 1 ) + 1] = isprint(buf[o+1]) ? buf[o+1] : '.';
+            o += 2;
+        }
+        printf(" %s", characters);
+        printf("\n");
+    }
+
+    memset(characters, 0, 16);
+
+    // finally
+    printf("%07lx: ", (size >> 4) << 4);
+    x = 0;
+    for (i = 0; i < (size % 16); i++) {
+        printf("%02x", buf[o]);
+        characters[i] = isprint(buf[o]) ? buf[o] : '.';
+        if (x) {
+            printf(" ");
+        }
+        x = ! x;
+        o += 1;
+    }
+    for (; i < 16; i++) {
+        printf("  ");
+        if (x) {
+            printf(" ");
+        }
+        x = ! x;
+    }
+    printf(" %s\n", characters);
+}
+
 /*@}*/
 
 /** @name helper functions and macros */
