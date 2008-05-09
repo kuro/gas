@@ -31,6 +31,14 @@
 #define assert(expr) do {} while (0)
 #endif
 
+
+template <typename T>
+inline void gas_hexdump (T x)
+{
+    gas_hexdump(x, sizeof(x));
+}
+
+
 namespace Gas
 {
 

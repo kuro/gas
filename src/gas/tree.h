@@ -135,6 +135,7 @@ extern "C"
 
 int gas_cmp(const GASubyte *a, GASunum a_len, const GASubyte *b, GASunum b_len);
 GASchar* gas_error_string (GASresult result);
+void gas_hexdump (GASvoid *input, GASunum size);
 
 /**
  * @defgroup io IO
