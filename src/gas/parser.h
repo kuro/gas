@@ -76,6 +76,8 @@ typedef struct
 GASparser* gas_parser_new (GAScontext* context);
 void gas_parser_destroy (GASparser *p);
 
+GASresult gas_read_parser (GASparser *p, GASchunk **out);
+
 GASresult gas_parse (GASparser* p, const char *resource, GASchunk **out);
 
 #ifdef __cplusplus

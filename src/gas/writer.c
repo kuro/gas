@@ -16,6 +16,8 @@
 
 #include <gas/writer.h>
 
+#include <string.h>
+
 
 /* gas_write_encoded_num_writer() {{{*/
 GASresult gas_write_encoded_num_writer (GASwriter *writer, GASunum value)
@@ -127,5 +129,18 @@ GASresult gas_write_writer (GASwriter *writer, GASchunk* self)
     return result;
 }
 /*}}}*/
+
+GASwriter* gas_writer_new (GAScontext* context)/*{{{*/
+{
+    GASwriter *w;
+
+    w = (GASwriter*)malloc(sizeof(GASwriter));
+
+    memset(w, 0, sizeof(GASwriter));
+
+    w->context = context;
+
+    return w;
+}/*}}}*/
 
 /* vim: set sw=4 fdm=marker :*/

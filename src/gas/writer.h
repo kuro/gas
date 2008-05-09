@@ -41,6 +41,8 @@ typedef struct
 GASresult gas_write_encoded_num_writer (GASwriter *writer, GASunum value);
 GASresult gas_write_writer (GASwriter *writer, GASchunk* self);
 
+GASwriter* gas_writer_new (GAScontext* context);
+
 #ifdef __cplusplus
 }
 #endif
