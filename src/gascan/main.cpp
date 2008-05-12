@@ -19,7 +19,7 @@
  * @brief main implementation
  */
 
-#include <gas/fdio.h>
+#include <gas/fsio.h>
 
 #include <stdio.h>
 #include <fcntl.h>
@@ -46,16 +46,21 @@ int gas2c (int argc, char **argv);
 
 void print_gas_file (string fname)
 {
-    int fd;
-    GASchunk *c;
+    FILE* fs;
+    GASchunk *c = NULL;
 
-    fd = open(fname.c_str(), O_RDONLY);
-    gas_read_fd(fd, &c);
-    close(fd);
-
-    gas_print(c);
-
-    gas_destroy(c);
+    fs = fopen(fname.c_str(), "r");
+    if (fs == NULL) {
+        fprintf(stderr, "file not found");
+        return;
+    }
+    while (!feof(fs)) {
+        gas_read_fs(fs, &c);
+        gas_print(c);
+        gas_destroy(c);
+        c = NULL;
+    }
+    fclose(fs);
 }
 
 void die (string msg)
