@@ -32,7 +32,7 @@ namespace Gas
 /*}*/
 #endif
 
-/* GASattribute {{{*/
+/* Attribute {{{*/
 struct Attribute
 {
     GASunum key_size;
@@ -91,8 +91,11 @@ public:
 /*}}}*/
 
     inline GASvoid set_payload (const GASvoid *payload, GASunum size);
+    inline GASvoid set_payload (const GASchar *payload);
 
     inline Chunk* add_child (Chunk* child);
+
+    inline Chunk* update (void);
 
     inline Chunk* operator<< (Chunk* child);
 
