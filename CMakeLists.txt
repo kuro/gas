@@ -15,6 +15,10 @@ if (CMAKE_COMPILER_IS_GNUCC)
     set(BUILD_SHARED_LIBS ON)
 endif ()
 
+if (MSVC)
+    add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+endif ()
+
 include(CheckIncludeFiles)
 CHECK_INCLUDE_FILES(byteswap.h HAVE_BYTESWAP_H)
 CHECK_INCLUDE_FILES(stdint.h HAVE_STDINT_H)

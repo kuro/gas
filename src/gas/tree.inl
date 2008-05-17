@@ -25,8 +25,6 @@
 #include <string.h>
 #include <iostream>
 
-#include <gas/ntstring.h>
-
 #if HAVE_ASSERT_H
 #include <assert.h>
 #else
@@ -190,7 +188,7 @@ inline GASvoid Chunk::set_payload (const GASvoid *payload, GASunum size)/*{{{*/
 }/*}}}*/
 inline GASvoid Chunk::set_payload (const GASchar *payload)/*{{{*/
 {
-    gas_set_payload_s(this, payload);
+    gas_set_payload(this, payload, strlen(payload));
 }/*}}}*/
 
 inline Chunk* Chunk::add_child (Chunk* child)/*{{{*/

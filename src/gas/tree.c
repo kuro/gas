@@ -255,7 +255,6 @@ GASunum gas_id_size (GASchunk* c)
     return c->id_size;
 }
 /*}}}*/
-#define min(a, b) (a<b?a:b)
 /* gas_get_id() {{{*/
 /**
  * @return The number of bytes fetched.
