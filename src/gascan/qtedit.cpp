@@ -294,6 +294,8 @@ void MainEditWindow::on_tree_selection_change (const QModelIndex& current,
 // load {{{
 void MainEditWindow::load (const QString& src)
 {
+    GASresult result;
+
     progress_bar->show();
     progress_bar->setMaximum(0);
     //progress_bar->setValue(50);
@@ -312,7 +314,13 @@ void MainEditWindow::load (const QString& src)
 
     root = gas_new("root", 4);
     GASchunk *doc = NULL;
-    gas_parse(parser, src.toAscii(), &doc);
+    result = gas_parse(parser, src.toAscii(), &doc);
+    if (result != GAS_OK) {
+        qCritical() << "parsing failed";
+        QMessageBox::critical(this, tr("Gas Editor"), tr("Parsing failed"));
+        progress_bar->hide();
+        return;
+    }
     gas_add_child(root, doc);
 
     progress_bar->hide();
@@ -471,13 +479,13 @@ QModelIndex MyTreeModel::index (int row, int col,
 {
     GASchunk *parent_chunk;
 
-//    if (root == NULL) {
-//        return QModelIndex();
-//    }
+    if (root == NULL) {
+        return QModelIndex();
+    }
 
-//    if ( ! hasIndex(row, col, parent)) {
-//        return QModelIndex();
-//    }
+    if ( ! hasIndex(row, col, parent)) {
+        return QModelIndex();
+    }
 
     if (! parent.isValid()) {
         parent_chunk = root;
