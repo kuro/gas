@@ -19,10 +19,10 @@
  * @brief context definition
  */
 
+#include <gas/types.h>
+
 #ifndef GAS_SESSION_H
 #define GAS_SESSION_H
-
-#include <gas/types.h>
 
 #ifdef __cplusplus
 extern "C"

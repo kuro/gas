@@ -19,10 +19,10 @@
  * @brief bufio definition
  */
 
+#include <gas/tree.h>
+
 #ifndef GAS_BUFIO_H
 #define GAS_BUFIO_H
-
-#include <gas/tree.h>
 
 #ifdef __cplusplus
 extern "C"

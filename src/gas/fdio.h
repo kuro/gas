@@ -19,11 +19,10 @@
  * @brief fdio definition
  */
 
+#include <gas/tree.h>
+
 #ifndef GAS_FDIO_H
 #define GAS_FDIO_H
-
-
-#include <gas/tree.h>
 
 #ifdef __cplusplus
 extern "C"

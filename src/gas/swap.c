@@ -16,6 +16,15 @@
 
 #include <gas/swap.h>
 
+/**
+ * @brief Unconditional array swapping routine.
+ *
+ * @param buf array buffer to swap bytes
+ * @param stride byte stride, 2 or 4 (short and long, respectively)
+ * @param bufsize the total data length of the buffer
+ *
+ * @retval 0 success, otherwise failure
+ */
 int gas_swap (void *buf, size_t stride, size_t bufsize)
 {
     GASunum count = bufsize / stride;

@@ -19,11 +19,11 @@
  * @brief writer definition
  */
 
-#ifndef GAS_WRITER_H
-#define GAS_WRITER_H
-
 #include <gas/context.h>
 #include <gas/tree.h>
+
+#ifndef GAS_WRITER_H
+#define GAS_WRITER_H
 
 #ifdef __cplusplus
 extern "C"
@@ -42,6 +42,9 @@ GASresult gas_write_encoded_num_writer (GASwriter *writer, GASunum value);
 GASresult gas_write_writer (GASwriter *writer, GASchunk* self);
 
 GASwriter* gas_writer_new (GAScontext* context);
+void gas_writer_destroy (GASwriter *w);
+
+GASresult gas_write (GASwriter* w, const char *resource, GASchunk *c);
 
 #ifdef __cplusplus
 }

@@ -19,20 +19,14 @@
  * @brief gas definition
  */
 
-#ifndef GAS_TREE_INL
-#define GAS_TREE_INL
-
 #include <string.h>
 #include <iostream>
 
 #include <gas/ntstring.h>
+#include <gas/swap.h>
 
-#if HAVE_ASSERT_H
-#include <assert.h>
-#else
-#define assert(expr) do {} while (0)
-#endif
-
+#ifndef GAS_TREE_INL
+#define GAS_TREE_INL
 
 template <typename T>
 inline void gas_hexdump (T x)
@@ -119,10 +113,32 @@ inline Chunk::~Chunk ()/*{{{*/
     free(children);
 }/*}}}*/
 
+/**
+ * @param auto_swap when true, calls htons() or htonl()
+ */
 template<typename V>
-inline GASvoid Chunk::set_attribute (const GASchar* key, const V& val)/*{{{*/
+inline GASvoid Chunk::set_attribute (const GASchar* key, const V& val, bool auto_swap)/*{{{*/
 {
-    gas_set_attribute(this, key, strlen(key), &val, sizeof(V));
+    if (!auto_swap) {
+        gas_set_attribute(this, key, strlen(key), &val, sizeof(V));
+    } else {
+        V tmp;
+        switch (sizeof(V)) {
+        case 1:
+            tmp = val;
+            break;
+        case 2:
+            tmp = htons(val);
+            break;
+        case 4:
+            tmp = htonl(val);
+            break;
+        default:
+            throw Gas::Exception("unsupported type size for swap");
+            break;
+        }
+        gas_set_attribute(this, key, strlen(key), &tmp, sizeof(V));
+    }
 }/*}}}*/
 
 template<typename V>
@@ -157,8 +173,13 @@ inline GASvoid Chunk::set_attribute (const K& key, const V& val)/*{{{*/
     gas_set_attribute(this, &key, sizeof(K), &val, sizeof(V));
 }/*}}}*/
 
+inline GASchar* Chunk::get_attribute (const GASchar* key)
+{
+    return gas_get_attribute_ss(this, key);
+}
+
 template<typename V>
-inline GASvoid Chunk::get_attribute (const GASchar* key, V& retval)/*{{{*/
+inline GASvoid Chunk::get_attribute (const GASchar* key, V& retval, bool auto_swap) /*{{{*/
 {
     GASresult r;
 #if GAS_DEBUG
@@ -169,6 +190,21 @@ inline GASvoid Chunk::get_attribute (const GASchar* key, V& retval)/*{{{*/
     }
 #endif
     r = gas_get_attribute_s(this, key, &retval, sizeof(retval));
+    if (auto_swap) {
+        switch (sizeof(V)) {
+        case 1:
+            break;
+        case 2:
+            retval = ntohs(retval);
+            break;
+        case 4:
+            retval = ntohl(retval);
+            break;
+        default:
+            throw Gas::Exception("unsupported type size for swap");
+            break;
+        }
+    }
     GAS_CHECK_RESULT(r);
 }/*}}}*/
 
@@ -199,11 +235,11 @@ inline Chunk* Chunk::add_child (Chunk* child)/*{{{*/
     return this;
 }/*}}}*/
 
-inline Chunk* Chunk::update (void)
+inline Chunk* Chunk::update (void)/*{{{*/
 {
     gas_update(this);
     return this;
-}
+}/*}}}*/
 
 inline Chunk* Chunk::operator<< (Chunk* child)/*{{{*/
 {

@@ -19,12 +19,11 @@
  * @brief fsio definition
  */
 
-#ifndef GAS_FSIO_H
-#define GAS_FSIO_H
-
-
 #include <gas/tree.h>
 #include <stdio.h>
+
+#ifndef GAS_FSIO_H
+#define GAS_FSIO_H
 
 #ifdef __cplusplus
 extern "C"

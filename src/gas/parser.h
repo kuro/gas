@@ -19,11 +19,11 @@
  * @brief parser definition
  */
 
-#ifndef GAS_PARSER_H
-#define GAS_PARSER_H
-
 #include <gas/context.h>
 #include <gas/tree.h>
+
+#ifndef GAS_PARSER_H
+#define GAS_PARSER_H
 
 #ifdef __cplusplus
 extern "C"
