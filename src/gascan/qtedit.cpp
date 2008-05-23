@@ -231,15 +231,14 @@ void MainEditWindow::on_about (void)
 
 QString MainEditWindow::sanitize (const QByteArray& in, bool wrap)
 {
-    if (not do_sanitize) {
+    if (! do_sanitize) {
         return in;
     }
 
-    char buf[8];
-    QString out;
+    QString out, buf;
     bool doit = false;
     for (int i = 0; i < in.size(); i++) {
-        if (in[i] == 0 or not isprint(in[i])) {
+        if (in[i] == 0 || ! isprint(in[i])) {
             doit = true;
             break;
         }
@@ -247,7 +246,7 @@ QString MainEditWindow::sanitize (const QByteArray& in, bool wrap)
     if (doit) {
         if (wrap) {
             for (int i = 0; i < in.size(); i++) {
-                snprintf(buf, sizeof(buf), "<%02x>", in[i] & 0xff);
+                buf.sprintf("<%02x>", in[i] & 0xff);
                 out.append(buf);
                 if (i % 8 == 7) {
                     out.append('\n');
@@ -255,7 +254,7 @@ QString MainEditWindow::sanitize (const QByteArray& in, bool wrap)
             }
         } else {
             for (int i = 0; i < in.size(); i++) {
-                snprintf(buf, sizeof(buf), "<%02x>", in[i] & 0xff);
+                buf.sprintf("<%02x>", in[i] & 0xff);
                 out.append(buf);
             }
         }
@@ -348,7 +347,7 @@ int MyTreeModel::columnCount (const QModelIndex &parent) const
 Qt::ItemFlags MyTreeModel::flags (const QModelIndex &index) const
 {
     //qDebug("flags");
-    if (not index.isValid()) {
+    if (! index.isValid()) {
         return Qt::ItemIsEnabled;
     }
     return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
@@ -359,7 +358,7 @@ QVariant MyTreeModel::headerData (int section, Qt::Orientation orientation,
         int role) const
 {
     //qDebug("header section=%d role=%d", section, role);
-    if (orientation == Qt::Horizontal and role == Qt::DisplayRole) {
+    if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
         switch (section) {
         case 0:
             return tr("Chunk");
@@ -382,7 +381,7 @@ QVariant MyTreeModel::headerData (int section, Qt::Orientation orientation,
 /* data() {{{*/
 QVariant MyTreeModel::data (const QModelIndex &index, int role) const
 {
-    if (not index.isValid()) {
+    if (! index.isValid()) {
         return QVariant();
     }
 
@@ -457,7 +456,7 @@ int MyTreeModel::rowCount (const QModelIndex &parent) const
 //        return 0;
 //    }
 
-    if (not parent.isValid()) {
+    if (! parent.isValid()) {
         parent_chunk = root;
     } else {
         parent_chunk = static_cast<GASchunk*>(parent.internalPointer());
@@ -480,7 +479,7 @@ QModelIndex MyTreeModel::index (int row, int col,
 //        return QModelIndex();
 //    }
 
-    if (not parent.isValid()) {
+    if (! parent.isValid()) {
         parent_chunk = root;
     } else {
         parent_chunk = static_cast<GASchunk*>(parent.internalPointer());
@@ -500,7 +499,7 @@ QModelIndex MyTreeModel::index (int row, int col,
 /* parent() {{{*/
 QModelIndex MyTreeModel::parent (const QModelIndex &child) const
 {
-    if (not child.isValid()) {
+    if (! child.isValid()) {
         return QModelIndex();
     }
    
@@ -509,7 +508,7 @@ QModelIndex MyTreeModel::parent (const QModelIndex &child) const
 
     //qDebug("parent for %s", (char*)child_chunk->id);
 
-    if (parent_chunk == NULL or parent_chunk == root) {
+    if (parent_chunk == NULL || parent_chunk == root) {
         return QModelIndex();
     }
 

@@ -65,10 +65,6 @@ GAS_INLINE float swapf(float fin);
 
 #endif
 
-#ifndef GAS_INLINE
-#error "GAS_INLINE not defined"
-#endif
-
 GAS_INLINE float swapf(float fin)
 {
     uint32_t tmp = swap32(*(uint32_t*)&fin);

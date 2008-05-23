@@ -32,6 +32,11 @@
 #include <unistd.h>
 #endif
 
+#ifdef MSVC
+GASnum read (int fd, GASvoid *buf, GASunum count);
+GASnum write (int fd, const GASvoid *buf, GASunum count);
+#endif
+
 /* gas_write_encoded_num_fd() {{{*/
 GASresult gas_write_encoded_num_fd (int fd, GASunum value)
 {
@@ -39,7 +44,7 @@ GASresult gas_write_encoded_num_fd (int fd, GASunum value)
     GASubyte byte, mask;
     GASunum zero_count, zero_bytes, zero_bits;
     GASnum si;  /* a signed i */
-    ssize_t bytes_written;
+    GASnum bytes_written;
 
     for (i = 1; 1; i++) {
         if (value < ((1UL << (7UL*i))-1UL)) {
@@ -186,7 +191,7 @@ GASresult gas_write_fd (int fd, GASchunk* self)
         field = (GASubyte*)malloc(field##_size + 1);                        \
         bytes_read = read(fd, field, field##_size);                         \
         if (bytes_read < 0) { return GAS_ERR_UNKNOWN; }                     \
-        if (bytes_read != (ssize_t)field##_size) {return GAS_ERR_UNKNOWN;}  \
+        if (bytes_read != (GASnum)field##_size) {return GAS_ERR_UNKNOWN;}   \
         ((GASubyte*)field)[field##_size] = 0;                               \
     } while (0)
 
@@ -195,7 +200,7 @@ GASresult gas_read_fd (int fd, GASchunk** out)
     GASresult result;
     GASunum i;
     GASchunk* c = gas_new(NULL, 0);
-    ssize_t bytes_read;
+    GASnum bytes_read;
 
     result = gas_read_encoded_num_fd(fd, &c->size);
     if (result != GAS_OK) {
