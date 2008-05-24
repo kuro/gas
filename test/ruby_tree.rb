@@ -22,16 +22,19 @@ include Gas
 
 r = Chunk.new(:id => 'root', :status => 'fun')
 foo = Chunk.new(:id=>'foo', :something=>[?a, ?b, ?c].pack('c*'))
-bar = Chunk.new('bar')
+bar = Chunk.new(:id => 'bar')
 unnamed = Chunk.new
 r.add_child foo
 foo << bar << unnamed
-foo.parent.print
+foo.parent.test
 
-(v = Chunk.new('vehicle')) << (Chunk.new('car') << [Chunk.new('truck') , Chunk.new('bus')])
-#(v = Chunk.new('vehicle')) << [Chunk.new('car') , Chunk.new('truck') << Chunk.new('bus')]
-v.print
+(Chunk.new(:id => 'vehicle') \
+ << (Chunk.new(:id => 'car') << [Chunk.new(:id => 'truck') , Chunk.new(:id => 'bus')])
+).test
 
+((v = Chunk.new(:id => 'vehicle')) \
+ << [Chunk.new(:id => 'car'), Chunk.new(:id => 'truck') << Chunk.new(:id => 'bus')]
+).test
 
 #open('test/dump.gas') do |io|
   #root = Gas::Chunk.new(io.fileno)

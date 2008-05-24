@@ -71,7 +71,7 @@ void my_on_payload (GASunum payload_size, void *payload, void *user_data)
 /*}}}*/
 
 
-int main (void)
+int parser (int argc, char **argv)
 {
     GASresult r;
 #if 1

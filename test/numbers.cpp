@@ -142,7 +142,7 @@ void test_number (GASunum num)
     unlink(fname);
 }
 
-int main (void)
+int numbers (int argc, char** argv)
 {
     //int i;
 

@@ -132,7 +132,7 @@ void test003 (void)
 }
 
 
-int main (void)
+int tree (int argc, char** argv)
 {
     test001();
     //test002();

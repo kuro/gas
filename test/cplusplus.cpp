@@ -16,17 +16,7 @@
 
 #include  <QtTest>
 #include  <gas/ntstring.h>
-#include "test_cplusplus.moc"
-
-void xdump (GASubyte* data, GASunum len)
-{
-    printf("0x");
-    for (GASunum i = 0; i < len; i++) {
-        printf("%02x", data[i]);
-    }
-    printf("\n");
-}
-
+#include "cplusplus.moc"
 
 void TestCPlusPlusIO::append_child_op_001 ()
 {
@@ -76,6 +66,8 @@ void TestCPlusPlusIO::test_001 ()
     delete c;
 }
 
-
-
-QTEST_APPLESS_MAIN(TestCPlusPlusIO);
+int cplusplus (int argc, char **argv)
+{
+    TestCPlusPlusIO tc;
+    return QTest::qExec(&tc, argc, argv);
+}

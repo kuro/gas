@@ -16,16 +16,7 @@
 
 #include  <QtTest>
 #include  <gas/ntstring.h>
-#include "test_bufio.moc"
-
-void xdump (GASubyte* data, GASunum len)
-{
-    printf("0x");
-    for (GASunum i = 0; i < len; i++) {
-        printf("%02x", data[i]);
-    }
-    printf("\n");
-}
+#include "bufio.moc"
 
 void TestBufIO::encode_0xdeadbeef ()
 {
@@ -174,4 +165,8 @@ void TestBufIO::tree002 ()
 
 
 
-QTEST_APPLESS_MAIN(TestBufIO);
+int bufio (int argc, char **argv)
+{
+    TestBufIO tc;
+    return QTest::qExec(&tc, argc, argv);
+}

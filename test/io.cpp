@@ -143,7 +143,7 @@ void test0004 (void)
 }
 
 
-int main (void)
+int io (int argc, char** argv)
 {
     //test0004();
     //test0003();

@@ -159,7 +159,7 @@ void test_size_write(const char* fname, GASunum val)
 
 
 
-int main (void)
+int encoding (int argc, char** argv)
 {
 //    test_size_read("2-111.bin", 111);
 //    test_size_read("2-1023.bin", 1023);

@@ -200,8 +200,25 @@ module Gas
       sio.rewind
       return sio.read
     end
-    def << (chunk)
+    def add_child (chunk)
+      chunk.parent = self
       @children << chunk
+      self
+    end
+    def << (chunk)
+      case chunk
+      when Array
+        chunk.each do |x|
+          x.parent = self
+          @children << x
+        end
+      when Chunk
+        chunk.parent = self
+        @children << chunk
+      else
+        raise GasError, 'invalid type for appending'
+      end
+      self
     end
     def [] (key)
       skey = (Fixnum === key and (0..255) === key) ? key.chr : key.to_s
