@@ -286,14 +286,17 @@ GASresult gas_parse (GASparser* p, const char *resource, GASchunk **out)
 {
     GASresult result;
     GASchunk *c = NULL;
-    GASnum status;
     GAScontext *s = p->context;
 
-    status = s->open(resource, "rb", &p->handle, &s->user_data);
+    result = s->open(resource, "rb", &p->handle, &s->user_data);
+    if (result < GAS_OK) {
+        return result;
+    }
     result = gas_read_parser(p, &c);
-    // i don't know what the parser returned, but it does not really matter, as
-    // the error will find its way to the user anyway
-    status = s->close(p->handle, s->user_data);
+    if (result < GAS_OK) {
+        return result;
+    }
+    result = s->close(p->handle, s->user_data);
 
     *out = c;
     return result;

@@ -19,12 +19,11 @@
  * @brief types definition
  */
 
+#include <gas/gas.h>
+#include <stdlib.h>
+
 #ifndef GAS_TYPES_H
 #define GAS_TYPES_H
-
-#include <gas/gas.h>
-
-#include <stdlib.h>
 
 #ifdef HAVE_STDINT_H
 #  include <stdint.h>

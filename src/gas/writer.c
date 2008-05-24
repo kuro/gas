@@ -143,4 +143,26 @@ GASwriter* gas_writer_new (GAScontext* context)/*{{{*/
     return w;
 }/*}}}*/
 
+void gas_writer_destroy (GASwriter *w)/*{{{*/
+{
+    free(w);
+}/*}}}*/
+
+GASresult gas_write (GASwriter* w, const char *resource, GASchunk *c)
+{
+    GASresult result;
+    GAScontext *ctx = w->context;
+
+    result = ctx->open(resource, "wb", &w->handle, &ctx->user_data);
+    if (result < GAS_OK) {
+        return result;
+    }
+    result = gas_write_writer(w, c);
+    if (result < GAS_OK) {
+        return result;
+    }
+    result = ctx->close(w->handle, ctx->user_data);
+    return result;
+}
+
 /* vim: set sw=4 fdm=marker :*/

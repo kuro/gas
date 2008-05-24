@@ -19,14 +19,12 @@
  * @brief swap definition
  */
 
+#include <gas/types.h>
+
 #ifndef GAS_SWAP_H
 #define GAS_SWAP_H
 
-#include <gas/types.h>
-
-#ifndef GAS_INLINE
-#error "GAS_INLINE not defined"
-#endif
+GAS_INLINE float swapf(float fin);
 
 #ifdef HAVE_BYTESWAP_H
 
@@ -45,10 +43,10 @@
 
 #define swap32(x)                                                           \
     ((uint32_t)                                                             \
-      ((x & 0x000000ffU) << 24) |                                          \
-      ((x & 0x0000ff00U) <<  8) |                                          \
-      ((x & 0x00ff0000U) >>  8) |                                          \
-      ((x & 0xff000000U) >> 24)                                            \
+      ((x & 0x000000ffU) << 24) |                                           \
+      ((x & 0x0000ff00U) <<  8) |                                           \
+      ((x & 0x00ff0000U) >>  8) |                                           \
+      ((x & 0xff000000U) >> 24)                                             \
     )
 
 #if GAS_SIZEOF_VOID_P >= 8
@@ -94,15 +92,6 @@ extern "C"
 {
 #endif
 
-/**
- * @brief Unconditional array swapping routine.
- *
- * @param buf array buffer to swap bytes
- * @param stride byte stride, 2 or 4 (short and long, respectively)
- * @param bufsize the total data length of the buffer
- *
- * @retval 0 success, otherwise failure
- */
 int gas_swap (void *buf, size_t stride, size_t bufsize);
 
 #ifdef __cplusplus

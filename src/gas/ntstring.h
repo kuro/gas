@@ -19,10 +19,10 @@
  * @brief ntstring definition
  */
 
+#include <gas/tree.h>
+
 #ifndef GAS_NTSTRING_H
 #define GAS_NTSTRING_H 
-
-#include <gas/tree.h>
 
 #ifdef __cplusplus
 extern "C"

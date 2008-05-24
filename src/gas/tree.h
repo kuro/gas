@@ -19,11 +19,10 @@
  * @brief tree definition
  */
 
-#ifndef GAS_TREE_H
-#define GAS_TREE_H
-
 #include <gas/types.h>
 
+#ifndef GAS_TREE_H
+#define GAS_TREE_H
 
 #if defined(GAS_ENABLE_CPP) && defined(__cplusplus)
 #include <exception>
@@ -75,7 +74,8 @@ public:
     inline GASvoid set_attribute (      GASchar* key,       GASchar* val);
 
     template<typename V>
-    inline GASvoid set_attribute (const GASchar* key, const V& val);
+    inline GASvoid set_attribute (const GASchar* key, const V& val,
+                                  bool auto_swap = false);
 
     template<typename V>
     inline GASvoid set_attribute (      GASchar* key, const V& val);
@@ -84,10 +84,13 @@ public:
     inline GASvoid set_attribute (const K& key, const V& val);
 
     template<typename V>
-    inline GASvoid get_attribute (const GASchar* key, V& retval);
+    inline GASvoid get_attribute (const GASchar* key, V& retval,
+                                  bool auto_swap = false);
 
     template<typename K, typename V>
     inline GASvoid get_attribute (const K& key, V& retval);
+
+    inline GASchar* get_attribute (const GASchar* key);
 /*}}}*/
 
     inline GASvoid set_payload (const GASvoid *payload, GASunum size);
@@ -106,7 +109,7 @@ public:
 
 class Exception : public std::exception
 {
-protected:
+public:
     char message[128];
 
 public:
