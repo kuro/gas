@@ -66,6 +66,17 @@ void TestCPlusPlusIO::test_001 ()
     delete c;
 }
 
+
+void TestCPlusPlusIO::test_has_attribute ()
+{
+    Gas::Chunk *c = new Gas::Chunk("root");
+    c->set_attribute("fun", "FUN");
+    QVERIFY(c->has_attribute("fun"));
+    QVERIFY( ! c->has_attribute("sun"));
+    delete c;
+}
+
+
 int cplusplus (int argc, char **argv)
 {
     TestCPlusPlusIO tc;

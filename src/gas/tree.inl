@@ -185,11 +185,13 @@ inline GASvoid Chunk::get_attribute (const GASchar* key, V& retval, bool auto_sw
 #if GAS_DEBUG
     GASnum index;
     index = gas_index_of_attribute(this, key, strlen(key));
+    GAS_CHECK_RESULT(index);
     if (sizeof(retval) != this->attributes[index].value_size) {
         fprintf(stderr, "gas warning: value size mismatch\n");
     }
 #endif
     r = gas_get_attribute_s(this, key, &retval, sizeof(retval));
+    GAS_CHECK_RESULT(r);
     if (auto_swap) {
         switch (sizeof(V)) {
         case 1:
@@ -205,7 +207,6 @@ inline GASvoid Chunk::get_attribute (const GASchar* key, V& retval, bool auto_sw
             break;
         }
     }
-    GAS_CHECK_RESULT(r);
 }/*}}}*/
 
 template<typename K, typename V>
@@ -246,6 +247,11 @@ inline Chunk* Chunk::operator<< (Chunk* child)/*{{{*/
     gas_add_child(this, child);
     return this;
 }/*}}}*/
+
+inline GASbool Chunk::has_attribute (const GASchar* key)
+{
+    return gas_has_attribute(this, key, strlen(key));
+}
 
 } // naemspace Gas
 

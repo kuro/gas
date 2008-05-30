@@ -11,8 +11,6 @@ option(GAS_ENABLE_CPP "Enable C++ wrapper" ON)
 
 if (CMAKE_COMPILER_IS_GNUCC)
     add_definitions(-Wall)
-
-    set(BUILD_SHARED_LIBS ON)
 endif ()
 
 if (MSVC)

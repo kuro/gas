@@ -53,6 +53,8 @@ else ()
         endif()
     endforeach()
 
+    add_dependencies(gas_doc README.html)
+
 endif ()
 
 find_program(RDOC NAMES rdoc)
@@ -68,5 +70,3 @@ if (RDOC)
     endif()
     add_dependencies(doc rdoc)
 endif ()
-
-add_dependencies(gas_doc README.html)

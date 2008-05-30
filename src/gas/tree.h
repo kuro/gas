@@ -91,6 +91,7 @@ public:
     inline GASvoid get_attribute (const K& key, V& retval);
 
     inline GASchar* get_attribute (const GASchar* key);
+    inline GASbool has_attribute (const GASchar* key);
 /*}}}*/
 
     inline GASvoid set_payload (const GASvoid *payload, GASunum size);
@@ -182,7 +183,7 @@ GASnum gas_index_of_attribute (GASchunk* c, const GASvoid* key, GASunum key_size
 GASvoid gas_set_attribute (GASchunk* c,
                         const GASvoid *key, GASunum key_size,
                         const GASvoid *value, GASunum value_size);
-GASbool gas_has_attribute (GASchunk* c, GASvoid* key, GASunum key_size);
+GASbool gas_has_attribute (GASchunk* c, const GASvoid* key, GASunum key_size);
 GASnum gas_attribute_value_size (GASchunk* c, GASunum index);
 GASnum gas_get_attribute (GASchunk* c, GASunum index, GASvoid* value, GASunum limit);
 GASnum gas_delete_attribute_at (GASchunk* c, GASunum index);

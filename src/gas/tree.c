@@ -363,9 +363,9 @@ GASnum gas_get_attribute (GASchunk* c, GASunum index,
 }
 /*}}}*/
 /* gas_has_attribute() {{{*/
-GASbool gas_has_attribute (GASchunk* c, GASvoid* key, GASunum key_size)
+GASbool gas_has_attribute (GASchunk* c, const GASvoid* key, GASunum key_size)
 {
-    return gas_index_of_attribute(c, key, key_size) == -1 ? 0 : 1;
+    return gas_index_of_attribute(c, key, key_size) < 0 ? GAS_FALSE : GAS_TRUE;
 }
 /*}}}*/
 GASnum gas_delete_attribute_at (GASchunk* c, GASunum index)

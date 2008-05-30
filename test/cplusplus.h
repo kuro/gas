@@ -36,6 +36,7 @@ private slots:
 
     void append_child_op_001 ();
     void test_001 ();
+    void test_has_attribute ();
 };
 
 // vim: sw=4 fdm=marker
