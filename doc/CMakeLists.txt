@@ -47,7 +47,7 @@ else ()
                 )
             add_dependencies(pdf ${src}_pdf)
         endif()
-        if (ENABLE_INSTALLER)
+        if (GAS_ENABLE_INSTALLER)
             install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${src}
                 DESTINATION ${DEST}doc)
         endif()
@@ -63,7 +63,7 @@ if (RDOC)
         COMMAND ${RDOC} -o ${CMAKE_CURRENT_BINARY_DIR}/rdoc ${CMAKE_CURRENT_SOURCE_DIR}/../lib
         )
     #file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/rdoc)
-    if (ENABLE_INSTALLER)
+    if (GAS_ENABLE_INSTALLER)
         install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/rdoc DESTINATION
             ${DEST}doc/gas/rdoc
             )

@@ -35,7 +35,7 @@ set(sources
 # use BUILD_SHARED_LIBS as necessary
 add_library(gas ${headers} ${sources})
 
-if (ENABLE_INSTALLER)
+if (GAS_ENABLE_INSTALLER)
     install(FILES ${headers} DESTINATION include/gas)
 
     if (WIN32)

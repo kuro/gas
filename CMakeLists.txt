@@ -4,10 +4,10 @@ project(Gas)
 
 find_package(Qt4)
 
-option(ENABLE_INSTALLER "Enable installer commands" OFF)
-option(ENABLE_TESTS "Enable test building" OFF)
-option(GAS_USE_LONG_TYPES "Enable use of long types" ON)
 option(GAS_ENABLE_CPP "Enable C++ wrapper" ON)
+option(GAS_ENABLE_INSTALLER "Enable installer commands" OFF)
+option(GAS_ENABLE_TESTS "Enable test building" OFF)
+option(GAS_USE_LONG_TYPES "Enable use of long types" ON)
 
 if (CMAKE_COMPILER_IS_GNUCC)
     add_definitions(-Wall)
@@ -52,9 +52,11 @@ execute_process(
 
 subdirs(src doc)
 
-include(CPack)
+if (GAS_ENABLE_INSTALLER)
+    include(CPack)
+endif ()
 
-if (ENABLE_TESTS)
+if (GAS_ENABLE_TESTS)
     enable_testing()
     subdirs(test)
 endif ()
