@@ -111,10 +111,10 @@ public:
 class Exception : public std::exception
 {
 public:
-    char message[128];
+    GASchar message[128];
 
 public:
-    inline Exception (char *message) throw();
+    inline Exception (const GASchar message[]) throw();
     inline virtual char* what () throw();
 };
 

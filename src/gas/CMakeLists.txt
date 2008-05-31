@@ -44,6 +44,9 @@ if (GAS_ENABLE_INSTALLER)
             ARCHIVE DESTINATION lib
             )
     else ()
-        install(TARGETS gas LIBRARY DESTINATION lib)
+        install(TARGETS gas
+            LIBRARY DESTINATION lib
+            ARCHIVE DESTINATION lib
+            )
     endif ()
 endif ()

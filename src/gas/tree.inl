@@ -39,14 +39,14 @@ namespace Gas
 {
 
 /* GAS::Exception methods {{{*/
-inline Exception::Exception (char *message) throw()
+inline Exception::Exception (const GASchar message[]) throw()
 {
     memset(this->message, 0, sizeof(this->message));
     strncpy(this->message, message, sizeof(this->message) - 1);
 }
 inline char* Exception::what () throw()
 {
-    return message;
+    return (char*)message;
 }
 /*}}}*/
 

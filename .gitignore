@@ -7,3 +7,8 @@ tags
 README.html
 
 src/gas/gas.h
+
+*.orig
+*.BASE.*
+*.LOCAL.*
+*.REMOTE.*
