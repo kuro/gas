@@ -24,7 +24,7 @@
 #ifndef GAS_SWAP_H
 #define GAS_SWAP_H
 
-GAS_INLINE float swapf(float fin);
+GAS_INLINE float swapf (float fin);
 
 #ifdef HAVE_BYTESWAP_H
 
@@ -65,7 +65,7 @@ GAS_INLINE float swapf(float fin);
 
 #endif
 
-GAS_INLINE float swapf(float fin)
+GAS_INLINE float swapf (float fin)
 {
     uint32_t tmp = swap32(*(uint32_t*)&fin);
     return *(float*)&tmp;

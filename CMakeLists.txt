@@ -35,8 +35,10 @@ endif ()
 
 if (CMAKE_COMPILER_IS_GNUCC)
     set(GAS_INLINE "inline")
+elseif (MSVC)
+    set(GAS_INLINE "__inline")
 else ()
-    set(GAS_INLINE "")
+    set(GAS_INLINE "inline")
 endif ()
 
 configure_file(
