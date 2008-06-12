@@ -25,23 +25,6 @@
 #ifndef GAS_GAS_H
 #define GAS_GAS_H
 
-#cmakedefine GAS_DEBUG 1
-
-#cmakedefine UNIX
-#cmakedefine MSVC
-#cmakedefine MINGW
-
-#cmakedefine HAVE_BYTESWAP_H 1
-#cmakedefine HAVE_STDINT_H 1
-#cmakedefine HAVE_ASSERT_H 1
-#cmakedefine HAVE_UNISTD_H 1
-
-#cmakedefine GAS_ENABLE_CPP
-#cmakedefine GAS_USE_LONG_TYPES 1
-
-#define GAS_SIZEOF_VOID_P ${CMAKE_SIZEOF_VOID_P}
-#define GAS_BIG_ENDIAN ${BIG_ENDIAN}
-#define GAS_INLINE ${GAS_INLINE}
 
 #define GAS_OK                       0
 #define GAS_ERR_INVALID_PARAM     -101
@@ -50,6 +33,66 @@
 #define GAS_ERR_ATTR_NOT_FOUND    -104
 #define GAS_ERR_OUT_OF_RANGE      -105
 #define GAS_ERR_UNKNOWN           -106
+
+
+#ifndef GAS_DEBUG
+#cmakedefine GAS_DEBUG 1
+#endif
+
+#ifndef UNIX
+#cmakedefine UNIX
+#endif
+
+#ifndef MSVC
+#cmakedefine MSVC
+#endif
+
+#ifndef MINGW
+#cmakedefine MINGW
+#endif
+
+
+
+#ifndef HAVE_BYTESWAP_H
+#cmakedefine HAVE_BYTESWAP_H 1
+#endif
+
+#ifndef HAVE_STDINT_H
+#cmakedefine HAVE_STDINT_H 1
+#endif
+
+#ifndef HAVE_ASSERT_H
+#cmakedefine HAVE_ASSERT_H 1
+#endif
+
+#ifndef HAVE_UNISTD_H
+#cmakedefine HAVE_UNISTD_H 1
+#endif
+
+
+
+#ifndef GAS_ENABLE_CPP
+#cmakedefine GAS_ENABLE_CPP 1
+#endif
+
+#ifndef GAS_USE_LONG_TYPES
+#cmakedefine GAS_USE_LONG_TYPES 1
+#endif
+
+
+
+#ifndef GAS_SIZEOF_VOID_P
+#define GAS_SIZEOF_VOID_P ${CMAKE_SIZEOF_VOID_P}
+#endif
+
+#ifndef GAS_BIG_ENDIAN
+#define GAS_BIG_ENDIAN ${BIG_ENDIAN}
+#endif
+
+#ifndef GAS_INLINE
+#define GAS_INLINE ${GAS_INLINE}
+#endif
+
 
 #endif  /* GAS_GAS_H defined */
 
