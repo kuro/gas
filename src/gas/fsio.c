@@ -144,7 +144,7 @@ GASresult gas_write_fs (FILE* fs, GASchunk* self)
 GASresult gas_read_encoded_num_fs (FILE* fs, GASunum *value)
 {
     GASunum retval = 0x0;
-    GASunum i, bytes_read, zero_byte_count, first_bit_set;
+    GASnum i, bytes_read, zero_byte_count, first_bit_set;
     GASubyte byte, mask = 0x00;
     GASunum additional_bytes_to_read;
 

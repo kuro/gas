@@ -121,7 +121,7 @@ GASnum gas_write_encoded_num_buf (GASubyte* buf, GASunum limit, GASunum value)
 GASnum gas_read_encoded_num_buf (GASubyte* buf, GASunum limit, GASunum* result)
 {
     GASunum offset;
-    GASunum i, zero_byte_count, first_bit_set;
+    GASnum i, zero_byte_count, first_bit_set;
     GASubyte byte, mask = 0x00;
     GASunum additional_bytes_to_read;
 
