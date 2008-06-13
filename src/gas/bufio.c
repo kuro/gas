@@ -217,7 +217,7 @@ GASnum gas_write_buf (GASubyte* buf, GASunum limit, GASchunk* self)
 #define read_num(field)                                                     \
     result = gas_read_encoded_num_buf(                                      \
         buf + offset, limit - offset, &field);                              \
-    if (result <= 1) {                                                      \
+    if (result <= 0) {                                                      \
         gas_destroy(c);                                                     \
         return result;                                                      \
     }                                                                       \
