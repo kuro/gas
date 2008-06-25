@@ -62,7 +62,9 @@ module Gas
 
     zero_byte_count = 0
     loop do
-      byte = io.read(1)[0]
+      byte = io.read(1)
+      fail 'failed to read 1 byte' unless byte
+      byte = byte[0]
       break if byte != 0x00
       zero_byte_count += 1
     end
@@ -81,7 +83,9 @@ module Gas
 
     retval = mask & byte
     additional_bytes_to_read.times do
-      byte = io.read(1)[0]
+      byte = io.read(1)
+      fail 'failed to read 1 byte' unless byte
+      byte = byte[0]
       retval = (retval << 8) | byte
     end
     return retval
@@ -130,17 +134,29 @@ module Gas
       @size = decode_num(io)
       id_size = decode_num(io)
       @id = io.read(id_size)
+      unless @id and @id.size == id_size
+        fail "failed to read #{'0x%x' % id_size} bytes"
+      end
       nb_attributes = decode_num(io)
       @attributes = Hash.new
       nb_attributes.times do
         key_size = decode_num(io)
         key = io.read(key_size)
+        unless key and key.size == key_size
+          fail "failed to read #{'0x%x' % key_size} bytes" 
+        end
         value_size = decode_num(io)
         value = io.read(value_size)
+        unless value and value.size == value_size
+          fail "failed to read #{'0x%x' % value_size} bytes"
+        end
         @attributes[key] = value
       end
       payload_size = decode_num(io)
       @payload = io.read(payload_size)
+      unless @payload and @payload.size == payload_size
+        fail "failed to read #{'0x%x' % payload_size} bytes"
+      end
       nb_children = decode_num(io)
       @children = Array.new
       nb_children.times do
