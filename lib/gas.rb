@@ -272,10 +272,10 @@ module Gas
       self
     end
 
-    def test (depth = 0)
+    def test (io = $stderr, depth = 0)
       pi = proc do |data|
-        print('    ' * depth)
-        puts data
+        io.print('    ' * depth)
+        io.puts data
       end
       pi.call '---'
       pi.call "id: #{id}"
@@ -292,15 +292,15 @@ module Gas
         #lines = lines.map {|l|l.strip}
         m = lines.collect{|l|l.size}.max
         m = m > 78 ? 78 : m
-        puts "+" << ('-' * m)
+        io.puts "+" << ('-' * m)
         lines.each do |line|
-          puts "| " << line
-          #puts "| " << line.inspect[1..-2]
+          io.puts "| " << line
+          #io.puts "| " << line.inspect[1..-2]
         end
-        puts "+" << ('-' * m)
+        io.puts "+" << ('-' * m)
       end
       @children.each do |child|
-        child.test(depth+1)
+        child.test(io, depth+1)
       end
     end
 
