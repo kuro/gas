@@ -165,7 +165,8 @@ module Gas
       end
       self
     end
-    def write (io)
+    def write (io, updated = false)
+      update unless updated
       io << encode_num(@size)
       io << encode_num(id.size)
       io << id
@@ -182,7 +183,7 @@ module Gas
       io << @payload
       io << encode_num(@children.size)
       @children.each do |child|
-        child.write(io)
+        child.write(io, true)
       end
       io
     end
