@@ -16,6 +16,10 @@
 
 module Gas
 
+  # Gas::Error
+  class Error < StandardError
+  end
+
   def encode_num (value)
     buf = String.new
 
@@ -63,7 +67,7 @@ module Gas
     zero_byte_count = 0
     loop do
       byte = io.read(1)
-      fail 'failed to read 1 byte' unless byte
+      raise Gas::Error, 'failed to read 1 byte', caller unless byte
       byte = byte[0]
       break if byte != 0x00
       zero_byte_count += 1
@@ -84,7 +88,7 @@ module Gas
     retval = mask & byte
     additional_bytes_to_read.times do
       byte = io.read(1)
-      fail 'failed to read 1 byte' unless byte
+      raise Gas::Error, 'failed to read 1 byte', caller unless byte
       byte = byte[0]
       retval = (retval << 8) | byte
     end
@@ -95,6 +99,10 @@ module Gas
     include Gas
 
     attr_accessor :parent, :size, :id, :attributes, :payload, :children
+
+    def self.parse (io)
+      Chunk.new.parse(io)
+    end
 
     def initialize (arg = nil)
       @parent = nil
@@ -123,7 +131,7 @@ module Gas
       when IO, StringIO
         parse(arg)
       else
-        fail "invalid type: #{arg.class}"
+        raise Gas::Error, "invalid type: #{arg.class}", caller
       end
     end
     def parse (io)
@@ -135,7 +143,7 @@ module Gas
       id_size = decode_num(io)
       @id = io.read(id_size)
       unless @id and @id.size == id_size
-        fail "failed to read #{'0x%x' % id_size} bytes"
+        raise Gas::Error, "failed to read #{'0x%x' % id_size} bytes", caller
       end
       nb_attributes = decode_num(io)
       @attributes = Hash.new
@@ -143,19 +151,19 @@ module Gas
         key_size = decode_num(io)
         key = io.read(key_size)
         unless key and key.size == key_size
-          fail "failed to read #{'0x%x' % key_size} bytes" 
+          raise Gas::Error, "failed to read #{'0x%x' % key_size} bytes" , caller
         end
         value_size = decode_num(io)
         value = io.read(value_size)
         unless value and value.size == value_size
-          fail "failed to read #{'0x%x' % value_size} bytes"
+          raise Gas::Error, "failed to read #{'0x%x' % value_size} bytes", caller
         end
         @attributes[key] = value
       end
       payload_size = decode_num(io)
       @payload = io.read(payload_size)
       unless @payload and @payload.size == payload_size
-        fail "failed to read #{'0x%x' % payload_size} bytes"
+        raise Gas::Error, "failed to read #{'0x%x' % payload_size} bytes", caller
       end
       nb_children = decode_num(io)
       @children = Array.new
@@ -233,7 +241,7 @@ module Gas
         chunk.parent = self
         @children << chunk
       else
-        raise GasError, 'invalid type for appending'
+        raise Gas::Error, 'invalid type for appending', caller
       end
       self
     end
@@ -265,7 +273,7 @@ module Gas
       case meth.to_s
       when /=\Z/
         key = meth.to_s[0..-2]
-        raise GasError, 'invalid arg count' unless args.size == 1
+        raise Gas::Error, 'invalid arg count', caller unless args.size == 1
         self[key] = args.first
       else
         return self[meth]
