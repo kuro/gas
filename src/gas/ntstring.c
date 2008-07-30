@@ -302,15 +302,20 @@ GASvoid gas_print (GASchunk* c)
             );
     }
     if (c->payload_size > 0) {
+        if (c->payload == NULL) {
+            indent(); printf("payload[%ld]: (undef)\n", c->payload_size);
+        } else {
 #if 0
-        indent(); printf("payload of size %ld:\n", (unsigned long)c->payload_size);
-        printf("---\n%s\n^^^\n", (GASchar*)c->payload);
+            indent();
+            printf("payload of size %ld:\n", (unsigned long)c->payload_size);
+            printf("---\n%s\n^^^\n", (GASchar*)c->payload);
 #else
-        indent(); printf("payload[%ld]: \"%s\"\n",
-                         c->payload_size,
-                         gas_sanitize(c->payload, c->payload_size)
-                         );
+            indent(); printf("payload[%ld]: \"%s\"\n",
+                             c->payload_size,
+                             gas_sanitize(c->payload, c->payload_size)
+                            );
 #endif
+        }
     }
 
     level++;

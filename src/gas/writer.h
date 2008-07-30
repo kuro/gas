@@ -31,11 +31,18 @@ extern "C"
 /*}*/
 #endif
 
+struct _GASwriter;
 
-typedef struct
+typedef GASresult (*GAS_WRITE_PAYLOAD) (struct _GASwriter* writer,
+                                        GASchunk* c,
+                                        unsigned int *bytes_written);
+
+typedef struct _GASwriter
 {
     GAScontext* context;
     void *handle;
+
+    GAS_WRITE_PAYLOAD on_write_payload;
 } GASwriter;
 
 GASresult gas_write_encoded_num_writer (GASwriter *writer, GASunum value);

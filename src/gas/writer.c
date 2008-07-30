@@ -118,7 +118,15 @@ GASresult gas_write_writer (GASwriter *writer, GASchunk* self)
         write_field(attributes[i].key);
         write_field(attributes[i].value);
     }
-    write_field(payload);
+    if (self->payload) {
+        write_field(payload);
+    } else {
+        if (writer->on_write_payload == NULL) {
+            return GAS_ERR_INVALID_PAYLOAD;
+        }
+        result = writer->on_write_payload(writer, self, &bytes_written);
+        if (result != GAS_OK) { return result; }
+    }
     /* children */
     result = gas_write_encoded_num_writer(writer, self->nb_children);
     if (result != GAS_OK) { return result; }

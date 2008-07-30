@@ -48,13 +48,14 @@ GASunum encoded_size (GASunum value);
 GASchar* gas_error_string (GASresult result)
 {
     switch (result) {
-    case GAS_OK:                 return "no error";
-    case GAS_ERR_INVALID_PARAM:  return "invalid parameter";
-    case GAS_ERR_FILE_NOT_FOUND: return "file not found";
-    case GAS_ERR_FILE_EOF:       return "end of file";
-    case GAS_ERR_ATTR_NOT_FOUND: return "attribute not found";
-    case GAS_ERR_OUT_OF_RANGE:   return "value out of range";
-    case GAS_ERR_UNKNOWN:        return "unknown error";
+    case GAS_OK:                  return "no error";
+    case GAS_ERR_INVALID_PARAM:   return "invalid parameter";
+    case GAS_ERR_FILE_NOT_FOUND:  return "file not found";
+    case GAS_ERR_FILE_EOF:        return "end of file";
+    case GAS_ERR_ATTR_NOT_FOUND:  return "attribute not found";
+    case GAS_ERR_OUT_OF_RANGE:    return "value out of range";
+    case GAS_ERR_INVALID_PAYLOAD: return "payload null and callback undefined";
+    case GAS_ERR_UNKNOWN:         return "unknown error";
     default: return (result > 0) ? "no error" : "invalid error code";
     }
 }
@@ -393,7 +394,11 @@ GASnum gas_delete_attribute_at (GASchunk* c, GASunum index)
 /* gas_set_payload() {{{*/
 GASvoid gas_set_payload (GASchunk* c, const GASvoid *payload, GASunum payload_size)
 {
-    copy_to_field(payload);
+    if (payload) {
+        copy_to_field(payload);
+    } else {
+        c->payload_size = payload_size;
+    }
 }
 /*}}}*/
 /* gas_payload_size() {{{ */

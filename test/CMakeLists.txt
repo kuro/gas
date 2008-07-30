@@ -11,6 +11,7 @@ set(std_tests
 set(qt_tests
     bufio
     cplusplus
+    writer
     )
 
 string(REGEX REPLACE "([-_a-z0-9]+)" "\\1.cpp" std_files "${std_tests}")
