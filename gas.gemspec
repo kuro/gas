@@ -1,7 +1,7 @@
 Gem::Specification.new do |s|
   s.name = 'gas'
   s.date = Date.today
-  s.version = '1.0.2'
+  s.version = '1.0.3'
   s.summary = 'extensible binary meta-container'
   s.homepage = 'http://gas.gekkoware.net/'
   s.description = 'extensible binary meta-container'

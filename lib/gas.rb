@@ -16,6 +16,8 @@
 
 module Gas
 
+  BUFMAX = 0x7fff
+
   # Gas::Error
   class Error < StandardError
   end
@@ -140,32 +142,39 @@ module Gas
       end
 
       @size = decode_num(io)
+      raise Gas::Error, "cowardly refusing to read #{@size} bytes", caller if @size > BUFMAX
       id_size = decode_num(io)
+      raise Gas::Error, "cowardly refusing to read #{id_size} bytes", caller if id_size > BUFMAX
       @id = io.read(id_size)
       unless @id and @id.size == id_size
         raise Gas::Error, "failed to read #{'0x%x' % id_size} bytes", caller
       end
       nb_attributes = decode_num(io)
+      raise Gas::Error, "cowardly refusing to read #{nb_attributes} bytes", caller if nb_attributes > BUFMAX
       @attributes = Hash.new
       nb_attributes.times do
         key_size = decode_num(io)
+        raise Gas::Error, "cowardly refusing to read #{key_size} bytes", caller if key_size > BUFMAX
         key = io.read(key_size)
         unless key and key.size == key_size
           raise Gas::Error, "failed to read #{'0x%x' % key_size} bytes" , caller
         end
         value_size = decode_num(io)
+        raise Gas::Error, "cowardly refusing to read #{value_size} bytes", caller if value_size > BUFMAX
         value = io.read(value_size)
         unless value and value.size == value_size
-          raise Gas::Error, "failed to read #{'0x%x' % value_size} bytes", caller
+          raise Gas::Error, "failed to read #{'0x%x' % value_size} bytes",caller
         end
         @attributes[key] = value
       end
       payload_size = decode_num(io)
+      raise Gas::Error, "cowardly refusing to read #{payload_size} bytes", caller if payload_size > BUFMAX
       @payload = io.read(payload_size)
       unless @payload and @payload.size == payload_size
-        raise Gas::Error, "failed to read #{'0x%x' % payload_size} bytes", caller
+        raise Gas::Error, "failed to read #{'0x%x' % payload_size} bytes",caller
       end
       nb_children = decode_num(io)
+      raise Gas::Error, "cowardly refusing to read #{nb_children} bytes", caller if nb_children > BUFMAX
       @children = Array.new
       nb_children.times do
         @children << Chunk.new(io)
