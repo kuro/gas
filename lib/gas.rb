@@ -172,6 +172,8 @@ module Gas
         @children.last.parent = self
       end
       self
+    rescue NoMemoryError
+      raise Gas::Error, 'out of memory', caller
     end
     def write (io, updated = false)
       update unless updated
