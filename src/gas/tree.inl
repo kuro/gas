@@ -58,6 +58,7 @@ inline char* Exception::what () throw()
     do {                                                                    \
         this->field##_size = field##_size;                                  \
         this->field = (GASubyte*)realloc(this->field, field##_size + 1);    \
+        if (this->field == NULL) { throw Gas::Exception("out of memory"); } \
         memcpy(this->field, field, field##_size);                           \
         ((GASubyte*)this->field)[field##_size] = 0;                         \
     } while (0)

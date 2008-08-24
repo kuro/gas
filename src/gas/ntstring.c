@@ -26,12 +26,6 @@
 #include <string.h>
 #include <stdio.h>
 
-#if HAVE_ASSERT_H
-#include <assert.h>
-#else
-#define assert(expr) do {} while (0)
-#endif
-
 /**
  * @brief compile time option specifying whether or not to duplicate strings.
  *
@@ -49,9 +43,9 @@ GASchar* gas_sanitize (const GASubyte* str, GASunum len);
 /** @name id access */
 /*@{*/
 /* gas_set_id_s() {{{*/
-GASvoid gas_set_id_s (GASchunk* c, const GASchar* id)
+GASresult gas_set_id_s (GASchunk* c, const GASchar* id)
 {
-    gas_set_id(c, id, strlen(id));
+    return gas_set_id(c, id, strlen(id));
 }
 /*}}}*/
 /* gas_get_id_s() {{{*/
@@ -74,7 +68,6 @@ GASchar* gas_get_id_s (GASchunk* c)
 #if DUPLICATE_STRINGS
     GASchar *retval;
     retval = (GASchar*)malloc(c->id_size + 1);
-    assert(retval != NULL);
     if (retval == NULL) {
         return NULL;
     }
@@ -82,6 +75,11 @@ GASchar* gas_get_id_s (GASchunk* c)
     retval[c->id_size] = '\0';
     return retval;
 #else
+#if DEBUG
+    if (c == NULL) {
+        return NULL;
+    }
+#endif
     return (GASchar*)c->id;
 #endif
 }
@@ -92,17 +90,18 @@ GASchar* gas_get_id_s (GASchunk* c)
 /** @name attribute access */
 /*@{*/
 /* gas_set_attribute_s() {{{*/
-GASvoid gas_set_attribute_s (GASchunk* c,
-                          const GASchar *key,
-                          const GASvoid *value, GASunum value_size)
+GASresult gas_set_attribute_s (GASchunk* c,
+                               const GASchar *key,
+                               const GASvoid *value, GASunum value_size)
 {
-    gas_set_attribute(c, key, strlen(key), value, value_size);
+    return gas_set_attribute(c, key, strlen(key), value, value_size);
 }
 /*}}}*/
 /* gas_set_attribute_ss() {{{*/
-GASvoid gas_set_attribute_ss(GASchunk* c, const GASchar *key, const GASchar *value)
+GASresult gas_set_attribute_ss (GASchunk* c,
+                                const GASchar *key, const GASchar *value)
 {
-    gas_set_attribute(c, key, strlen(key), value, strlen(value));
+    return gas_set_attribute(c, key, strlen(key), value, strlen(value));
 }
 /*}}}*/
 /* gas_get_attribute_s {{{*/
@@ -120,7 +119,7 @@ GASnum gas_get_attribute_s (GASchunk* c, const GASchar* key,
 {
     GASnum index = gas_index_of_attribute(c, key, strlen(key));
     if (index < 0) {
-        return GAS_ERR_UNKNOWN;
+        return index;
     }
     return gas_get_attribute(c, index, value, limit);
 }
@@ -144,6 +143,16 @@ GASchar* gas_get_attribute_ss (GASchunk* c, const GASchar* key)
 {
     GASnum index;
 
+#if DEBUG
+    if (c == NULL) {
+        return NULL;
+    }
+    if (c == key) {
+        return NULL;
+    }
+#endif
+
+
     index = gas_index_of_attribute(c, key, strlen(key));
     if (index < 0) {
         return NULL;
@@ -156,7 +165,6 @@ GASchar* gas_get_attribute_ss (GASchunk* c, const GASchar* key)
    
     len = gas_attribute_value_size(c, index);
     retval = (GASchar*)malloc(len + 1);
-    assert(retval != NULL);
     if (retval == NULL) {
         return NULL;
     }
@@ -188,9 +196,9 @@ GASchar* gas_get_attribute_ss (GASchunk* c, const GASchar* key)
 /** @name payload access */
 /*@{*/
 /* gas_set_payload_s() {{{*/
-GASvoid gas_set_payload_s (GASchunk* c, const GASchar* payload)
+GASresult gas_set_payload_s (GASchunk* c, const GASchar* payload)
 {
-    gas_set_payload(c, payload, strlen(payload));
+    return gas_set_payload(c, payload, strlen(payload));
 }
 /*}}}*/
 /* gas_get_payload_s() {{{*/
@@ -210,10 +218,16 @@ GASvoid gas_set_payload_s (GASchunk* c, const GASchar* payload)
 #endif
 GASchar* gas_get_payload_s (GASchunk* c)
 {
+
+#if DEBUG
+    if (c == NULL) {
+        return NULL;
+    }
+#endif
+
 #if DUPLICATE_STRINGS
     GASchar *retval;
     retval = (GASchar*)malloc(c->payload_size + 1);
-    assert(retval != NULL);
     if (retval == NULL) {
         return NULL;
     }
@@ -244,6 +258,12 @@ GASchar* gas_sanitize (const GASubyte* str, GASunum len)
     static GASchar hex[5];
     GASunum i, o = 0;
 
+#if DEBUG
+    if (str == NULL) {
+        return NULL;
+    }
+#endif
+
     printable = GAS_TRUE;
     if (gas_printable_all_or_nothing) {
         for (i = 0; i < len; i++) {
@@ -273,15 +293,14 @@ GASchar* gas_sanitize (const GASubyte* str, GASunum len)
     return san;
 }
 
-GASvoid gas_print (GASchunk* c)
+GASresult gas_print (GASchunk* c)
 {
+    GASresult result;
     GASunum i;
     static int level = 0;
     static int level_iter;
 
-    if (c == NULL) {
-        return;
-    }
+    GAS_CHECK_PARAM(c);
 
     indent(); printf("---\n");
     /*indent(); printf("GASchunk of size = %ld\n", (unsigned long)c->size);*/
@@ -320,9 +339,16 @@ GASvoid gas_print (GASchunk* c)
 
     level++;
     for (i = 0; i < c->nb_children; i++) {
-        gas_print(c->children[i]);
+        result = gas_print(c->children[i]);
+#ifdef GAS_DEBUG
+        if (result != GAS_OK) {
+            return result;
+        }
+#endif
     }
     level--;
+
+    return GAS_OK;
 }
 
 /* }}} */

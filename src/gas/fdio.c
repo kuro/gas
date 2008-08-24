@@ -112,6 +112,8 @@ GASresult gas_read_encoded_num_fd (int fd, GASunum* value)
     GASubyte byte, mask = 0x00;
     GASunum additional_bytes_to_read;
 
+    GAS_CHECK_PARAM(value);
+
     /* find first non 0x00 byte */
     for (zero_byte_count = 0; 1; zero_byte_count++) {
         bytes_read = read(fd, &byte, 1);
@@ -160,6 +162,8 @@ GASresult gas_write_fd (int fd, GASchunk* self)
     GASresult result;
     GASunum i;
 
+    GAS_CHECK_PARAM(self);
+
     /* this GASchunk's size */
     gas_write_encoded_num_fd(fd, self->size);
     write_field(id);
@@ -189,6 +193,7 @@ GASresult gas_write_fd (int fd, GASchunk* self)
         result = gas_read_encoded_num_fd(fd, &field##_size);                \
         if (result != GAS_OK) { return result; }                            \
         field = (GASubyte*)malloc(field##_size + 1);                        \
+        GAS_CHECK_MEM(field);                                               \
         bytes_read = read(fd, field, field##_size);                         \
         if (bytes_read < 0) { return GAS_ERR_UNKNOWN; }                     \
         if (bytes_read != (GASnum)field##_size) {return GAS_ERR_UNKNOWN;}   \
@@ -218,6 +223,7 @@ GASresult gas_read_fd (int fd, GASchunk** out)
         return result;
     }
     c->attributes = (GASattribute*)malloc(c->nb_attributes * sizeof(GASattribute));
+    GAS_CHECK_MEM(c->attributes);
     for (i = 0; i < c->nb_attributes; i++) {
         read_field(c->attributes[i].key);
         read_field(c->attributes[i].value);
@@ -228,6 +234,7 @@ GASresult gas_read_fd (int fd, GASchunk** out)
         return result;
     }
     c->children = (GASchunk**)malloc(c->nb_children * sizeof(GASchunk*));
+    GAS_CHECK_MEM(c->children);
     for (i = 0; i < c->nb_children; i++) {
         result = gas_read_fd(fd, &c->children[i]);
         if (result != GAS_OK) {

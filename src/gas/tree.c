@@ -34,18 +34,11 @@
 #include <stdio.h>
 #include <ctype.h>
 
-#if HAVE_ASSERT_H
-#include <assert.h>
-#else
-#define assert(expr) do {} while (0)
-#endif
-
-
 static int overwrite_attributes = GAS_TRUE;
 
 GASunum encoded_size (GASunum value);
 
-GASchar* gas_error_string (GASresult result)
+GASchar* gas_error_string (GASresult result)/*{{{*/
 {
     switch (result) {
     case GAS_OK:                  return "no error";
@@ -55,10 +48,11 @@ GASchar* gas_error_string (GASresult result)
     case GAS_ERR_ATTR_NOT_FOUND:  return "attribute not found";
     case GAS_ERR_OUT_OF_RANGE:    return "value out of range";
     case GAS_ERR_INVALID_PAYLOAD: return "payload null and callback undefined";
+    case GAS_ERR_MEMORY:          return "out of memory";
     case GAS_ERR_UNKNOWN:         return "unknown error";
     default: return (result > 0) ? "no error" : "invalid error code";
     }
-}
+}/*}}}*/
 
 /** @name helper functions */
 /*@{*/
@@ -67,6 +61,10 @@ int gas_cmp (const GASubyte *a, GASunum a_len, const GASubyte *b, GASunum b_len)
 {
     int result;
     unsigned int i = 0;
+
+    GAS_CHECK_PARAM(a);
+    GAS_CHECK_PARAM(b);
+
     while (1) {
         if (i == a_len) {
             result = (a_len == b_len) ? 0 : -1;
@@ -90,11 +88,16 @@ int gas_cmp (const GASubyte *a, GASunum a_len, const GASubyte *b, GASunum b_len)
 }
 /*}}}*/
 
-void gas_hexdump_f (FILE* fs, GASvoid *input, GASunum size)
+GASresult gas_hexdump_f (FILE* fs, GASvoid *input, GASunum size)
 {
     GASunum i, x, o;
     GASubyte *buf = (GASubyte*)input;
     GASchar characters[17];
+
+
+    GAS_CHECK_PARAM(fs);
+    GAS_CHECK_PARAM(input);
+
     characters[16] = '\0';
 
     o = 0;
@@ -132,11 +135,13 @@ void gas_hexdump_f (FILE* fs, GASvoid *input, GASunum size)
         x = ! x;
     }
     fprintf(fs, " %s\n", characters);
+
+    return GAS_OK;
 }
 
-void gas_hexdump (GASvoid *input, GASunum size)
+GASresult gas_hexdump (GASvoid *input, GASunum size)
 {
-    gas_hexdump_f(stderr, input, size);
+    return gas_hexdump_f(stderr, input, size);
 }
 
 /*@}*/
@@ -170,6 +175,7 @@ GASunum encoded_size (GASunum value)
     do {                                                                    \
         c->field##_size = field##_size;                                     \
         c->field = (GASubyte*)realloc(c->field, field##_size + 1);          \
+        GAS_CHECK_MEM(c->field);                                            \
         memcpy(c->field, field, field##_size);                              \
         ((GASubyte*)c->field)[field##_size] = 0;                            \
     } while (0)
@@ -179,7 +185,7 @@ GASunum encoded_size (GASunum value)
     do {                                                                    \
         a->field##_size = field##_size;                                     \
         ctmp = (GASubyte*)realloc(a->field, field##_size + 1);              \
-        assert(ctmp != NULL);                                               \
+        GAS_CHECK_MEM(ctmp);                                                \
         a->field = ctmp;                                                    \
         memcpy(a->field, field, field##_size);                              \
         ((GASubyte*)a->field)[field##_size] = 0;                            \
@@ -190,16 +196,25 @@ GASunum encoded_size (GASunum value)
 /** @name cons/decons */
 /*@{*/
 /* gas_new() {{{*/
+/**
+ * @warning no way of reporting an error.
+ */
 GASchunk* gas_new (const GASvoid *id, GASunum id_size)
 {
     GASchunk *c;
 
     c = (GASchunk*)malloc(sizeof(GASchunk));
-    assert(c != NULL);
+    if (c == NULL) {
+        return NULL;
+    }
     memset(c, 0, sizeof(GASchunk));
 
     if (id) {
-        copy_to_field(id);
+        c->id_size = id_size;
+        c->id = (GASubyte*)realloc(c->id, id_size + 1);
+        if (c->id == NULL) { return NULL; }
+        memcpy(c->id, id, id_size);
+        ((GASubyte*)c->id)[id_size] = 0;
     }
 
     return c;
@@ -218,13 +233,12 @@ GASchunk* gas_new_named (const char *id)
  * @note This does not release data for id, or the data contained in the
  * attributes, or the payload data.
  */
-GASvoid gas_destroy (GASchunk* c)
+GASresult gas_destroy (GASchunk* c)
 {
     GASunum i;
+    GASresult result;
 
-    if (c == NULL) {
-        return;
-    }
+    GAS_CHECK_PARAM(c);
 
     free(c->id);
     for (i = 0; i < c->nb_attributes; i++) {
@@ -234,10 +248,15 @@ GASvoid gas_destroy (GASchunk* c)
     free(c->attributes);
     free(c->payload);
     for (i = 0; i < c->nb_children; i++) {
-        gas_destroy(c->children[i]);
+        result = gas_destroy(c->children[i]);
+#ifdef GAS_DEBUG
+        if (result != GAS_OK) { return result; }
+#endif
     }
     free(c->children);
     free(c);
+
+    return GAS_OK;
 }
 /*}}}*/
 /*@}*/
@@ -245,14 +264,20 @@ GASvoid gas_destroy (GASchunk* c)
 /** @name id access */
 /*@{*/
 /* gas_set_id() {{{*/
-GASvoid gas_set_id (GASchunk* c, const GASvoid *id, GASunum id_size)
+GASresult gas_set_id (GASchunk* c, const GASvoid *id, GASunum id_size)
 {
+    GAS_CHECK_PARAM(c);
+    GAS_CHECK_PARAM(id);
+
     copy_to_field(id);
+    return GAS_OK;
 }
 /*}}}*/
 /* gas_id_size() {{{ */
 GASunum gas_id_size (GASchunk* c)
 {
+    GAS_CHECK_PARAM(c);
+
     return c->id_size;
 }
 /*}}}*/
@@ -262,6 +287,9 @@ GASunum gas_id_size (GASchunk* c)
  */
 GASnum gas_get_id (GASchunk* c, GASvoid* id, GASunum limit)
 {
+    GAS_CHECK_PARAM(c);
+    GAS_CHECK_PARAM(id);
+
     if (c->id_size < limit) {
         return GAS_ERR_INVALID_PARAM;
     }
@@ -283,6 +311,10 @@ GASnum gas_index_of_attribute (GASchunk* c, const GASvoid* key, GASunum key_size
 {
     GASunum i;
     GASattribute* a;
+
+    GAS_CHECK_PARAM(c);
+    GAS_CHECK_PARAM(key);
+
     for (i = 0; i < c->nb_attributes; i++ ) {
         a = &c->attributes[i];
         if (gas_cmp((GASubyte*)a->key, a->key_size,
@@ -295,13 +327,17 @@ GASnum gas_index_of_attribute (GASchunk* c, const GASvoid* key, GASunum key_size
 }
 /*}}}*/
 /* gas_set_attribute() {{{*/
-GASvoid gas_set_attribute (GASchunk* c,
+GASresult gas_set_attribute (GASchunk* c,
                            const GASvoid *key, GASunum key_size,
                            const GASvoid *value, GASunum value_size)
 {
 	GASattribute* tmp, *a;
     GASnum index;
     GASubyte *ctmp;
+
+    GAS_CHECK_PARAM(c);
+    GAS_CHECK_PARAM(key);
+    GAS_CHECK_PARAM(value);
 
     index = gas_index_of_attribute(c, key, key_size);
     if (index >= 0 && overwrite_attributes) {
@@ -314,8 +350,8 @@ GASvoid gas_set_attribute (GASchunk* c,
         c->nb_attributes++;
 
         tmp = (GASattribute*)realloc(c->attributes,
-                                  c->nb_attributes*sizeof(GASattribute));
-        assert(tmp);
+                                     c->nb_attributes*sizeof(GASattribute));
+        GAS_CHECK_MEM(tmp);
         c->attributes = tmp;
 
         a = &c->attributes[c->nb_attributes-1];
@@ -325,11 +361,14 @@ GASvoid gas_set_attribute (GASchunk* c,
         copy_to_attribute(value);
     }
 
+    return GAS_OK;
 }
 /*}}}*/
 /* gas_attribute_value_size() {{{*/
 GASnum gas_attribute_value_size (GASchunk* c, GASunum index)
 {
+    GAS_CHECK_PARAM(c);
+
     if (index < c->nb_attributes) {
         return c->attributes[index].value_size;
     } else {
@@ -346,6 +385,9 @@ GASnum gas_get_attribute (GASchunk* c, GASunum index,
                           GASvoid* value, GASunum limit)
 {
     GASattribute* a;
+
+    GAS_CHECK_PARAM(c);
+    GAS_CHECK_PARAM(value);
 
     a = &c->attributes[index];
 
@@ -366,13 +408,19 @@ GASnum gas_get_attribute (GASchunk* c, GASunum index,
 /* gas_has_attribute() {{{*/
 GASbool gas_has_attribute (GASchunk* c, const GASvoid* key, GASunum key_size)
 {
+    GAS_CHECK_PARAM(c);
+    GAS_CHECK_PARAM(key);
+
     return gas_index_of_attribute(c, key, key_size) < 0 ? GAS_FALSE : GAS_TRUE;
 }
 /*}}}*/
-GASnum gas_delete_attribute_at (GASchunk* c, GASunum index)
+GASresult gas_delete_attribute_at (GASchunk* c, GASunum index)/*{{{*/
 {
     int trailing = 0;
     GASattribute *a = NULL;
+
+    GAS_CHECK_PARAM(c);
+
     if (index >= c->nb_attributes) {
         return GAS_ERR_INVALID_PARAM;
     }
@@ -386,24 +434,38 @@ GASnum gas_delete_attribute_at (GASchunk* c, GASunum index)
                 trailing * sizeof(GASattribute));
     }
     return GAS_OK;
-}
+}/*}}}*/
 /*@}*/
 
 /** @name payload access */
 /*@{*/
 /* gas_set_payload() {{{*/
-GASvoid gas_set_payload (GASchunk* c, const GASvoid *payload, GASunum payload_size)
+/**
+ * @param payload When the payload is null, GASwriter will invoke a callback.
+ */
+GASresult gas_set_payload (GASchunk* c, const GASvoid *payload, GASunum payload_size)
 {
+    GAS_CHECK_PARAM(c);
+
     if (payload) {
         copy_to_field(payload);
     } else {
         c->payload_size = payload_size;
     }
+    return GAS_OK;
 }
 /*}}}*/
 /* gas_payload_size() {{{ */
+/**
+ * @warning no way of reporting an error.
+ */
 GASunum gas_payload_size (GASchunk* c)
 {
+    //GAS_CHECK_PARAM(c);
+#ifdef GAS_DEBUG
+    if (c == NULL) { return 0; }
+#endif
+
     return c->payload_size;
 }
 /*}}}*/
@@ -413,6 +475,9 @@ GASunum gas_payload_size (GASchunk* c)
  */
 GASnum gas_get_payload (GASchunk* c, GASvoid* payload, GASunum limit)
 {
+    GAS_CHECK_PARAM(c);
+    GAS_CHECK_PARAM(payload);
+
     if (c->payload_size < limit) {
         return GAS_ERR_INVALID_PARAM;
     }
@@ -426,29 +491,47 @@ GASnum gas_get_payload (GASchunk* c, GASvoid* payload, GASunum limit)
 /** @name child access */
 /*@{*/
 /* gas_get_parent() {{{*/
+/**
+ * @warning no way of reporting an error.
+ */
 GASchunk* gas_get_parent(GASchunk* c)
 {
+#ifdef GAS_DEBUG
+    if (c == NULL) { return NULL; }
+#endif
     return c->parent;
 }
 /*}}}*/
 /* gas_add_child() {{{*/
-GASvoid gas_add_child(GASchunk* parent, GASchunk* child)
+GASresult gas_add_child(GASchunk* parent, GASchunk* child)
 {
     GASchunk** tmp;
 
+    GAS_CHECK_PARAM(parent);
+    GAS_CHECK_PARAM(child);
+
     parent->nb_children++;
 
-    tmp = (GASchunk**)realloc(parent->children,parent->nb_children*sizeof(GASchunk*));
-    assert(tmp);
+    tmp = (GASchunk**)realloc(parent->children,
+                              parent->nb_children * sizeof(GASchunk*));
+    GAS_CHECK_MEM(tmp);
     parent->children = tmp;
 
     parent->children[parent->nb_children - 1] = child;
     child->parent = parent;
+
+    return GAS_OK;
 }
 /*}}}*/
 /* gas_nb_children() {{{*/
+/**
+ * @warning no way of reporting an error.
+ */
 GASunum gas_nb_children (GASchunk *c)
 {
+#ifdef GAS_DEBUG
+    if (c == NULL) { return 0; }
+#endif
     return c->nb_children;
 }
 /*}}}*/
@@ -461,9 +544,12 @@ GASchunk* gas_get_child_at (GASchunk* c, GASunum index)
     return c->children[index];
 }
 /*}}}*/
-GASnum gas_delete_child_at (GASchunk* c, GASunum index)
+GASresult gas_delete_child_at (GASchunk* c, GASunum index)/*{{{*/
 {
     int trailing = 0;
+
+    GAS_CHECK_PARAM(c);
+
     if (index >= c->nb_children) {
         return GAS_ERR_INVALID_PARAM;
     }
@@ -475,18 +561,21 @@ GASnum gas_delete_child_at (GASchunk* c, GASunum index)
                 trailing * sizeof(GASchunk*));
     }
     return GAS_OK;
-}
+}/*}}}*/
 /*@}*/
 
 /** @name management */
 /*@{*/
 /* gas_update() {{{*/
-GASvoid gas_update (GASchunk* c)
+GASresult gas_update (GASchunk* c)
 {
+    GASresult result;
     GASunum i;
 
     GASunum sum;
     /*GASunum a, b;*/
+
+    GAS_CHECK_PARAM(c);
 
     sum = 0;
     /* id*/
@@ -507,7 +596,10 @@ GASvoid gas_update (GASchunk* c)
     sum += encoded_size(c->nb_children);
     for (i = 0; i < c->nb_children; i++) {
         GASchunk* child = c->children[i];
-        gas_update(child);
+        result = gas_update(child);
+#ifdef GAS_DEBUG
+        if (result != GAS_OK) { return result; }
+#endif
         sum += encoded_size(child->size);
         sum += child->size;
     }
@@ -515,15 +607,21 @@ GASvoid gas_update (GASchunk* c)
     /*printf("size: %ld\n", sum); */
     c->size = sum;
     /*fflush(stdout);*/
+
+    return GAS_OK;
 }
 /*}}}*/
 /* gas_total_size() {{{*/
 /**
  * @brief Returns the total size of the chunk, including initial encoded size.
  * @warning The result is only valid after an update.
+ * @warning no way of reporting an error.
  */
 GASunum gas_total_size (GASchunk* c)
 {
+#ifdef GAS_DEBUG
+    if (c == NULL) { return 0; }
+#endif
     return c->size + encoded_size(c->size);
 }
 /*}}}*/

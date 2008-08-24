@@ -29,6 +29,8 @@ GASresult gas_write_encoded_num_writer (GASwriter *writer, GASunum value)
     GASunum zero_count, zero_bytes, zero_bits;
     GASnum si;  /* a signed i */
 
+    GAS_CHECK_PARAM(writer);
+
     for (i = 1; 1; i++) {
         if (value < ((1UL << (7UL*i))-1UL)) {
             break;
@@ -107,6 +109,9 @@ GASresult gas_write_writer (GASwriter *writer, GASchunk* self)
     GASunum i;
     unsigned int bytes_written;
 
+    GAS_CHECK_PARAM(writer);
+    GAS_CHECK_PARAM(self);
+
     /* this chunk's size */
     gas_write_encoded_num_writer(writer, self->size);
     if (result != GAS_OK) { return result; }
@@ -142,7 +147,12 @@ GASwriter* gas_writer_new (GAScontext* context)/*{{{*/
 {
     GASwriter *w;
 
+#ifdef GAS_DEBUG
+    if (context == NULL) { return NULL; }
+#endif
+
     w = (GASwriter*)malloc(sizeof(GASwriter));
+    if (w == NULL) { return NULL; }
 
     memset(w, 0, sizeof(GASwriter));
 
@@ -159,7 +169,13 @@ void gas_writer_destroy (GASwriter *w)/*{{{*/
 GASresult gas_write (GASwriter* w, const char *resource, GASchunk *c)
 {
     GASresult result;
-    GAScontext *ctx = w->context;
+    GAScontext *ctx = NULL;
+
+    GAS_CHECK_PARAM(w);
+    GAS_CHECK_PARAM(resource);
+    GAS_CHECK_PARAM(c);
+
+    ctx = w->context;
 
     result = ctx->open(resource, "wb", &w->handle, &ctx->user_data);
     if (result < GAS_OK) {

@@ -20,6 +20,7 @@
  */
 
 #include <gas/types.h>
+#include <stdio.h>
 
 #ifndef GAS_TREE_H
 #define GAS_TREE_H
@@ -142,7 +143,9 @@ extern "C"
 
 int gas_cmp(const GASubyte *a, GASunum a_len, const GASubyte *b, GASunum b_len);
 GASchar* gas_error_string (GASresult result);
-void gas_hexdump (GASvoid *input, GASunum size);
+
+GASresult gas_hexdump_f (FILE* fs, GASvoid *input, GASunum size);
+GASresult gas_hexdump (GASvoid *input, GASunum size);
 
 /**
  * @defgroup io IO
@@ -159,7 +162,7 @@ void gas_hexdump (GASvoid *input, GASunum size);
 /*@{*/
 GASchunk* gas_new (const GASvoid *id, GASunum id_size);
 GASchunk* gas_new_named (const GASchar *id);
-GASvoid gas_destroy (GASchunk* c);
+GASresult gas_destroy (GASchunk* c);
 /*@}*/
 /* }}}*/
 /* access {{{*/
@@ -168,9 +171,9 @@ GASvoid gas_destroy (GASchunk* c);
  * @ingroup access
  */
 /*@{*/
-GASvoid gas_set_id (GASchunk* c, const GASvoid *id, GASunum size);
+GASresult gas_set_id (GASchunk* c, const GASvoid *id, GASunum size);
 GASnum gas_get_id (GASchunk* c, GASvoid* id, GASunum limit);
-GASvoid gas_set_id_s (GASchunk* c, const GASchar* id);
+GASresult gas_set_id_s (GASchunk* c, const GASchar* id);
 GASchar* gas_get_id_s (GASchunk* c);
 GASunum gas_id_size (GASchunk* c);
 /*@}*/
@@ -180,21 +183,21 @@ GASunum gas_id_size (GASchunk* c);
  */
 /*@{*/
 GASnum gas_index_of_attribute (GASchunk* c, const GASvoid* key, GASunum key_size);
-GASvoid gas_set_attribute (GASchunk* c,
-                        const GASvoid *key, GASunum key_size,
-                        const GASvoid *value, GASunum value_size);
+GASresult gas_set_attribute (GASchunk* c,
+                             const GASvoid *key, GASunum key_size,
+                             const GASvoid *value, GASunum value_size);
 GASbool gas_has_attribute (GASchunk* c, const GASvoid* key, GASunum key_size);
 GASnum gas_attribute_value_size (GASchunk* c, GASunum index);
 GASnum gas_get_attribute (GASchunk* c, GASunum index, GASvoid* value, GASunum limit);
-GASnum gas_delete_attribute_at (GASchunk* c, GASunum index);
-GASnum gas_delete_child_at (GASchunk* c, GASunum index);
+GASresult gas_delete_attribute_at (GASchunk* c, GASunum index);
+GASresult gas_delete_child_at (GASchunk* c, GASunum index);
 /*@}*/
 /**
  * @defgroup payload Payload Access
  * @ingroup access
  */
 /*@{*/
-GASvoid gas_set_payload (GASchunk* c, const GASvoid *payload, GASunum payload_size);
+GASresult gas_set_payload (GASchunk* c, const GASvoid *payload, GASunum payload_size);
 GASnum gas_get_payload (GASchunk* c, GASvoid* payload, GASunum limit);
 GASunum gas_payload_size (GASchunk* c);
 /*@}*/
@@ -204,12 +207,12 @@ GASunum gas_payload_size (GASchunk* c);
  */
 /*@{*/
 GASchunk* gas_get_parent(GASchunk* c);
-GASvoid gas_add_child(GASchunk* parent, GASchunk* child);
+GASresult gas_add_child(GASchunk* parent, GASchunk* child);
 GASunum gas_nb_children (GASchunk *c);
 GASchunk* gas_get_child_at (GASchunk* c, GASunum index);
 /*@}*/
 
-GASvoid gas_update (GASchunk* c);
+GASresult gas_update (GASchunk* c);
 GASunum gas_total_size (GASchunk* c);
 
 

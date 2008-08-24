@@ -27,13 +27,14 @@
 
 
 #define GAS_OK                       0
-#define GAS_ERR_INVALID_PARAM     -101
-#define GAS_ERR_FILE_NOT_FOUND    -102
-#define GAS_ERR_FILE_EOF          -103
-#define GAS_ERR_ATTR_NOT_FOUND    -104
-#define GAS_ERR_OUT_OF_RANGE      -105
-#define GAS_ERR_INVALID_PAYLOAD   -106
-#define GAS_ERR_UNKNOWN           -107
+#define GAS_ERR_UNKNOWN           -101
+#define GAS_ERR_INVALID_PARAM     -102
+#define GAS_ERR_FILE_NOT_FOUND    -103
+#define GAS_ERR_FILE_EOF          -104
+#define GAS_ERR_ATTR_NOT_FOUND    -105
+#define GAS_ERR_OUT_OF_RANGE      -106
+#define GAS_ERR_INVALID_PAYLOAD   -107
+#define GAS_ERR_MEMORY            -108
 
 
 #ifndef GAS_DEBUG
@@ -92,6 +93,24 @@
 
 #ifndef GAS_INLINE
 #define GAS_INLINE ${GAS_INLINE}
+#endif
+
+#define GAS_CHECK_MEM(arg)                                                  \
+    if (arg == NULL) {                                                      \
+        return GAS_ERR_MEMORY;                                              \
+    }
+
+
+#ifdef GAS_DEBUG
+#include <libgen.h>
+#define GAS_CHECK_PARAM(arg)                                                \
+    if (arg == NULL) {                                                      \
+        fprintf(stderr, "gas error: %s @ %d: " #arg " was null\n",          \
+                basename(__FILE__), __LINE__);                              \
+        return GAS_ERR_INVALID_PARAM;                                       \
+    }
+#else
+#define GAS_CHECK_PARAM(p)
 #endif
 
 

@@ -25,6 +25,7 @@
  * conditions.
  */
 
+#include <gas/tree.h>
 #include <gas/bufio.h>
 
 #include <string.h>
@@ -41,6 +42,8 @@ GASnum gas_write_encoded_num_buf (GASubyte* buf, GASunum limit, GASunum value)
     GASubyte byte, mask;
     GASunum zero_count, zero_bytes, zero_bits;
     GASnum si;  /* a signed i */
+
+    GAS_CHECK_PARAM(buf);
 
     for (i = 1; 1; i++) {
         if (value < ((1UL << (7UL*i))-1UL)) {
@@ -125,6 +128,10 @@ GASnum gas_read_encoded_num_buf (GASubyte* buf, GASunum limit, GASunum* result)
     GASubyte byte, mask = 0x00;
     GASunum additional_bytes_to_read;
 
+    GAS_CHECK_PARAM(buf);
+    GAS_CHECK_PARAM(result);
+
+
     offset = 0;
 
     /* find first non 0x00 byte */
@@ -182,6 +189,10 @@ GASnum gas_write_buf (GASubyte* buf, GASunum limit, GASchunk* self)
     GASunum i;
     GASnum off = 0;
 
+    GAS_CHECK_PARAM(buf);
+    GAS_CHECK_PARAM(self);
+
+
     /* this GASchunk's size */
     off += gas_write_encoded_num_buf(buf+off, limit - off, self->size);
     write_field(id);
@@ -209,6 +220,7 @@ GASnum gas_write_buf (GASubyte* buf, GASunum limit, GASchunk* self)
     do {                                                                    \
         read_num(field##_size);                                             \
         field = (GASubyte*)malloc(field##_size + 1);                        \
+        GAS_CHECK_MEM(field);                                               \
         memcpy(field, buf+offset, field##_size);                            \
         offset += field##_size;                                             \
         ((GASubyte*)field)[field##_size] = 0;                               \
@@ -228,6 +240,8 @@ GASnum gas_read_buf (GASubyte* buf, GASunum limit, GASchunk** out)
     GASresult result;
     GASunum offset = 0;
 
+    GAS_CHECK_PARAM(buf);
+
     GASunum i;
     GASchunk* c = gas_new(NULL, 0);
 
@@ -235,6 +249,7 @@ GASnum gas_read_buf (GASubyte* buf, GASunum limit, GASchunk** out)
     read_field(c->id);
     read_num(c->nb_attributes);
     c->attributes =(GASattribute*)malloc(c->nb_attributes*sizeof(GASattribute));
+    GAS_CHECK_MEM(c->attributes);
     for (i = 0; i < c->nb_attributes; i++) {
         read_field(c->attributes[i].key);
         read_field(c->attributes[i].value);
@@ -242,6 +257,7 @@ GASnum gas_read_buf (GASubyte* buf, GASunum limit, GASchunk** out)
     read_field(c->payload);
     read_num(c->nb_children);
     c->children = (GASchunk**)malloc(c->nb_children * sizeof(GASchunk*));
+    GAS_CHECK_MEM(c->children);
     memset(c->children, 0, c->nb_children * sizeof(GASchunk*));
     for (i = 0; i < c->nb_children; i++) {
         result = gas_read_buf(buf + offset, limit - offset, &c->children[i]);

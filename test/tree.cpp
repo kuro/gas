@@ -27,8 +27,6 @@
 #include <string.h>
 //#include <linux/types.h>
 
-void gas_print (GASchunk* c);
-
 void test001 (void)
 {
     GASchunk* root = gas_new_named("header");

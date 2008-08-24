@@ -29,11 +29,6 @@
 
 using namespace std;
 
-extern "C"
-{
-void gas_print (GASchunk* c);
-}
-
 int test_main (int argc, char **argv);
 
 #if HAVE_QT4

@@ -103,6 +103,9 @@ GASresult gas_read_encoded_num_parser (GASparser *p, GASunum *out)
     GASubyte byte, mask = 0x00;
     GASunum additional_bytes_to_read;
 
+    GAS_CHECK_PARAM(p);
+    GAS_CHECK_PARAM(out);
+
     /* find first non 0x00 byte */
     for (zero_byte_count = 0; 1; zero_byte_count++) {
         p->context->read(p->handle, &byte, 1, &bytes_read,
@@ -145,6 +148,7 @@ GASresult gas_read_encoded_num_parser (GASparser *p, GASunum *out)
         result = gas_read_encoded_num_parser(p, &field##_size);             \
         if (result != GAS_OK) { goto abort; }                               \
         field = (GASubyte*)malloc(field##_size + 1);                        \
+        GAS_CHECK_MEM(field);                                               \
         p->context->read(p->handle, field, field##_size,                    \
                                   &bytes_read, p->context->user_data);      \
         ((GASubyte*)field)[field##_size] = 0;                               \
@@ -161,10 +165,16 @@ GASresult gas_read_parser (GASparser *p, GASchunk **out)
 {
     GASresult result = GAS_OK;
     GASunum i;
-    GASchunk* c = gas_new(NULL, 0);
+    GASchunk* c = NULL;
     unsigned int bytes_read;
     GASbool cont;
     unsigned long jump = 0;
+
+    GAS_CHECK_PARAM(p);
+    GAS_CHECK_PARAM(out);
+
+    c = gas_new(NULL, 0);
+    GAS_CHECK_MEM(c);
 
     result = gas_read_encoded_num_parser(p, &c->size);
     if (result != GAS_OK) { goto abort; }
@@ -195,6 +205,7 @@ GASresult gas_read_parser (GASparser *p, GASchunk **out)
     result = gas_read_encoded_num_parser(p, &c->nb_attributes);
     if (result != GAS_OK) { goto abort; }
     c->attributes = (GASattribute*)malloc(c->nb_attributes * sizeof(GASattribute));
+    GAS_CHECK_MEM(c->attributes);
     for (i = 0; i < c->nb_attributes; i++) {
         read_field(c->attributes[i].key);
         read_field(c->attributes[i].value);
@@ -230,6 +241,7 @@ GASresult gas_read_parser (GASparser *p, GASchunk **out)
     result = gas_read_encoded_num_parser(p, &c->nb_children);
     if (result != GAS_OK) { goto abort; }
     c->children = (GASchunk**)malloc(c->nb_children * sizeof(GASchunk*));
+    GAS_CHECK_MEM(c->children);
     for (i = 0; i < c->nb_children; i++) {
         result = gas_read_parser(p, &c->children[i]);
         if (result != GAS_OK) { goto abort; }
@@ -266,7 +278,12 @@ GASparser* gas_parser_new (GAScontext* context)
 {
     GASparser *p;
 
+#ifdef GAS_DEBUG
+    if (context == NULL) { return NULL; }
+#endif
+
     p = (GASparser*)malloc(sizeof(GASparser));
+    if (p == NULL) { return NULL; }
 
     memset(p, 0, sizeof(GASparser));
 
@@ -287,6 +304,9 @@ GASresult gas_parse (GASparser* p, const char *resource, GASchunk **out)
     GASresult result;
     GASchunk *c = NULL;
     GAScontext *s = p->context;
+
+    GAS_CHECK_PARAM(p);
+    GAS_CHECK_PARAM(resource);
 
     result = s->open(resource, "rb", &p->handle, &s->user_data);
     if (result < GAS_OK) {

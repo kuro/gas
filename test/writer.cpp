@@ -48,7 +48,7 @@ GASresult my_write_payload (GASwriter* writer, GASchunk* c,
 
 void TestWriter::test001 ()
 {
-    GASresult r;
+    //GASresult r;
     GASchunk *c;
     GAScontext *ctx;
     GASwriter *w;
@@ -68,7 +68,7 @@ void TestWriter::test001 ()
 
 void TestWriter::test002 ()
 {
-    GASresult r;
+    //GASresult r;
     GASchunk *c;
     GAScontext *ctx;
     GASwriter *w;

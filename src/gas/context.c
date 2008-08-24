@@ -153,6 +153,7 @@ GAScontext* gas_context_new (void)
 {
     GAScontext *s;
     s = (GAScontext*)malloc(sizeof(GAScontext));
+    if (s == NULL) { return NULL; }
     s->open = gas_default_open;
     s->close = gas_default_close;
     s->read = gas_default_read;

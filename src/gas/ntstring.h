@@ -42,19 +42,19 @@ extern "C"
  */
 /*@{*/
 
-GASvoid gas_set_id_s (GASchunk* c, const GASchar* id);
+GASresult gas_set_id_s (GASchunk* c, const GASchar* id);
 GASchar* gas_get_id_s (GASchunk* c);
 
-GASvoid gas_set_attribute_s (GASchunk* c,
+GASresult gas_set_attribute_s (GASchunk* c,
                              const GASchar *key,
                              const GASvoid *value, GASunum value_size);
-GASvoid gas_set_attribute_ss(GASchunk* c, const GASchar *key, const GASchar *value);
+GASresult gas_set_attribute_ss(GASchunk* c, const GASchar *key, const GASchar *value);
 
 GASnum gas_get_attribute_s (GASchunk* c, const GASchar* key,
                          GASvoid* value, GASunum limit);
 GASchar* gas_get_attribute_ss (GASchunk* c, const GASchar* key);
 
-GASvoid gas_set_payload_s (GASchunk* c, const GASchar* payload);
+GASresult gas_set_payload_s (GASchunk* c, const GASchar* payload);
 GASchar* gas_get_payload_s (GASchunk* c);
 
 
@@ -65,7 +65,7 @@ GASchar* gas_get_payload_s (GASchunk* c);
  * @warning This treats EVERYTHING as null terminated strings.  Only call
  * this when ids, attributes, and payloads are all strings.
  */
-GASvoid gas_print (GASchunk* c);
+GASresult gas_print (GASchunk* c);
 
 /*@}*/
 
