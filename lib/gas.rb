@@ -14,6 +14,18 @@
 # limitations under the License.
 #
 
+require 'stringio'
+
+class String
+  def sanitize
+    retval = ''
+    self.each_byte do |c|
+      retval << ((/[[:print:]]/ === c.chr) ? c : ('<%02x>' % c))
+    end
+    retval
+  end
+end
+
 module Gas
 
   BUFMAX = 0x7fff
@@ -301,16 +313,18 @@ module Gas
       pi.call "id: #{id}"
       counter = 0
       #@attributes.each do |key, value|
+      max_key_len = @attributes.keys.collect{|k|k.size}.max
       @attributes.keys.sort.each do |key|
         value = @attributes[key]
-        pi.call "#{counter}: #{key.inspect} => #{value.inspect}"
+        # not sanitizing key because i always use ascii
+        pi.call "#{counter}: #{key.ljust(max_key_len)} => #{value.sanitize}"
         counter += 1
       end
       tmp = payload#.strip
       unless tmp.empty?
         lines = tmp.split("\n")
-        #lines = lines.map {|l|l.strip}
-        m = lines.collect{|l|l.size}.max
+        lines = lines.map {|l|l.sanitize}
+        m = lines.collect{|l|l.size+1}.max # plus 1 to for prepended space
         m = m > 78 ? 78 : m
         io.puts "+" << ('-' * m)
         lines.each do |line|
