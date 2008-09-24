@@ -197,7 +197,7 @@ int numbers (int argc, char** argv)
 
 //    for (i = 0; i < 10; i++) {
 //        int x = rand() % sizeof(GASunum);
-//        printf("%lx\n", 0xffL << (x*8));
+//        printf("%lx\n", 0xffL << (x<<3));
 //    }
 
 #if 0
@@ -208,8 +208,8 @@ int numbers (int argc, char** argv)
         for (i = 1; i < sizeof(GASunum); i++) {
             memset(&num, 0xff, i);
             //printf("%lx\n", num);
-            printf("%ld %ld\n", 0x1L << ((i-1)*8L), num);
-            test_range(0x1L << ((i-1)*8L), num);
+            printf("%ld %ld\n", 0x1L << ((i-1)<<3), num);
+            test_range(0x1L << ((i-1)<<3), num);
         }
     }
 #endif

@@ -40,7 +40,7 @@ module Gas
     coded_length = 1
     loop do
       break if value < ((1 << (7*coded_length))-1)
-      #break if ((coded_length * 7) > (4 * 8))
+      #break if ((coded_length * 7) > (4 << 3))
       coded_length += 1
     end
 
@@ -57,17 +57,17 @@ module Gas
 
     # first masked byte
   #  byte = if coded_length <= 4
-  #           mask | ((value >> ((coded_length - zero_bytes - 1) * 8)) & 0xff)
+  #           mask | ((value >> ((coded_length - zero_bytes - 1) << 3)) & 0xff)
   #         else
   #           mask
   #         end
-    byte = mask | ((value >> ((coded_length - zero_bytes - 1) * 8)) & 0xff)
+    byte = mask | ((value >> ((coded_length - zero_bytes - 1) << 3)) & 0xff)
     buf << byte
 
     # remaining bytes
     si = coded_length - 2 - zero_bytes
     while si >= 0
-      byte = ((value >> (si * 8)) & 0xff)
+      byte = ((value >> (si << 3)) & 0xff)
       buf << byte
       si -= 1
     end

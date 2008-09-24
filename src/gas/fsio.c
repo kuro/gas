@@ -41,7 +41,7 @@ GASresult gas_write_encoded_num_fs (FILE* fs, GASunum value)
         if (value < ((1UL << (7UL*i))-1UL)) {
             break;
         }
-        if ((i * 7L) > (sizeof(GASunum) * 8L)) {
+        if ((i * 7L) > (sizeof(GASunum) << 3)) {
             /* warning, close to overflow */
             /* i--; */
             break;
@@ -66,7 +66,7 @@ GASresult gas_write_encoded_num_fs (FILE* fs, GASunum value)
     /* write the first masked byte */
     /*if ((coded_length - 1) <= sizeof(GASunum)) {*/
     if (coded_length <= sizeof(GASunum)) {
-        byte = mask | ((value >> ((coded_length-zero_bytes-1)*8)) & 0xff);
+        byte = mask | ((value >> ((coded_length-zero_bytes-1)<<3)) & 0xff);
     } else {
         byte = mask;
     }
@@ -83,7 +83,7 @@ GASresult gas_write_encoded_num_fs (FILE* fs, GASunum value)
      * @todo figure out why zero_bytes is subtracted
      */
     for (si = coded_length - 2 - zero_bytes; si >= 0; si--) {
-        byte = ((value >> (si*8)) & 0xff);
+        byte = ((value >> (si<<3)) & 0xff);
         if (fwrite(&byte, 1, 1, fs) != 1) {
             return GAS_ERR_UNKNOWN;
         }
