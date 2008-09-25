@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-import java.io.OutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.io.*;
 
 public class Chunk
 {
-    public static void encode_number (OutputStream io, int num)
+    public static void encode_number (OutputStream io, int num)//{{{
         throws IOException
     {
         int i;
@@ -46,15 +44,60 @@ public class Chunk
         }
 
         int mask = (0x80 >> zero_bits);
-        byte b = (byte)(mask|((num>>((coded_length-zero_bytes-1)<<3))&0xff));
+        int b = (mask|((num>>((coded_length-zero_bytes-1)<<3))&0xff));
         io.write(b);
 
 
         int si = coded_length - 2 - zero_bytes;
         while (si >= 0) {
-            b = (byte)((num >> (si << 3)) & 0xff);
+            b = ((num >> (si << 3)) & 0xff);
             io.write(b);
             si -= 1;
         }
-    }
+    }//}}}
+    public static int decode_number (InputStream io)//{{{
+        throws IOException
+    {
+        int retval = 0x0;
+        int i, bytes_read, zero_byte_count, first_bit_set;
+        int b, mask = 0x00;
+        int additional_bytes_to_read;
+
+        /* find first non 0x00 b */
+        for (zero_byte_count = 0; true; zero_byte_count++) {
+            b = io.read();
+            if (b != 0x00) {
+                break;
+            }
+        }
+
+        /* process initial byte */
+        for (first_bit_set = 7; first_bit_set >= 0; first_bit_set--) {
+            if ((b & (1 << first_bit_set)) != 0) {
+                break;
+            }
+        }
+
+        for (i = 0; i < first_bit_set; i++) {
+            mask |= (1 << i);
+        }
+
+        additional_bytes_to_read = (7-first_bit_set) + (7*zero_byte_count);
+
+        /* at this point, i have enough information to construct retval */
+        retval = mask & b;
+        for (i = 0; i < additional_bytes_to_read; i++) {
+            b = io.read();
+            retval = (retval << 8) | b;
+        }
+
+        return retval;
+    }//}}}
+    public static int decode_number (byte[] bytea)//{{{
+        throws IOException
+    {
+        return decode_number(new java.io.ByteArrayInputStream(bytea));
+    }//}}}
 }
+
+// vim: set fdm=marker
