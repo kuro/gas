@@ -43,18 +43,46 @@ void print_gas_file (string fname)
 {
     FILE* fs;
     GASchunk *c = NULL;
+    GASresult result;
 
-    fs = fopen(fname.c_str(), "r");
+    if (fname == "-") {
+        fs = stdin;
+    } else {
+        fs = fopen(fname.c_str(), "r");
+    }
     if (fs == NULL) {
         fprintf(stderr, "file not found");
         return;
     }
     while (!feof(fs)) {
-        gas_read_fs(fs, &c);
-        gas_print(c);
+        result = gas_read_fs(fs, &c);
+        if (result != GAS_OK) {
+            if (result != GAS_ERR_FILE_EOF) {
+                // only print error if not eof
+                fprintf(stderr, "gascan detected error while reading: %s\n",
+                        gas_error_string(result));
+            }
+            if (c != NULL) {
+                gas_destroy(c);
+            }
+            continue;
+        }
+
+        result = gas_print(c);
+        if (result != GAS_OK) {
+            fprintf(stderr, "gascan detected error while printing: %s\n",
+                    gas_error_string(result));
+        }
+
         gas_destroy(c);
+        if (result != GAS_OK) {
+            fprintf(stderr, "gascan detected error while destroying: %s\n",
+                    gas_error_string(result));
+        }
+
         c = NULL;
     }
+
     fclose(fs);
 }
 
@@ -72,10 +100,19 @@ int main (int argc, char **argv)
 
     string cmd = argv[1];
     if (cmd == "print") {
-        if (argc != 3) {
-            die("file not given");
+        if (argc == 2) {
+            print_gas_file("-");
+        } else {
+            for (int i = 2; i < argc; i++) {
+                if (argc > 3) {
+                    printf("*** %s\n", argv[i]);
+                }
+                print_gas_file(argv[i]);
+                if (argc > 3) {
+                    printf("\n");
+                }
+            }
         }
-        print_gas_file(argv[2]);
     } else if (cmd == "test") {
         test_main(argc-1, &argv[1]);
 #if HAVE_QT4
