@@ -159,6 +159,9 @@ GASresult gas_read_encoded_num_fs (FILE* fs, GASunum *value)
     /* find first non 0x00 byte */
     for (zero_byte_count = 0; 1; zero_byte_count++) {
         bytes_read = fread(&byte, 1, 1, fs);
+        if (feof(fs)) {
+            return GAS_ERR_FILE_EOF;
+        }
         if (bytes_read == 0) {
             return GAS_ERR_UNKNOWN;
         }
@@ -183,6 +186,9 @@ GASresult gas_read_encoded_num_fs (FILE* fs, GASunum *value)
     retval = mask & byte;
     for (i = 0; i < additional_bytes_to_read; i++) {
         bytes_read = fread(&byte, 1, 1, fs);
+        if (feof(fs)) {
+            return GAS_ERR_FILE_EOF;
+        }
         if (bytes_read == 0) {
             return GAS_ERR_UNKNOWN;
         }
@@ -205,6 +211,7 @@ GASresult gas_read_encoded_num_fs (FILE* fs, GASunum *value)
         field = (GASubyte*)malloc(field##_size + 1);                        \
         GAS_CHECK_MEM(field);                                               \
         if (fread(field, 1, field##_size, fs) != field##_size) {            \
+            if (feof(fs)) { return GAS_ERR_FILE_EOF; }                      \
             return GAS_ERR_UNKNOWN;                                         \
         }                                                                   \
         ((GASubyte*)field)[field##_size] = 0;                               \
