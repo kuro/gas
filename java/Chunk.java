@@ -15,9 +15,30 @@
  */
 
 import java.io.*;
+import java.util.*;
 
 public class Chunk
 {
+
+// static methods {{{
+    public static int encoded_size (int num)//{{{
+    {
+        int i, coded_length;
+        int zero_count, zero_bytes;
+
+        for (i = 1; true; i++) {
+            /*if (num < (unsigned int)pow(2, 7*i)-2) {*/
+            if (num < ((1 << (7*i))-1)) {
+                break;
+            }
+        }
+        coded_length = i;  /* not including header */
+
+        zero_count = coded_length - 1;
+        zero_bytes = zero_count / 8;
+
+        return coded_length + zero_bytes;
+    }//}}}
     public static void encode_number (OutputStream io, int num)//{{{
         throws IOException
     {
@@ -98,6 +119,102 @@ public class Chunk
     {
         return decode_number(new java.io.ByteArrayInputStream(bytea));
     }//}}}
+//}}}
+
+    protected int size;
+    public byte[] id;
+    public HashMap<byte[], byte[]> attributes;
+    public byte[] payload;
+    public ArrayList<Chunk> children;
+
+    public Chunk ()//{{{
+    {
+        size = 0;
+        id = new byte[0];
+        attributes = new HashMap<byte[], byte[]>();
+        children = new ArrayList<Chunk>();
+        payload = new byte[0];
+    }//}}}
+    public Chunk (byte[] id)//{{{
+    {
+        this();
+        this.id = id;
+    }//}}}
+    public Chunk (String id)//{{{
+    {
+        this(id.getBytes());
+    }//}}}
+
+    public void update ()//{{{
+    {
+        int sum = 0;
+
+        sum += encoded_size(id.length);
+        sum += id.length;
+
+        sum += encoded_size(attributes.size());
+        Iterator<Map.Entry<byte[], byte[]>> ai
+            = attributes.entrySet().iterator();
+        while (ai.hasNext()) {
+            Map.Entry<byte[], byte[]> entry = ai.next();
+
+            byte[] key = entry.getKey();
+            sum += encoded_size(key.length);
+            sum += key.length;
+
+            byte[] val = entry.getValue();
+            sum += encoded_size(val.length);
+            sum += val.length;
+        }
+
+        sum += encoded_size(payload.length);
+        sum += payload.length;
+
+        sum += encoded_size(children.size());
+        Iterator<Chunk> ci = children.iterator();
+        while (ci.hasNext()) {
+            Chunk child = ci.next();
+            child.update();
+            sum += encoded_size(child.size);
+            sum += child.size;
+        }
+
+        this.size = sum;
+    }//}}}
+    public void write (OutputStream io)//{{{
+        throws IOException
+    {
+        encode_number(io, size);
+
+        encode_number(io, id.length);
+        io.write(id);
+
+        encode_number(io, attributes.size());
+        Iterator<Map.Entry<byte[],byte[]>> ai =attributes.entrySet().iterator();
+        while (ai.hasNext()) {
+            Map.Entry<byte[], byte[]> entry = ai.next();
+
+            byte[] key = entry.getKey();
+            encode_number(io, key.length);
+            io.write(key);
+
+            byte[] val = entry.getValue();
+            encode_number(io, val.length);
+            io.write(val);
+        }
+
+        encode_number(io, payload.length);
+        io.write(payload);
+
+        encode_number(io, children.size());
+        Iterator<Chunk> ci = children.iterator();
+        while (ci.hasNext()) {
+            Chunk child = ci.next();
+            child.write(io);
+        }
+
+    }//}}}
+
 }
 
-// vim: set fdm=marker
+// vim: fdm=marker
