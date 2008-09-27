@@ -21,8 +21,11 @@ if (DOXYGEN_FOUND)
 
     configure_file(help.qhcp.in ${CMAKE_CURRENT_BINARY_DIR}/help.qhcp)
 
-    foreach(src gas)
-        configure_file(${src}.dox.in ${CMAKE_CURRENT_BINARY_DIR}/${src}.dox)
+    foreach(src gas java-gas)
+        configure_file(
+            ${CMAKE_CURRENT_SOURCE_DIR}/${src}.dox.in
+            ${CMAKE_CURRENT_BINARY_DIR}/${src}.dox
+            )
         file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${src})
         add_custom_target(${src}_doc
             COMMAND ${DOXYGEN} ${CMAKE_CURRENT_BINARY_DIR}/${src}.dox
