@@ -241,7 +241,7 @@ public class Chunk
         this(id.getBytes());
     }//}}}
 
-    public void update ()//{{{
+    protected void update ()//{{{
     {
         int sum = 0;
 
@@ -277,9 +277,13 @@ public class Chunk
 
         this.size = sum;
     }//}}}
-    public void write (OutputStream io)//{{{
+    protected void write (OutputStream io, boolean updated)//{{{
         throws IOException
     {
+        if ( ! updated) {
+            update();
+        }
+
         encode_number(io, size);
 
         encode_number(io, id.length);
@@ -306,9 +310,14 @@ public class Chunk
         Iterator<Chunk> ci = children.iterator();
         while (ci.hasNext()) {
             Chunk child = ci.next();
-            child.write(io);
+            child.write(io, true);
         }
+    }//}}}
 
+    public void write (OutputStream io)//{{{
+        throws IOException
+    {
+        write(io, false);
     }//}}}
 
 }
