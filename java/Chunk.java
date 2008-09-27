@@ -118,6 +118,7 @@ public class Chunk
     {
         return decode_number(new java.io.ByteArrayInputStream(bytea));
     }//}}}
+
     public static Chunk parse (InputStream io)//{{{
         throws IOException
     {
@@ -148,6 +149,35 @@ public class Chunk
 
                 nb_children = c.get(io);
                 children_remaining.push(new Integer(nb_children));
+            }
+        }
+    }//}}}
+    public static void write (Chunk root, OutputStream io)//{{{
+        throws IOException
+    {
+        Chunk c = root;
+        Stack<Integer> children_remaining = new Stack<Integer>();
+
+        root.update();
+
+        children_remaining.push(new Integer(c.children.size()));
+        c.put(io);
+
+        while (true) {
+            if (children_remaining.peek().intValue() == 0) {
+                children_remaining.pop();
+                if (c.parent == null) {
+                    break;
+                }
+                c = c.parent;
+            } else {
+                int idx = children_remaining.pop().intValue();
+                children_remaining.push(new Integer(idx - 1));
+
+                c = c.children.get(c.children.size() - idx);
+                children_remaining.push(new Integer(c.children.size()));
+
+                c.put(io);
             }
         }
     }//}}}
@@ -277,13 +307,9 @@ public class Chunk
 
         this.size = sum;
     }//}}}
-    protected void write (OutputStream io, boolean updated)//{{{
+    protected void put (OutputStream io)//{{{
         throws IOException
     {
-        if ( ! updated) {
-            update();
-        }
-
         encode_number(io, size);
 
         encode_number(io, id.length);
@@ -307,17 +333,6 @@ public class Chunk
         io.write(payload);
 
         encode_number(io, children.size());
-        Iterator<Chunk> ci = children.iterator();
-        while (ci.hasNext()) {
-            Chunk child = ci.next();
-            child.write(io, true);
-        }
-    }//}}}
-
-    public void write (OutputStream io)//{{{
-        throws IOException
-    {
-        write(io, false);
     }//}}}
 
 }
