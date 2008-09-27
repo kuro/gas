@@ -20,7 +20,6 @@ import java.util.*;
 public class Chunk
 {
 
-// static methods {{{
     public static int encoded_size (int num)//{{{
     {
         int i, coded_length;
@@ -119,13 +118,110 @@ public class Chunk
     {
         return decode_number(new java.io.ByteArrayInputStream(bytea));
     }//}}}
-//}}}
+    public static Chunk parse (InputStream io)//{{{
+        throws IOException
+    {
+        Stack<Integer> children_remaining = new Stack<Integer>();
+        Chunk c;
+        int nb_children;
+
+        // get the root
+        c = new Chunk();
+        nb_children = c.get(io);
+        children_remaining.push(new Integer(nb_children));
+
+        while (true) {
+            if (children_remaining.peek().intValue() == 0) {
+                children_remaining.pop();
+                if (c.parent == null) {
+                    return c;
+                }
+                c = c.parent;
+            } else {
+                nb_children = children_remaining.pop().intValue();
+                children_remaining.push(new Integer(nb_children - 1));
+
+                Chunk child = new Chunk();
+                child.parent = c;
+                c.children.add(child);
+                c = child;
+
+                nb_children = c.get(io);
+                children_remaining.push(new Integer(nb_children));
+            }
+        }
+    }//}}}
 
     protected int size;
+    public Chunk parent;
     public byte[] id;
     public HashMap<byte[], byte[]> attributes;
     public byte[] payload;
     public ArrayList<Chunk> children;
+
+    /**
+     * @return number of children
+     */
+    protected int get (InputStream io)//{{{
+        throws IOException
+    {
+        int nb;
+        size = decode_number(io);
+        id = new byte[decode_number(io)];
+        io.read(id);
+        nb = decode_number(io);
+        for (int i = 0; i < nb; i++) {
+            byte[] key = new byte[decode_number(io)];
+            io.read(key);
+            byte[] val = new byte[decode_number(io)];
+            io.read(val);
+            attributes.put(key, val);
+        }
+        payload = new byte[decode_number(io)];
+        io.read(payload);
+        nb = decode_number(io);
+        return nb;
+    }//}}}
+
+    public String toString (int level)//{{{
+    {
+        StringBuilder sb = new StringBuilder();
+        Formatter f = new Formatter(sb, Locale.US);
+
+        for (int i = 0; i < level; i++) { f.format("  "); }
+        f.format("---\n");
+
+        //for (int i = 0; i < level; i++) { f.format("  "); }
+        //f.format("size: %d\n", size);
+
+        for (int i = 0; i < level; i++) { f.format("  "); }
+        f.format("id[%d]: %s\n", id.length, new String(id));
+
+        Iterator<Map.Entry<byte[], byte[]>> ai
+            = attributes.entrySet().iterator();
+        while (ai.hasNext()) {
+            Map.Entry<byte[], byte[]> entry = ai.next();
+            byte[] key = entry.getKey();
+            byte[] val = entry.getValue();
+        for (int i = 0; i < level; i++) { f.format("  "); }
+            f.format("%s => %s\n", new String(key), new String(val));
+        }
+
+        for (int i = 0; i < level; i++) { f.format("  "); }
+        f.format("payload[%d]: %s\n", payload.length, new String(payload));
+
+        Iterator<Chunk> ci = children.iterator();
+        while (ci.hasNext()) {
+            Chunk child = ci.next();
+            f.format("%s", child.toString(level + 1));
+        }
+
+        return sb.toString();
+    }//}}}
+    public String toString ()//{{{
+    {
+        return toString(0);
+    }//}}}
 
     public Chunk ()//{{{
     {
