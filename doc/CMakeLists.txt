@@ -17,12 +17,13 @@ execute_process(
     OUTPUT_VARIABLE PROJECT_NUMBER
     )
 
+add_custom_target(doc)
+
 if (NOT DOXYGEN_FOUND)
     message("Could not find Doxygen")
 else ()
 
     #add_custom_target(all_doc COMMAND echo blah)
-    add_custom_target(doc)
     add_custom_target(pdf)
 
     #add_custom_command(TARGET doc DEPENDS all_doc)
