@@ -75,4 +75,7 @@ add_custom_command(
     COMMAND maruku ${CMAKE_CURRENT_SOURCE_DIR}/README -o ${CMAKE_CURRENT_SOURCE_DIR}/README.html
     )
 add_custom_target(README.html)
+
+configure_file(gas.pc.in ${CMAKE_CURRENT_BINARY_DIR}/gas.pc @ONLY)
+
 # vim: fdm=marker
