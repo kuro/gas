@@ -19,6 +19,7 @@
  * @brief fsio definition
  */
 
+#include <gas/memory.h>
 #include <gas/tree.h>
 #include <stdio.h>
 

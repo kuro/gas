@@ -57,7 +57,7 @@ inline char* Exception::what () throw()
 #define copy_to_field(field)                                                \
     do {                                                                    \
         this->field##_size = field##_size;                                  \
-        this->field = (GASubyte*)realloc(this->field, field##_size + 1);    \
+        this->field = (GASubyte*)gas_realloc(this->field, field##_size +1); \
         if (this->field == NULL) { throw Gas::Exception("out of memory"); } \
         memcpy(this->field, field, field##_size);                           \
         ((GASubyte*)this->field)[field##_size] = 0;                         \
@@ -101,17 +101,17 @@ inline Chunk::~Chunk ()/*{{{*/
 {
     GASunum i;
 
-    free(id);
+    gas_free(id);
     for (i = 0; i < nb_attributes; i++) {
-        free(attributes[i].key);
-        free(attributes[i].value);
+        gas_free(attributes[i].key);
+        gas_free(attributes[i].value);
     }
-    free(attributes);
-    free(payload);
+    gas_free(attributes);
+    gas_free(payload);
     for (i = 0; i < nb_children; i++) {
         delete children[i];
     }
-    free(children);
+    gas_free(children);
 }/*}}}*/
 
 /**

@@ -151,7 +151,7 @@ GASwriter* gas_writer_new (GAScontext* context)/*{{{*/
     if (context == NULL) { return NULL; }
 #endif
 
-    w = (GASwriter*)malloc(sizeof(GASwriter));
+    w = (GASwriter*)gas_alloc(sizeof(GASwriter));
     if (w == NULL) { return NULL; }
 
     memset(w, 0, sizeof(GASwriter));
@@ -163,7 +163,7 @@ GASwriter* gas_writer_new (GAScontext* context)/*{{{*/
 
 void gas_writer_destroy (GASwriter *w)/*{{{*/
 {
-    free(w);
+    gas_free(w);
 }/*}}}*/
 
 GASresult gas_write (GASwriter* w, const char *resource, GASchunk *c)

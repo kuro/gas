@@ -12,6 +12,7 @@ set(headers
     fdio.h
     fsio.h
     ntstring.h
+    memory.h
     parser.h
     swap.h
     tree.h
@@ -25,6 +26,7 @@ set(sources
     context.c
     fdio.c
     fsio.c
+    memory.c
     ntstring.c
     parser.c
     swap.c

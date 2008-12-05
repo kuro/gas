@@ -19,6 +19,7 @@
  * @brief ntstring definition
  */
 
+#include <gas/memory.h>
 #include <gas/tree.h>
 #include <gas/swap.h>
 

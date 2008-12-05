@@ -152,7 +152,7 @@ GASresult gas_default_seek (void *handle, unsigned long pos,
 GAScontext* gas_context_new (void)
 {
     GAScontext *s;
-    s = (GAScontext*)malloc(sizeof(GAScontext));
+    s = (GAScontext*)gas_alloc(sizeof(GAScontext));
     if (s == NULL) { return NULL; }
     s->open = gas_default_open;
     s->close = gas_default_close;
@@ -165,7 +165,7 @@ GAScontext* gas_context_new (void)
 
 void gas_context_destroy (GAScontext* s)
 {
-    free(s);
+    gas_free(s);
 }
 
 /* vim: set sw=4 fdm=marker :*/

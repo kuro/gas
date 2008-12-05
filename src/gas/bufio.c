@@ -219,7 +219,7 @@ GASnum gas_write_buf (GASubyte* buf, GASunum limit, GASchunk* self)
 #define read_field(field)                                                   \
     do {                                                                    \
         read_num(field##_size);                                             \
-        field = (GASubyte*)malloc(field##_size + 1);                        \
+        field = (GASubyte*)gas_alloc(field##_size + 1);                     \
         GAS_CHECK_MEM(field);                                               \
         memcpy(field, buf+offset, field##_size);                            \
         offset += field##_size;                                             \
@@ -248,7 +248,7 @@ GASnum gas_read_buf (GASubyte* buf, GASunum limit, GASchunk** out)
     read_num(c->size);
     read_field(c->id);
     read_num(c->nb_attributes);
-    c->attributes =(GASattribute*)malloc(c->nb_attributes*sizeof(GASattribute));
+    c->attributes =(GASattribute*)gas_alloc(c->nb_attributes*sizeof(GASattribute));
     GAS_CHECK_MEM(c->attributes);
     for (i = 0; i < c->nb_attributes; i++) {
         read_field(c->attributes[i].key);
@@ -256,7 +256,7 @@ GASnum gas_read_buf (GASubyte* buf, GASunum limit, GASchunk** out)
     }
     read_field(c->payload);
     read_num(c->nb_children);
-    c->children = (GASchunk**)malloc(c->nb_children * sizeof(GASchunk*));
+    c->children = (GASchunk**)gas_alloc(c->nb_children * sizeof(GASchunk*));
     GAS_CHECK_MEM(c->children);
     memset(c->children, 0, c->nb_children * sizeof(GASchunk*));
     for (i = 0; i < c->nb_children; i++) {

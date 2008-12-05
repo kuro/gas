@@ -192,7 +192,7 @@ GASresult gas_write_fd (int fd, GASchunk* self)
     do {                                                                    \
         result = gas_read_encoded_num_fd(fd, &field##_size);                \
         if (result != GAS_OK) { return result; }                            \
-        field = (GASubyte*)malloc(field##_size + 1);                        \
+        field = (GASubyte*)gas_alloc(field##_size + 1);                     \
         GAS_CHECK_MEM(field);                                               \
         bytes_read = read(fd, field, field##_size);                         \
         if (bytes_read < 0) { return GAS_ERR_UNKNOWN; }                     \
@@ -222,7 +222,7 @@ GASresult gas_read_fd (int fd, GASchunk** out)
     if (result != GAS_OK) {
         return result;
     }
-    c->attributes = (GASattribute*)malloc(c->nb_attributes * sizeof(GASattribute));
+    c->attributes = (GASattribute*)gas_alloc(c->nb_attributes * sizeof(GASattribute));
     GAS_CHECK_MEM(c->attributes);
     for (i = 0; i < c->nb_attributes; i++) {
         read_field(c->attributes[i].key);
@@ -233,7 +233,7 @@ GASresult gas_read_fd (int fd, GASchunk** out)
     if (result != GAS_OK) {
         return result;
     }
-    c->children = (GASchunk**)malloc(c->nb_children * sizeof(GASchunk*));
+    c->children = (GASchunk**)gas_alloc(c->nb_children * sizeof(GASchunk*));
     GAS_CHECK_MEM(c->children);
     for (i = 0; i < c->nb_children; i++) {
         result = gas_read_fd(fd, &c->children[i]);

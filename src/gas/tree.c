@@ -174,7 +174,7 @@ GASunum encoded_size (GASunum value)
 #define copy_to_field(field)                                                \
     do {                                                                    \
         c->field##_size = field##_size;                                     \
-        c->field = (GASubyte*)realloc(c->field, field##_size + 1);          \
+        c->field = (GASubyte*)gas_realloc(c->field, field##_size + 1);      \
         GAS_CHECK_MEM(c->field);                                            \
         memcpy(c->field, field, field##_size);                              \
         ((GASubyte*)c->field)[field##_size] = 0;                            \
@@ -184,7 +184,7 @@ GASunum encoded_size (GASunum value)
 #define copy_to_attribute(field)                                            \
     do {                                                                    \
         a->field##_size = field##_size;                                     \
-        ctmp = (GASubyte*)realloc(a->field, field##_size + 1);              \
+        ctmp = (GASubyte*)gas_realloc(a->field, field##_size + 1);          \
         GAS_CHECK_MEM(ctmp);                                                \
         a->field = ctmp;                                                    \
         memcpy(a->field, field, field##_size);                              \
@@ -203,7 +203,7 @@ GASchunk* gas_new (const GASvoid *id, GASunum id_size)
 {
     GASchunk *c;
 
-    c = (GASchunk*)malloc(sizeof(GASchunk));
+    c = (GASchunk*)gas_alloc(sizeof(GASchunk));
     if (c == NULL) {
         return NULL;
     }
@@ -211,7 +211,7 @@ GASchunk* gas_new (const GASvoid *id, GASunum id_size)
 
     if (id) {
         c->id_size = id_size;
-        c->id = (GASubyte*)realloc(c->id, id_size + 1);
+        c->id = (GASubyte*)gas_realloc(c->id, id_size + 1);
         if (c->id == NULL) { return NULL; }
         memcpy(c->id, id, id_size);
         ((GASubyte*)c->id)[id_size] = 0;
@@ -240,21 +240,21 @@ GASresult gas_destroy (GASchunk* c)
 
     GAS_CHECK_PARAM(c);
 
-    free(c->id);
+    gas_free(c->id);
     for (i = 0; i < c->nb_attributes; i++) {
-        free(c->attributes[i].key);
-        free(c->attributes[i].value);
+        gas_free(c->attributes[i].key);
+        gas_free(c->attributes[i].value);
     }
-    free(c->attributes);
-    free(c->payload);
+    gas_free(c->attributes);
+    gas_free(c->payload);
     for (i = 0; i < c->nb_children; i++) {
         result = gas_destroy(c->children[i]);
 #ifdef GAS_DEBUG
         if (result != GAS_OK) { return result; }
 #endif
     }
-    free(c->children);
-    free(c);
+    gas_free(c->children);
+    gas_free(c);
 
     return GAS_OK;
 }
@@ -349,7 +349,7 @@ GASresult gas_set_attribute (GASchunk* c,
         /* not found, append at end */
         c->nb_attributes++;
 
-        tmp = (GASattribute*)realloc(c->attributes,
+        tmp = (GASattribute*)gas_realloc(c->attributes,
                                      c->nb_attributes*sizeof(GASattribute));
         GAS_CHECK_MEM(tmp);
         c->attributes = tmp;
@@ -425,8 +425,8 @@ GASresult gas_delete_attribute_at (GASchunk* c, GASunum index)/*{{{*/
         return GAS_ERR_INVALID_PARAM;
     }
     a = &c->attributes[index];
-    free(a->value);
-    free(a->key);
+    gas_free(a->value);
+    gas_free(a->key);
     c->nb_attributes--;
     trailing = c->nb_attributes - index;
     if (trailing != 0) {
@@ -512,7 +512,7 @@ GASresult gas_add_child(GASchunk* parent, GASchunk* child)
 
     parent->nb_children++;
 
-    tmp = (GASchunk**)realloc(parent->children,
+    tmp = (GASchunk**)gas_realloc(parent->children,
                               parent->nb_children * sizeof(GASchunk*));
     GAS_CHECK_MEM(tmp);
     parent->children = tmp;

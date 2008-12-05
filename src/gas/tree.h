@@ -19,11 +19,12 @@
  * @brief tree definition
  */
 
-#include <gas/types.h>
-#include <stdio.h>
 
 #ifndef GAS_TREE_H
 #define GAS_TREE_H
+
+#include <gas/memory.h>
+#include <stdio.h>
 
 #if defined(GAS_ENABLE_CPP) && defined(__cplusplus)
 #include <exception>

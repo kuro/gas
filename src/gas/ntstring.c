@@ -67,7 +67,7 @@ GASchar* gas_get_id_s (GASchunk* c)
 {
 #if DUPLICATE_STRINGS
     GASchar *retval;
-    retval = (GASchar*)malloc(c->id_size + 1);
+    retval = (GASchar*)gas_alloc(c->id_size + 1);
     if (retval == NULL) {
         return NULL;
     }
@@ -164,7 +164,7 @@ GASchar* gas_get_attribute_ss (GASchunk* c, const GASchar* key)
     GASchar *retval;
    
     len = gas_attribute_value_size(c, index);
-    retval = (GASchar*)malloc(len + 1);
+    retval = (GASchar*)gas_alloc(len + 1);
     if (retval == NULL) {
         return NULL;
     }
@@ -175,11 +175,11 @@ GASchar* gas_get_attribute_ss (GASchunk* c, const GASchar* key)
      * @todo redundant checks
      */
     if (status < 0) {
-        free(retval);
+        gas_free(retval);
         return NULL;
     }
     if (status != (GASnum)len) {
-        free(retval);
+        gas_free(retval);
         return NULL;
     }
 
@@ -259,7 +259,7 @@ GASchar* gas_get_payload_s (GASchunk* c)
 
 #if DUPLICATE_STRINGS
     GASchar *retval;
-    retval = (GASchar*)malloc(c->payload_size + 1);
+    retval = (GASchar*)gas_alloc(c->payload_size + 1);
     if (retval == NULL) {
         return NULL;
     }

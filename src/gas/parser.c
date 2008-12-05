@@ -147,7 +147,7 @@ GASresult gas_read_encoded_num_parser (GASparser *p, GASunum *out)
     do {                                                                    \
         result = gas_read_encoded_num_parser(p, &field##_size);             \
         if (result != GAS_OK) { goto abort; }                               \
-        field = (GASubyte*)malloc(field##_size + 1);                        \
+        field = (GASubyte*)gas_alloc(field##_size + 1);                     \
         GAS_CHECK_MEM(field);                                               \
         p->context->read(p->handle, field, field##_size,                    \
                                   &bytes_read, p->context->user_data);      \
@@ -204,7 +204,7 @@ GASresult gas_read_parser (GASparser *p, GASchunk **out)
 /* attributes {{{*/
     result = gas_read_encoded_num_parser(p, &c->nb_attributes);
     if (result != GAS_OK) { goto abort; }
-    c->attributes = (GASattribute*)malloc(c->nb_attributes * sizeof(GASattribute));
+    c->attributes = (GASattribute*)gas_alloc(c->nb_attributes * sizeof(GASattribute));
     GAS_CHECK_MEM(c->attributes);
     for (i = 0; i < c->nb_attributes; i++) {
         read_field(c->attributes[i].key);
@@ -240,7 +240,7 @@ GASresult gas_read_parser (GASparser *p, GASchunk **out)
 /* children {{{*/
     result = gas_read_encoded_num_parser(p, &c->nb_children);
     if (result != GAS_OK) { goto abort; }
-    c->children = (GASchunk**)malloc(c->nb_children * sizeof(GASchunk*));
+    c->children = (GASchunk**)gas_alloc(c->nb_children * sizeof(GASchunk*));
     GAS_CHECK_MEM(c->children);
     for (i = 0; i < c->nb_children; i++) {
         result = gas_read_parser(p, &c->children[i]);
@@ -282,7 +282,7 @@ GASparser* gas_parser_new (GAScontext* context)
     if (context == NULL) { return NULL; }
 #endif
 
-    p = (GASparser*)malloc(sizeof(GASparser));
+    p = (GASparser*)gas_alloc(sizeof(GASparser));
     if (p == NULL) { return NULL; }
 
     memset(p, 0, sizeof(GASparser));
@@ -296,7 +296,7 @@ GASparser* gas_parser_new (GAScontext* context)
 
 void gas_parser_destroy (GASparser *p)
 {
-    free(p);
+    gas_free(p);
 }
 
 GASresult gas_parse (GASparser* p, const char *resource, GASchunk **out)

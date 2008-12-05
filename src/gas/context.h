@@ -19,7 +19,7 @@
  * @brief context definition
  */
 
-#include <gas/types.h>
+#include <gas/memory.h>
 
 #ifndef GAS_SESSION_H
 #define GAS_SESSION_H
