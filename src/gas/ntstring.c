@@ -191,6 +191,38 @@ GASchar* gas_get_attribute_ss (GASchunk* c, const GASchar* key)
 #endif
 }
 /*}}}*/
+
+GASresult gas_set_attribute_s_htonl(GASchunk* c, const GASchar* k, uint32_t v)/*{{{*/
+{
+    uint32_t v_net = htonl(v);
+    return gas_set_attribute_s(c, k, &v_net, sizeof(v_net));
+}/*}}}*/
+GASresult gas_get_attribute_s_ntohl(GASchunk* c, const GASchar* k, uint32_t *v)/*{{{*/
+{
+    GASresult r;
+    uint32_t v_net;
+    r = gas_get_attribute_s(c, k, &v_net, sizeof(v_net));
+    if (r >= GAS_OK) {
+        *v = ntohl(v_net);
+    }
+    return r;
+}/*}}}*/
+GASresult gas_set_attribute_s_htons(GASchunk* c, const GASchar* k, uint16_t v)/*{{{*/
+{
+    uint16_t v_net = htons(v);
+    return gas_set_attribute_s(c, k, &v_net, sizeof(v_net));
+}/*}}}*/
+GASresult gas_get_attribute_s_ntohs(GASchunk* c, const GASchar* k, uint16_t *v)/*{{{*/
+{
+    GASresult r;
+    uint16_t v_net;
+    r = gas_get_attribute_s(c, k, &v_net, sizeof(v_net));
+    if (r >= GAS_OK) {
+        *v = ntohs(v_net);
+    }
+    return GAS_OK;
+}/*}}}*/
+
 /*@}*/
 
 /** @name payload access */

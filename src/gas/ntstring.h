@@ -20,6 +20,7 @@
  */
 
 #include <gas/tree.h>
+#include <gas/swap.h>
 
 #ifndef GAS_NTSTRING_H
 #define GAS_NTSTRING_H 
@@ -57,6 +58,11 @@ GASchar* gas_get_attribute_ss (GASchunk* c, const GASchar* key);
 GASresult gas_set_payload_s (GASchunk* c, const GASchar* payload);
 GASchar* gas_get_payload_s (GASchunk* c);
 
+
+GASresult gas_set_attribute_s_htonl(GASchunk* c, const GASchar* k, uint32_t v);
+GASresult gas_get_attribute_s_ntohl(GASchunk* c, const GASchar* k, uint32_t *v);
+GASresult gas_set_attribute_s_htons(GASchunk* c, const GASchar* k, uint16_t v);
+GASresult gas_get_attribute_s_ntohs(GASchunk* c, const GASchar* k, uint16_t *v);
 
 
 /**

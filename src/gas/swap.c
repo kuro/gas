@@ -63,3 +63,5 @@ int gas_swap (void *buf, size_t stride, size_t bufsize)
     }
     return 0;
 }
+
+/* vim: set sw=4 fdm=marker :*/
