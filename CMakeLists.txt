@@ -77,5 +77,10 @@ add_custom_command(
 add_custom_target(README.html)
 
 configure_file(gas.pc.in ${CMAKE_CURRENT_BINARY_DIR}/gas.pc @ONLY)
+if(GAS_ENABLE_INSTALLER)
+    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/gas.pc DESTINATION lib/pkgconfig)
+endif()
+
+
 
 # vim: fdm=marker
