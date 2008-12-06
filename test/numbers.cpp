@@ -59,7 +59,7 @@ void test_range (GASunum start, GASunum end)
     FILE* fs;
     GASunum i, j;
 
-    char *fname = "/dev/shm/dump";
+    char fname[] = "/dev/shm/dump";
     fs = fopen(fname, "w+");
 
     for (i = start; i <= end; i++) {
@@ -91,9 +91,8 @@ void test_random (int count, GASunum mask)
     int i;
     FILE *fs, *fs_rand;
     GASunum num;
-    char *fname;
+    char fname[] = "/dev/shm/dump";
 
-    fname = "/dev/shm/dump";
     fs = fopen(fname, "w+");
 
 
@@ -122,9 +121,7 @@ void test_random (int count, GASunum mask)
 void test_number (GASunum num)
 {
     FILE* fs;
-    char *fname;
-
-    fname = "/dev/shm/dump";
+    char fname[] = "/dev/shm/dump";
     fs = fopen(fname, "w+");
 
     if ( ! tryit(fs, num)) {

@@ -46,7 +46,7 @@ void write_size (int fd, GASunum val)
     write(fd, &byte, 1);
 
 
-    for (i = sizeof(GASunum) << 3 - 1; i >= 0; i--) {
+    for (i = (sizeof(GASunum) << 3) - 1; i >= 0; i--) {
         if (val & (1L << i)) {
             break;
         }
