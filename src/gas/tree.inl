@@ -57,14 +57,15 @@ inline char* Exception::what () throw()
 #define copy_to_field(field)                                                \
     do {                                                                    \
         this->field##_size = field##_size;                                  \
-        this->field = (GASubyte*)gas_realloc(this->field, field##_size +1); \
+        this->field = (GASubyte*)gas_realloc(this->field, field##_size +1,  \
+                                             user_data); \
         if (this->field == NULL) { throw Gas::Exception("out of memory"); } \
         memcpy(this->field, field, field##_size);                           \
         ((GASubyte*)this->field)[field##_size] = 0;                         \
     } while (0)
 /*}}}*/
 
-inline Chunk::Chunk (GASunum id_size, const GASvoid *id) :/*{{{*/
+inline Chunk::Chunk (GASunum id_size, const GASvoid *id, GASvoid* user_data) :/*{{{*/
     parent(0),
     size(0),
     id_size(0),
@@ -80,7 +81,7 @@ inline Chunk::Chunk (GASunum id_size, const GASvoid *id) :/*{{{*/
         copy_to_field(id);
     }
 }/*}}}*/
-inline Chunk::Chunk (const GASchar *id) :/*{{{*/
+inline Chunk::Chunk (const GASchar *id, GASvoid* user_data) :/*{{{*/
     parent(0),
     size(0),
     id_size(0),
@@ -101,17 +102,17 @@ inline Chunk::~Chunk ()/*{{{*/
 {
     GASunum i;
 
-    gas_free(id);
+    gas_free(id, this->user_data);
     for (i = 0; i < nb_attributes; i++) {
-        gas_free(attributes[i].key);
-        gas_free(attributes[i].value);
+        gas_free(attributes[i].key, this->user_data);
+        gas_free(attributes[i].value, this->user_data);
     }
-    gas_free(attributes);
-    gas_free(payload);
+    gas_free(attributes, this->user_data);
+    gas_free(payload, this->user_data);
     for (i = 0; i < nb_children; i++) {
         delete children[i];
     }
-    gas_free(children);
+    gas_free(children, this->user_data);
 }/*}}}*/
 
 /**

@@ -40,7 +40,8 @@ extern "C"
 /*@{*/
 
 GASresult gas_write_fs (FILE* fs, GASchunk* self);
-GASresult gas_read_fs (FILE* fs, GASchunk **out);
+GASresult gas_read_fs (FILE* fs, GASchunk **out,
+                       GASvoid* DEFAULT_NULL(user_data));
 
 GASresult gas_write_encoded_num_fs (FILE* fs, GASunum value);
 GASresult gas_read_encoded_num_fs (FILE* fs, GASunum *value);

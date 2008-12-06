@@ -91,8 +91,6 @@
 #include <errno.h>
 
 GASunum encoded_size (GASunum value);
-GASresult gas_read_encoded_num_parser (GASparser *p, GASunum *out);
-GASresult gas_read_parser (GASparser *p, GASchunk **out);
 
 /* gas_read_encoded_num_parser() {{{*/
 GASresult gas_read_encoded_num_parser (GASparser *p, GASunum *out)
@@ -147,7 +145,7 @@ GASresult gas_read_encoded_num_parser (GASparser *p, GASunum *out)
     do {                                                                    \
         result = gas_read_encoded_num_parser(p, &field##_size);             \
         if (result != GAS_OK) { goto abort; }                               \
-        field = (GASubyte*)gas_alloc(field##_size + 1);                     \
+        field = (GASubyte*)gas_alloc(field##_size + 1, user_data);          \
         GAS_CHECK_MEM(field);                                               \
         p->context->read(p->handle, field, field##_size,                    \
                                   &bytes_read, p->context->user_data);      \
@@ -161,7 +159,7 @@ GASresult gas_read_encoded_num_parser (GASparser *p, GASunum *out)
  * @warning Unlike other similar functions in the library, gas_read_parser is
  * intended for internal use only, via gas_parse().
  */
-GASresult gas_read_parser (GASparser *p, GASchunk **out)
+GASresult gas_read_parser (GASparser *p, GASchunk **out, GASvoid* user_data)
 {
     GASresult result = GAS_OK;
     GASunum i;
@@ -173,7 +171,7 @@ GASresult gas_read_parser (GASparser *p, GASchunk **out)
     GAS_CHECK_PARAM(p);
     GAS_CHECK_PARAM(out);
 
-    c = gas_new(NULL, 0);
+    c = gas_new(NULL, 0, user_data);
     GAS_CHECK_MEM(c);
 
     result = gas_read_encoded_num_parser(p, &c->size);
@@ -204,7 +202,7 @@ GASresult gas_read_parser (GASparser *p, GASchunk **out)
 /* attributes {{{*/
     result = gas_read_encoded_num_parser(p, &c->nb_attributes);
     if (result != GAS_OK) { goto abort; }
-    c->attributes = (GASattribute*)gas_alloc(c->nb_attributes * sizeof(GASattribute));
+    c->attributes = (GASattribute*)gas_alloc(c->nb_attributes * sizeof(GASattribute), user_data);
     GAS_CHECK_MEM(c->attributes);
     for (i = 0; i < c->nb_attributes; i++) {
         read_field(c->attributes[i].key);
@@ -240,10 +238,10 @@ GASresult gas_read_parser (GASparser *p, GASchunk **out)
 /* children {{{*/
     result = gas_read_encoded_num_parser(p, &c->nb_children);
     if (result != GAS_OK) { goto abort; }
-    c->children = (GASchunk**)gas_alloc(c->nb_children * sizeof(GASchunk*));
+    c->children = (GASchunk**)gas_alloc(c->nb_children * sizeof(GASchunk*), user_data);
     GAS_CHECK_MEM(c->children);
     for (i = 0; i < c->nb_children; i++) {
-        result = gas_read_parser(p, &c->children[i]);
+        result = gas_read_parser(p, &c->children[i], user_data);
         if (result != GAS_OK) { goto abort; }
         if (p->build_tree) {
             // if we are not building the tree, then the child will be null
@@ -274,7 +272,7 @@ abort:
 }
 /*}}}*/
 /* parser routines {{{*/
-GASparser* gas_parser_new (GAScontext* context)
+GASparser* gas_parser_new (GAScontext* context, GASvoid* user_data)
 {
     GASparser *p;
 
@@ -282,7 +280,7 @@ GASparser* gas_parser_new (GAScontext* context)
     if (context == NULL) { return NULL; }
 #endif
 
-    p = (GASparser*)gas_alloc(sizeof(GASparser));
+    p = (GASparser*)gas_alloc(sizeof(GASparser), user_data);
     if (p == NULL) { return NULL; }
 
     memset(p, 0, sizeof(GASparser));
@@ -294,12 +292,12 @@ GASparser* gas_parser_new (GAScontext* context)
     return p;
 }
 
-void gas_parser_destroy (GASparser *p)
+void gas_parser_destroy (GASparser *p, GASvoid* user_data)
 {
-    gas_free(p);
+    gas_free(p, user_data);
 }
 
-GASresult gas_parse (GASparser* p, const char *resource, GASchunk **out)
+GASresult gas_parse (GASparser* p, const char *resource, GASchunk **out, GASvoid* user_data)
 {
     GASresult result;
     GASchunk *c = NULL;
@@ -312,7 +310,7 @@ GASresult gas_parse (GASparser* p, const char *resource, GASchunk **out)
     if (result < GAS_OK) {
         return result;
     }
-    result = gas_read_parser(p, &c);
+    result = gas_read_parser(p, &c, user_data);
     if (result < GAS_OK) {
         return result;
     }

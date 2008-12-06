@@ -219,7 +219,7 @@ GASnum gas_write_buf (GASubyte* buf, GASunum limit, GASchunk* self)
 #define read_field(field)                                                   \
     do {                                                                    \
         read_num(field##_size);                                             \
-        field = (GASubyte*)gas_alloc(field##_size + 1);                     \
+        field = (GASubyte*)gas_alloc(field##_size + 1, user_data);          \
         GAS_CHECK_MEM(field);                                               \
         memcpy(field, buf+offset, field##_size);                            \
         offset += field##_size;                                             \
@@ -235,7 +235,8 @@ GASnum gas_write_buf (GASubyte* buf, GASunum limit, GASchunk* self)
     }                                                                       \
     offset += result;
 
-GASnum gas_read_buf (GASubyte* buf, GASunum limit, GASchunk** out)
+GASnum gas_read_buf (GASubyte* buf, GASunum limit, GASchunk** out,
+                     GASvoid* user_data)
 {
     GASresult result;
     GASunum offset = 0;
@@ -243,12 +244,14 @@ GASnum gas_read_buf (GASubyte* buf, GASunum limit, GASchunk** out)
     GAS_CHECK_PARAM(buf);
 
     GASunum i;
-    GASchunk* c = gas_new(NULL, 0);
+    GASchunk* c = gas_new(NULL, 0, user_data);
 
     read_num(c->size);
     read_field(c->id);
     read_num(c->nb_attributes);
-    c->attributes =(GASattribute*)gas_alloc(c->nb_attributes*sizeof(GASattribute));
+    c->attributes =
+        (GASattribute*)gas_alloc(c->nb_attributes*sizeof(GASattribute),
+                                 user_data);
     GAS_CHECK_MEM(c->attributes);
     for (i = 0; i < c->nb_attributes; i++) {
         read_field(c->attributes[i].key);
@@ -256,11 +259,13 @@ GASnum gas_read_buf (GASubyte* buf, GASunum limit, GASchunk** out)
     }
     read_field(c->payload);
     read_num(c->nb_children);
-    c->children = (GASchunk**)gas_alloc(c->nb_children * sizeof(GASchunk*));
+    c->children = (GASchunk**)gas_alloc(c->nb_children * sizeof(GASchunk*),
+                                        user_data);
     GAS_CHECK_MEM(c->children);
     memset(c->children, 0, c->nb_children * sizeof(GASchunk*));
     for (i = 0; i < c->nb_children; i++) {
-        result = gas_read_buf(buf + offset, limit - offset, &c->children[i]);
+        result = gas_read_buf(buf + offset, limit - offset, &c->children[i],
+                              user_data);
         if (result <= 0) {
             gas_destroy(c);
             return result;

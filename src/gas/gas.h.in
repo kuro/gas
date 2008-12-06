@@ -113,6 +113,11 @@
 #define GAS_CHECK_PARAM(p)
 #endif
 
+#ifdef __cplusplus
+#define DEFAULT_NULL(param) param = NULL
+#else
+#define DEFAULT_NULL(param)
+#endif
 
 #endif  /* GAS_GAS_H defined */
 

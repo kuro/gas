@@ -73,12 +73,14 @@ typedef struct
     GAS_POP_CHUNK    on_pop_chunk;
 } GASparser;
 
-GASparser* gas_parser_new (GAScontext* context);
-void gas_parser_destroy (GASparser *p);
+GASparser* gas_parser_new (GAScontext* context,
+                           GASvoid* DEFAULT_NULL(user_data));
+void gas_parser_destroy (GASparser *p, GASvoid* DEFAULT_NULL(user_data));
 
-GASresult gas_read_parser (GASparser *p, GASchunk **out);
+GASresult gas_read_parser (GASparser *p, GASchunk **out, GASvoid* user_data);
 
-GASresult gas_parse (GASparser* p, const char *resource, GASchunk **out);
+GASresult gas_parse (GASparser* p, const char *resource, GASchunk **out,
+                     GASvoid* DEFAULT_NULL(user_data));
 
 #ifdef __cplusplus
 }

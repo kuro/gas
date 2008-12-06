@@ -20,15 +20,15 @@
 
 #include "memory.h"
 
-void* gas_default_alloc (unsigned int size)/*{{{*/
+void* gas_default_alloc (unsigned int size, GASvoid* user_data)/*{{{*/
 {
     return malloc(size);
 }/*}}}*/
-void* gas_default_realloc (void *ptr, unsigned int size)/*{{{*/
+void* gas_default_realloc (void *ptr, unsigned int size, GASvoid* user_data)/*{{{*/
 {
     return realloc(ptr, size);
 }/*}}}*/
-void gas_default_free (void *ptr)/*{{{*/
+void gas_default_free (void *ptr, GASvoid* user_data)/*{{{*/
 {
     free(ptr);
 }/*}}}*/

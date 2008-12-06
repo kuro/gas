@@ -192,7 +192,7 @@ GASresult gas_write_fd (int fd, GASchunk* self)
     do {                                                                    \
         result = gas_read_encoded_num_fd(fd, &field##_size);                \
         if (result != GAS_OK) { return result; }                            \
-        field = (GASubyte*)gas_alloc(field##_size + 1);                     \
+        field = (GASubyte*)gas_alloc(field##_size + 1, user_data);          \
         GAS_CHECK_MEM(field);                                               \
         bytes_read = read(fd, field, field##_size);                         \
         if (bytes_read < 0) { return GAS_ERR_UNKNOWN; }                     \
@@ -200,11 +200,11 @@ GASresult gas_write_fd (int fd, GASchunk* self)
         ((GASubyte*)field)[field##_size] = 0;                               \
     } while (0)
 
-GASresult gas_read_fd (int fd, GASchunk** out)
+GASresult gas_read_fd (int fd, GASchunk** out, GASvoid* user_data)
 {
     GASresult result;
     GASunum i;
-    GASchunk* c = gas_new(NULL, 0);
+    GASchunk* c = gas_new(NULL, 0, user_data);
     GASnum bytes_read;
 
     result = gas_read_encoded_num_fd(fd, &c->size);
@@ -222,7 +222,8 @@ GASresult gas_read_fd (int fd, GASchunk** out)
     if (result != GAS_OK) {
         return result;
     }
-    c->attributes = (GASattribute*)gas_alloc(c->nb_attributes * sizeof(GASattribute));
+    c->attributes = (GASattribute*)gas_alloc(
+        c->nb_attributes * sizeof(GASattribute), user_data);
     GAS_CHECK_MEM(c->attributes);
     for (i = 0; i < c->nb_attributes; i++) {
         read_field(c->attributes[i].key);
@@ -233,10 +234,10 @@ GASresult gas_read_fd (int fd, GASchunk** out)
     if (result != GAS_OK) {
         return result;
     }
-    c->children = (GASchunk**)gas_alloc(c->nb_children * sizeof(GASchunk*));
+    c->children = (GASchunk**)gas_alloc(c->nb_children * sizeof(GASchunk*), user_data);
     GAS_CHECK_MEM(c->children);
     for (i = 0; i < c->nb_children; i++) {
-        result = gas_read_fd(fd, &c->children[i]);
+        result = gas_read_fd(fd, &c->children[i], user_data);
         if (result != GAS_OK) {
             gas_destroy(c);
             return result;

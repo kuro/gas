@@ -62,11 +62,13 @@ struct Chunk
     GASunum nb_children;
     struct Chunk** children;
 
+    GASvoid* user_data;
+
 #if defined(GAS_ENABLE_CPP) && defined(__cplusplus)
 public:
 
-    inline Chunk (const GASchar *id = NULL);
-    inline Chunk (GASunum id_size, const GASvoid *id);
+    inline Chunk (const GASchar *id = NULL, GASvoid* user_data = NULL);
+    inline Chunk (GASunum id_size, const GASvoid *id, GASvoid* user_data =NULL);
     inline ~Chunk();
 
 /* attributes {{{*/
@@ -145,8 +147,8 @@ extern "C"
 int gas_cmp(const GASubyte *a, GASunum a_len, const GASubyte *b, GASunum b_len);
 GASchar* gas_error_string (GASresult result);
 
-GASresult gas_hexdump_f (FILE* fs, GASvoid *input, GASunum size);
-GASresult gas_hexdump (GASvoid *input, GASunum size);
+GASresult gas_hexdump_f (FILE* fs, const GASvoid *input, GASunum size);
+GASresult gas_hexdump (const GASvoid *input, GASunum size);
 
 /**
  * @defgroup io IO
@@ -161,8 +163,9 @@ GASresult gas_hexdump (GASvoid *input, GASunum size);
  * @ingroup access
  */
 /*@{*/
-GASchunk* gas_new (const GASvoid *id, GASunum id_size);
-GASchunk* gas_new_named (const GASchar *id);
+GASchunk* gas_new (const GASvoid *id, GASunum id_size,
+                   GASvoid  *DEFAULT_NULL(user_data));
+GASchunk* gas_new_named (const GASchar *id, GASvoid* DEFAULT_NULL(user_data));
 GASresult gas_destroy (GASchunk* c);
 /*@}*/
 /* }}}*/

@@ -48,8 +48,9 @@ typedef struct _GASwriter
 GASresult gas_write_encoded_num_writer (GASwriter *writer, GASunum value);
 GASresult gas_write_writer (GASwriter *writer, GASchunk* self);
 
-GASwriter* gas_writer_new (GAScontext* context);
-void gas_writer_destroy (GASwriter *w);
+GASwriter* gas_writer_new (GAScontext* context,
+                           GASvoid* DEFAULT_NULL(user_data));
+void gas_writer_destroy (GASwriter *w, GASvoid* DEFAULT_NULL(user_data));
 
 GASresult gas_write (GASwriter* w, const char *resource, GASchunk *c);
 

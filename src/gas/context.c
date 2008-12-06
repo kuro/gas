@@ -149,10 +149,10 @@ GASresult gas_default_seek (void *handle, unsigned long pos,
 }
 /*}}}*/
 
-GAScontext* gas_context_new (void)
+GAScontext* gas_context_new (GASvoid* user_data)
 {
     GAScontext *s;
-    s = (GAScontext*)gas_alloc(sizeof(GAScontext));
+    s = (GAScontext*)gas_alloc(sizeof(GAScontext), user_data);
     if (s == NULL) { return NULL; }
     s->open = gas_default_open;
     s->close = gas_default_close;
@@ -163,9 +163,9 @@ GAScontext* gas_context_new (void)
     return s;
 }
 
-void gas_context_destroy (GAScontext* s)
+void gas_context_destroy (GAScontext* s, GASvoid* user_data)
 {
-    gas_free(s);
+    gas_free(s, user_data);
 }
 
 /* vim: set sw=4 fdm=marker :*/

@@ -143,7 +143,7 @@ GASresult gas_write_writer (GASwriter *writer, GASchunk* self)
 }
 /*}}}*/
 
-GASwriter* gas_writer_new (GAScontext* context)/*{{{*/
+GASwriter* gas_writer_new (GAScontext* context, GASvoid *user_data)/*{{{*/
 {
     GASwriter *w;
 
@@ -151,7 +151,7 @@ GASwriter* gas_writer_new (GAScontext* context)/*{{{*/
     if (context == NULL) { return NULL; }
 #endif
 
-    w = (GASwriter*)gas_alloc(sizeof(GASwriter));
+    w = (GASwriter*)gas_alloc(sizeof(GASwriter), user_data);
     if (w == NULL) { return NULL; }
 
     memset(w, 0, sizeof(GASwriter));
@@ -161,9 +161,9 @@ GASwriter* gas_writer_new (GAScontext* context)/*{{{*/
     return w;
 }/*}}}*/
 
-void gas_writer_destroy (GASwriter *w)/*{{{*/
+void gas_writer_destroy (GASwriter *w, GASvoid* user_data)/*{{{*/
 {
-    gas_free(w);
+    gas_free(w, user_data);
 }/*}}}*/
 
 GASresult gas_write (GASwriter* w, const char *resource, GASchunk *c)

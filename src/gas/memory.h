@@ -24,9 +24,11 @@
 
 #include <gas/types.h>
 
-typedef void* (*GAS_MEMORY_ALLOC_CALLBACK)   (unsigned int size);
-typedef void* (*GAS_MEMORY_REALLOC_CALLBACK) (void *ptr, unsigned int size);
-typedef void  (*GAS_MEMORY_FREE_CALLBACK)    (void *ptr);
+typedef void* (*GAS_MEMORY_ALLOC_CALLBACK)   (unsigned int size,
+                                              GASvoid* user_data);
+typedef void* (*GAS_MEMORY_REALLOC_CALLBACK) (void *ptr, unsigned int size,
+                                              GASvoid* user_data);
+typedef void  (*GAS_MEMORY_FREE_CALLBACK)    (void *ptr, GASvoid* user_data);
 
 GASresult gas_memory_initialize (
     void *pool, int pool_len,

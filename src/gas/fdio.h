@@ -39,7 +39,7 @@ extern "C"
 
 
 GASresult gas_write_fd (int fd, GASchunk* self);
-GASresult gas_read_fd (int fd, GASchunk** out);
+GASresult gas_read_fd (int fd, GASchunk** out, GASvoid* user_data);
 
 GASresult gas_write_encoded_num_fd (int fd, GASunum value);
 GASresult gas_read_encoded_num_fd (int fd, GASunum* value);
