@@ -21,7 +21,6 @@
 
 #include <gas/memory.h>
 #include <gas/tree.h>
-#include <gas/swap.h>
 
 #ifndef GAS_NTSTRING_H
 #define GAS_NTSTRING_H 
