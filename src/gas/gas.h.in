@@ -33,8 +33,7 @@
 #define GAS_ERR_FILE_EOF          -104
 #define GAS_ERR_ATTR_NOT_FOUND    -105
 #define GAS_ERR_OUT_OF_RANGE      -106
-#define GAS_ERR_INVALID_PAYLOAD   -107
-#define GAS_ERR_MEMORY            -108
+#define GAS_ERR_MEMORY            -107
 
 
 #ifndef GAS_DEBUG

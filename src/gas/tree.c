@@ -47,7 +47,6 @@ GASchar* gas_error_string (GASresult result)/*{{{*/
     case GAS_ERR_FILE_EOF:        return "end of file";
     case GAS_ERR_ATTR_NOT_FOUND:  return "attribute not found";
     case GAS_ERR_OUT_OF_RANGE:    return "value out of range";
-    case GAS_ERR_INVALID_PAYLOAD: return "payload null and callback undefined";
     case GAS_ERR_MEMORY:          return "out of memory";
     case GAS_ERR_UNKNOWN:         return "unknown error";
     default: return (result > 0) ? "no error" : "invalid error code";
