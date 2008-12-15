@@ -24,8 +24,8 @@
 
 #include <gas/context.h>
 
-GAScontext* new_gas_qiodevice_context (void);
-GAScontext* new_gas_qtcpsocket_context (void);
+GAScontext* gas_new_qiodevice_context (void);
+GAScontext* gas_new_qtcpsocket_context (void);
 
 #endif /* GAS_QT_CONTEXT_H defined */
 

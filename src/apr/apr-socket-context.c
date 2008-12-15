@@ -140,7 +140,7 @@ GASresult gas_apr_socket_seek (void *handle, unsigned long pos,
 /**
  * @brief Creates a new gas context taylored for apr files.
  */
-GAScontext* new_gas_apr_socket_context (GASvoid* user_data)
+GAScontext* gas_new_apr_socket_context (GASvoid* user_data)
 {
     GAScontext *ctx = gas_context_new(user_data);
     ctx->open = gas_apr_socket_open;

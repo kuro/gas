@@ -24,8 +24,8 @@
 
 #include <gas/context.h>
 
-GAScontext* new_gas_apr_file_context (GASvoid* user_data);
-GAScontext* new_gas_apr_socket_context (GASvoid* user_data);
+GAScontext* gas_new_apr_file_context (GASvoid* user_data);
+GAScontext* gas_new_apr_socket_context (GASvoid* user_data);
 
 #endif /* GAS_APR_CONTEXT_H defined */
 

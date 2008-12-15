@@ -131,7 +131,7 @@ GASresult gas_qiodevice_seek (void *handle, unsigned long pos,
 /**
  * @brief Creates a new gas context taylored for QIODevice.
  */
-GAScontext* new_gas_qiodevice_context (void)
+GAScontext* gas_new_qiodevice_context (void)
 {
     GAScontext *ctx = gas_context_new();
     ctx->open = gas_qiodevice_open;

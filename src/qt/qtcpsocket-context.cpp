@@ -131,7 +131,7 @@ GASresult gas_qtcpsocket_seek (void *handle, unsigned long pos,
     return GAS_OK;
 }
 
-GAScontext* new_gas_qtcpsocket_context (void)
+GAScontext* gas_new_qtcpsocket_context (void)
 {
     GAScontext *ctx = gas_context_new();
     ctx->open = gas_qtcpsocket_open;
