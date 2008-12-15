@@ -31,7 +31,6 @@ typedef void* (*GAS_MEMORY_REALLOC_CALLBACK) (void *ptr, unsigned int size,
 typedef void  (*GAS_MEMORY_FREE_CALLBACK)    (void *ptr, GASvoid* user_data);
 
 GASresult gas_memory_initialize (
-    void *pool, int pool_len,
     GAS_MEMORY_ALLOC_CALLBACK   user_alloc,
     GAS_MEMORY_REALLOC_CALLBACK user_realloc,
     GAS_MEMORY_FREE_CALLBACK    user_free

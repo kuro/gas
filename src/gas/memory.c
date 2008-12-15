@@ -41,27 +41,21 @@ GAS_MEMORY_FREE_CALLBACK    gas_free    = gas_default_free;
  * @warning pool usage is not currently supported!
  */
 GASresult gas_memory_initialize (/*{{{*/
-    void *pool, int pool_len,
     GAS_MEMORY_ALLOC_CALLBACK   user_alloc,
     GAS_MEMORY_REALLOC_CALLBACK user_realloc,
     GAS_MEMORY_FREE_CALLBACK    user_free
     )
 {
-    if (pool != NULL && pool_len != 0) {
-        // see warning above
+    if ((user_alloc == NULL) ||
+        (user_realloc == NULL) ||
+        (user_free == NULL)) {
         return GAS_ERR_INVALID_PARAM;
-    } else if ((pool != NULL) ^ (pool_len != 0)) {
-        return GAS_ERR_INVALID_PARAM;
-    } else {
-        if ((user_alloc == NULL) ||
-            (user_realloc == NULL) ||
-            (user_free == NULL)) {
-            return GAS_ERR_INVALID_PARAM;
-        }
-        gas_alloc   = user_alloc;
-        gas_realloc = user_realloc;
-        gas_free    = user_free;
     }
+
+    gas_alloc   = user_alloc;
+    gas_realloc = user_realloc;
+    gas_free    = user_free;
+
     return GAS_OK;
 }/*}}}*/
 
