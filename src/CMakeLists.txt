@@ -14,3 +14,6 @@ if (QT4_FOUND)
     subdirs(gascan qt)
 endif ()
 
+if (APR_FOUND)
+    subdirs(apr)
+endif ()
