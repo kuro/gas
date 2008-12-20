@@ -182,14 +182,14 @@ int test_main (int argc, char **argv)
     GAScontext *ctx;
     GASparser *p;
 
-    ctx = gas_context_new();
+    gas_context_new(&ctx);
     ctx->open = my_open;
     ctx->close = my_close;
     ctx->read = my_read;
     ctx->write = my_write;
     ctx->seek = my_seek;
 
-    p = gas_parser_new(ctx);
+    gas_parser_new(&p, ctx);
 
     p->build_tree = GAS_FALSE;
     //p->get_payloads = GAS_FALSE;

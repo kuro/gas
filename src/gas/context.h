@@ -63,8 +63,8 @@ typedef struct
     void *user_data;
 } GAScontext;
 
-GAScontext* gas_context_new (GASvoid* DEFAULT_NULL(user_data));
-void gas_context_destroy (GAScontext* s, GASvoid* DEFAULT_NULL(user_data));
+GASresult gas_context_new (GAScontext** ctx, GASvoid* DEFAULT_NULL(user_data));
+GASresult gas_context_destroy (GAScontext* s, GASvoid* DEFAULT_NULL(user_data));
 
 
 /*@}*/

@@ -221,9 +221,12 @@ GASresult gas_read_fs (FILE* fs, GASchunk **out, GASvoid* user_data)
 {
     GASresult result;
     GASunum i;
-    GASchunk* c = gas_new(NULL, 0, user_data);
+    GASchunk* c = NULL;
 
     GAS_CHECK_PARAM(fs);
+
+    result = gas_new(&c, NULL, 0, user_data);
+    if (result != GAS_OK) { return result; }
 
     result = gas_read_encoded_num_fs(fs, &c->size);
     if (result != GAS_OK) { return result; }

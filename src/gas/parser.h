@@ -31,6 +31,12 @@ extern "C"
 /*}*/
 #endif
 
+/**
+ * @defgroup parser Parser
+ * @ingroup io
+ */
+/*@{*/
+
 
 /**
  * @brief Previews a chunk by providing the id, and provides an early out if
@@ -52,7 +58,7 @@ typedef GASvoid (*GAS_POP_CHUNK)    (GASchunk* c, void *user_data);
 typedef struct
 {
     GAScontext* context;
-    void *handle;
+    GASvoid *handle;
 
     /**
      * @brief Determines whether or not a tree is built.
@@ -73,14 +79,21 @@ typedef struct
     GAS_POP_CHUNK    on_pop_chunk;
 } GASparser;
 
-GASparser* gas_parser_new (GAScontext* context,
-                           GASvoid* DEFAULT_NULL(user_data));
-void gas_parser_destroy (GASparser *p, GASvoid* DEFAULT_NULL(user_data));
+GASresult gas_parser_new (
+    GASparser** parser,
+    GAScontext* context,
+    GASvoid* DEFAULT_NULL(handle),
+    GASvoid* DEFAULT_NULL(user_data)
+    );
+
+GASresult gas_parser_destroy (GASparser *p, GASvoid* DEFAULT_NULL(user_data));
 
 GASresult gas_read_parser (GASparser *p, GASchunk **out, GASvoid* user_data);
 
 GASresult gas_parse (GASparser* p, const char *resource, GASchunk **out,
                      GASvoid* DEFAULT_NULL(user_data));
+
+/*@}*/
 
 #ifdef __cplusplus
 }

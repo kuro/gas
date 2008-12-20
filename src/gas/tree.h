@@ -163,9 +163,10 @@ GASresult gas_hexdump (const GASvoid *input, GASunum size);
  * @ingroup access
  */
 /*@{*/
-GASchunk* gas_new (const GASvoid *id, GASunum id_size,
-                   GASvoid  *DEFAULT_NULL(user_data));
-GASchunk* gas_new_named (const GASchar *id, GASvoid* DEFAULT_NULL(user_data));
+GASresult gas_new (GASchunk** chunk, const GASvoid *id, GASunum id_size,
+                   GASvoid *DEFAULT_NULL(user_data));
+GASresult gas_new_named (GASchunk** chunk, const GASchar *id,
+                         GASvoid* DEFAULT_NULL(user_data));
 GASresult gas_destroy (GASchunk* c);
 /*@}*/
 /* }}}*/
@@ -177,8 +178,6 @@ GASresult gas_destroy (GASchunk* c);
 /*@{*/
 GASresult gas_set_id (GASchunk* c, const GASvoid *id, GASunum size);
 GASnum gas_get_id (GASchunk* c, GASvoid* id, GASunum limit);
-GASresult gas_set_id_s (GASchunk* c, const GASchar* id);
-GASchar* gas_get_id_s (GASchunk* c);
 GASunum gas_id_size (GASchunk* c);
 /*@}*/
 /**

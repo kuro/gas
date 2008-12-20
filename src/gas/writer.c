@@ -145,30 +145,37 @@ GASresult gas_write_writer (GASwriter *writer, GASchunk* self)
 }
 /*}}}*/
 
-GASwriter* gas_writer_new (GAScontext* context, GASvoid *user_data)/*{{{*/
+GASresult gas_writer_new (
+    GASwriter** writer,
+    GAScontext* context,
+    GASvoid* handle,
+    GASvoid *user_data
+    )/*{{{*/
 {
     GASwriter *w;
 
-#ifdef GAS_DEBUG
-    if (context == NULL) { return NULL; }
-#endif
+    GAS_CHECK_PARAM(context);
 
     w = (GASwriter*)gas_alloc(sizeof(GASwriter), user_data);
-    if (w == NULL) { return NULL; }
+    GAS_CHECK_MEM(w);
 
     memset(w, 0, sizeof(GASwriter));
 
     w->context = context;
+    w->handle = handle;
 
-    return w;
+    *writer = w;
+
+    return GAS_OK;
 }/*}}}*/
 
-void gas_writer_destroy (GASwriter *w, GASvoid* user_data)/*{{{*/
+GASresult gas_writer_destroy (GASwriter *w, GASvoid* user_data)/*{{{*/
 {
     gas_free(w, user_data);
+    return GAS_OK;
 }/*}}}*/
 
-GASresult gas_write (GASwriter* w, const char *resource, GASchunk *c)
+GASresult gas_write (GASwriter* w, const char *resource, GASchunk *c)/*{{{*/
 {
     GASresult result;
     GAScontext *ctx = NULL;
@@ -189,6 +196,6 @@ GASresult gas_write (GASwriter* w, const char *resource, GASchunk *c)
     }
     result = ctx->close(w->handle, ctx->user_data);
     return result;
-}
+}/*}}}*/
 
 /* vim: set sw=4 fdm=marker :*/

@@ -204,33 +204,35 @@ GASunum encoded_size (GASunum value)
 /**
  * @warning no way of reporting an error.
  */
-GASchunk* gas_new (const GASvoid *id, GASunum id_size, GASvoid *user_data)
+GASresult gas_new (GASchunk** chunk, const GASvoid *id, GASunum id_size,
+                   GASvoid *user_data)
 {
     GASchunk *c;
 
     c = (GASchunk*)gas_alloc(sizeof(GASchunk), user_data);
-    if (c == NULL) {
-        return NULL;
-    }
+    GAS_CHECK_MEM(c);
+
     memset(c, 0, sizeof(GASchunk));
 
     if (id) {
         c->id_size = id_size;
         c->id = (GASubyte*)gas_realloc(c->id, id_size + 1, user_data);
-        if (c->id == NULL) { return NULL; }
+        GAS_CHECK_MEM(c->id);
         memcpy(c->id, id, id_size);
         ((GASubyte*)c->id)[id_size] = 0;
     }
 
     c->user_data = user_data;
 
-    return c;
+    *chunk = c;
+
+    return GAS_OK;
 }
 /*}}}*/
 /* gas_new_named() {{{*/
-GASchunk* gas_new_named (const char *id, GASvoid *user_data)
+GASresult gas_new_named (GASchunk**chunk, const char *id, GASvoid *user_data)
 {
-    return gas_new(id, strlen(id), user_data);
+    return gas_new(chunk, id, strlen(id), user_data);
 }
 /*}}}*/
 /* gas_destroy() {{{*/

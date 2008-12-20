@@ -22,27 +22,45 @@
 #include "parser.h"
 #include "writer.h"
 
-GASio* gas_io_new (GAScontext* context, GASvoid* user_data)
+GASresult gas_io_new (
+    GASio** new_io,
+    GAScontext* context,
+    GASvoid* handle,
+    GASvoid* user_data
+    )
 {
+    GASresult rv = GAS_OK;
     GASio *io;
 
-#ifdef GAS_DEBUG
-    if (context == NULL) { return NULL; }
-#endif
+    // helper methods will check context parameter
 
     io = (GASio*)gas_alloc(sizeof(GASio), user_data);
-    if (io == NULL) { return NULL; }
+    GAS_CHECK_MEM(io);
 
-    io->parser = gas_parser_new(context, user_data);
-    io->writer = gas_writer_new(context, user_data);
+    rv = gas_parser_new(&io->parser, context, handle, user_data);
+    if (rv != GAS_OK) { return rv; }
 
-    return io;
+    rv = gas_writer_new(&io->writer, context, handle, user_data);
+    if (rv != GAS_OK) { return rv; }
+
+    *new_io = io;
+
+    return GAS_OK;
 }
-void gas_io_destroy (GASio *io, GASvoid* user_data)
+
+GASresult gas_io_destroy (GASio *io, GASvoid* user_data)
 {
-    gas_parser_destroy(io->parser, user_data);
-    gas_writer_destroy(io->writer, user_data);
+    GASresult rv = GAS_OK;
+
+    rv = gas_parser_destroy(io->parser, user_data);
+    if (rv != GAS_OK) { return rv; }
+
+    rv = gas_writer_destroy(io->writer, user_data);
+    if (rv != GAS_OK) { return rv; }
+
     gas_free(io, user_data);
+
+    return GAS_OK;
 }
 
 GASresult gas_io_set_handle (GASio* io, GASvoid* handle)

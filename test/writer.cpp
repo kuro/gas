@@ -52,9 +52,9 @@ void TestWriter::test001 ()
     GASchunk *c;
     GAScontext *ctx;
     GASwriter *w;
-    ctx = gas_context_new();
-    w = gas_writer_new(ctx);
-    c = gas_new_named("test");
+    gas_context_new(&ctx);
+    gas_writer_new(&w, ctx);
+    gas_new_named(&c, "test");
     w->on_write_payload = my_write_payload;
 
     gas_set_payload(c, NULL, 4);
@@ -72,9 +72,9 @@ void TestWriter::test002 ()
     GASchunk *c;
     GAScontext *ctx;
     GASwriter *w;
-    ctx = gas_context_new();
-    w = gas_writer_new(ctx);
-    c = gas_new_named("test");
+    gas_context_new(&ctx);
+    gas_writer_new(&w, ctx);
+    gas_new_named(&c, "test");
     w->on_write_payload = my_write_payload;
 
     gas_set_payload(c, "abcd", 4);

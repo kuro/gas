@@ -25,7 +25,7 @@
  *
  * @retval 0 success, otherwise failure
  */
-int gas_swap (void *buf, size_t stride, size_t bufsize)
+GASresult gas_swap (GASvoid *buf, GASunum stride, GASunum bufsize)
 {
     GASunum count = bufsize / stride;
     GASunum i;
@@ -61,7 +61,7 @@ int gas_swap (void *buf, size_t stride, size_t bufsize)
     default:
         return GAS_ERR_INVALID_PARAM;
     }
-    return 0;
+    return GAS_OK;
 }
 
 /* vim: set sw=4 fdm=marker :*/

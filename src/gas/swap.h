@@ -92,7 +92,7 @@ extern "C"
 {
 #endif
 
-int gas_swap (void *buf, size_t stride, size_t bufsize);
+GASresult gas_swap (GASvoid *buf, GASunum stride, GASunum bufsize);
 
 #ifdef __cplusplus
 }

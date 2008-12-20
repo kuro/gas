@@ -133,7 +133,8 @@ void TestBufIO::decode_failure_undersized_buffer_0x8f ()
 void TestBufIO::tree001 ()
 {
     GASresult result;
-    GASchunk *c = gas_new_named("blah");
+    GASchunk* c = NULL;
+    gas_new_named(&c, "blah");
     gas_set_payload_s(c, "hello world");
     result = gas_write_buf(buf, sizeof(buf), c);
     QVERIFY(result > 0);
@@ -142,7 +143,8 @@ void TestBufIO::tree001 ()
 void TestBufIO::tree002 ()
 {
     GASresult result, size;
-    GASchunk *c = gas_new_named("blah");
+    GASchunk* c = NULL;
+    gas_new_named(&c, "blah");
     gas_set_payload_s(c, "hello world");
 
     result = gas_write_buf(buf, sizeof(buf), c);

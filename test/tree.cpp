@@ -29,7 +29,8 @@
 
 void test001 (void)
 {
-    GASchunk* root = gas_new_named("header");
+    GASchunk* root = NULL;
+    gas_new_named(&root, "header");
     gas_set_attribute_ss(root, "class", "samurai");
     gas_set_attribute_ss(root, "checksum", "11235");
 
@@ -38,7 +39,8 @@ void test001 (void)
     gas_set_attribute_s(root, "num", &num, sizeof(num));
 
 
-    GASchunk* message = gas_new_named("message");
+    GASchunk* message = NULL;
+    gas_new_named(&message, "message");
     gas_set_attribute_ss(message, "reason", "because i can");
     gas_set_attribute_ss(message, "project", "GekkoWare");
     gas_set_payload(message, "hello world", strlen("hello world"));
@@ -67,7 +69,8 @@ void test001 (void)
 
 void test002 (void)
 {
-    GASchunk* message = gas_new_named("message");
+    GASchunk* message = NULL;
+    gas_new_named(&message, "message");
     gas_set_attribute_ss(message, "reason", "because i can");
     gas_set_attribute_ss(message, "project", "GekkoWare");
     gas_set_attribute_ss(message, "name", "Roger Smith");
@@ -94,15 +97,18 @@ void test002 (void)
 
 void test003 (void)
 {
-    GASchunk* root = gas_new_named("root");
-    gas_add_child(root, gas_new_named("child0"));
-    gas_add_child(root, gas_new_named("child1"));
-    gas_add_child(root, gas_new_named("child2"));
-    gas_add_child(root, gas_new_named("child3"));
-    gas_add_child(root, gas_new_named("child4"));
-    gas_add_child(root, gas_new_named("child5"));
-    gas_add_child(root, gas_new_named("child6"));
-    gas_add_child(root, gas_new_named("child7"));
+    GASchunk* root = NULL;
+    gas_new_named(&root, "root");
+
+    GASchunk* tmp = NULL;
+    gas_new_named(&tmp, "child0");  gas_add_child(root, tmp);
+    gas_new_named(&tmp, "child1");  gas_add_child(root, tmp);
+    gas_new_named(&tmp, "child2");  gas_add_child(root, tmp);
+    gas_new_named(&tmp, "child3");  gas_add_child(root, tmp);
+    gas_new_named(&tmp, "child4");  gas_add_child(root, tmp);
+    gas_new_named(&tmp, "child5");  gas_add_child(root, tmp);
+    gas_new_named(&tmp, "child6");  gas_add_child(root, tmp);
+    gas_new_named(&tmp, "child7");  gas_add_child(root, tmp);
 
     gas_print(root);
     printf("\n");

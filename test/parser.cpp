@@ -79,8 +79,8 @@ int parser (int argc, char **argv)
     GAScontext *ctx;
     GASparser *p;
 
-    ctx = gas_context_new();
-    p = gas_parser_new(ctx);
+    gas_context_new(&ctx);
+    gas_parser_new(&p, ctx);
 
     p->build_tree = GAS_FALSE;
     //p->get_payloads = GAS_FALSE;
@@ -107,7 +107,7 @@ int parser (int argc, char **argv)
     GASchunk *c = gas_new(0, NULL);
     GAScontext *s;
 
-    s = gas_context_new();
+    gas_context_new(&s);
     gas_write_cb(c, s);
     gas_destroy(c);
 #endif

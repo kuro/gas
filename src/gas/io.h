@@ -32,20 +32,33 @@ extern "C"
 /*}*/
 #endif
 
+/**
+ * @defgroup fullio Full IO
+ * @ingroup io
+ */
+/*@{*/
+
 typedef struct
 {
     GASparser* parser;
     GASwriter* writer;
 } GASio;
 
-GASio* gas_io_new (GAScontext* context,
-                   GASvoid* DEFAULT_NULL(user_data));
-void gas_io_destroy (GASio *io, GASvoid* DEFAULT_NULL(user_data));
+GASresult gas_io_new (
+    GASio** io,
+    GAScontext* context,
+    GASvoid* DEFAULT_NULL(handle),
+    GASvoid* DEFAULT_NULL(user_data)
+    );
+
+GASresult gas_io_destroy (GASio *io, GASvoid* DEFAULT_NULL(user_data));
 
 GASresult gas_io_set_handle (GASio* io, GASvoid* handle);
 
 GASresult gas_read_io (GASio* io, GASchunk** out, GASvoid* user_data);
 GASresult gas_write_io (GASio* io, GASchunk* c);
+
+/*@}*/
 
 #ifdef __cplusplus
 }

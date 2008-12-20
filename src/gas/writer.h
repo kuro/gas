@@ -31,16 +31,22 @@ extern "C"
 /*}*/
 #endif
 
-struct _GASwriter;
+/**
+ * @defgroup writer Writer
+ * @ingroup io
+ */
+/*@{*/
 
-typedef GASresult (*GAS_WRITE_PAYLOAD) (struct _GASwriter* writer,
+struct GASwriter;
+
+typedef GASresult (*GAS_WRITE_PAYLOAD) (struct GASwriter* writer,
                                         GASchunk* c,
                                         unsigned int *bytes_written);
 
-typedef struct _GASwriter
+typedef struct GASwriter
 {
     GAScontext* context;
-    void *handle;
+    GASvoid *handle;
 
     GAS_WRITE_PAYLOAD on_write_payload;
 } GASwriter;
@@ -48,11 +54,18 @@ typedef struct _GASwriter
 GASresult gas_write_encoded_num_writer (GASwriter *writer, GASunum value);
 GASresult gas_write_writer (GASwriter *writer, GASchunk* self);
 
-GASwriter* gas_writer_new (GAScontext* context,
-                           GASvoid* DEFAULT_NULL(user_data));
-void gas_writer_destroy (GASwriter *w, GASvoid* DEFAULT_NULL(user_data));
+GASresult gas_writer_new (
+    GASwriter** writer,
+    GAScontext* context,
+    GASvoid* DEFAULT_NULL(handle),
+    GASvoid* DEFAULT_NULL(user_data)
+    );
+
+GASresult gas_writer_destroy (GASwriter *w, GASvoid* DEFAULT_NULL(user_data));
 
 GASresult gas_write (GASwriter* w, const char *resource, GASchunk *c);
+
+/*@}*/
 
 #ifdef __cplusplus
 }

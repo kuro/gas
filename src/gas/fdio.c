@@ -204,8 +204,13 @@ GASresult gas_read_fd (int fd, GASchunk** out, GASvoid* user_data)
 {
     GASresult result;
     GASunum i;
-    GASchunk* c = gas_new(NULL, 0, user_data);
+    GASchunk* c = NULL;
     GASnum bytes_read;
+
+    result = gas_new(&c, NULL, 0, user_data);
+    if (result != GAS_OK) {
+        return result;
+    }
 
     result = gas_read_encoded_num_fd(fd, &c->size);
     if (result != GAS_OK) {

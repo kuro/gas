@@ -133,7 +133,10 @@ GASresult gas_qtcpsocket_seek (void *handle, unsigned long pos,
 
 GAScontext* gas_new_qtcpsocket_context (void)
 {
-    GAScontext *ctx = gas_context_new();
+    GAScontext *ctx = NULL;
+
+    gas_context_new(&ctx);
+
     ctx->open = gas_qtcpsocket_open;
     ctx->close = gas_qtcpsocket_close;
     ctx->read = gas_qtcpsocket_read;

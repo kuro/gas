@@ -145,7 +145,10 @@ GASresult gas_apr_file_seek (void *handle, unsigned long pos,
  */
 GAScontext* gas_new_apr_file_context (GASvoid* user_data)
 {
-    GAScontext *ctx = gas_context_new(user_data);
+    GAScontext *ctx = NULL;
+
+    gas_context_new(&ctx, user_data);
+
     ctx->open = gas_apr_file_open;
     ctx->close = gas_apr_file_close;
     ctx->read = gas_apr_file_read;

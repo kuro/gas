@@ -171,8 +171,8 @@ GASresult gas_read_parser (GASparser *p, GASchunk **out, GASvoid* user_data)
     GAS_CHECK_PARAM(p);
     GAS_CHECK_PARAM(out);
 
-    c = gas_new(NULL, 0, user_data);
-    GAS_CHECK_MEM(c);
+    result = gas_new(&c, NULL, 0, user_data);
+    if (result != GAS_OK) { goto abort; }
 
     result = gas_read_encoded_num_parser(p, &c->size);
     if (result != GAS_OK) { goto abort; }
@@ -275,35 +275,42 @@ abort:
 /**
  * @param user_data Not stored, only used for immediate memory routines.
  */
-GASparser* gas_parser_new (GAScontext* context, GASvoid* user_data)
+GASresult gas_parser_new (/*{{{*/
+    GASparser** parser,
+    GAScontext* context,
+    GASvoid* handle,
+    GASvoid* user_data
+    )
 {
     GASparser *p;
 
-#ifdef GAS_DEBUG
-    if (context == NULL) { return NULL; }
-#endif
+    GAS_CHECK_PARAM(context);
 
     p = (GASparser*)gas_alloc(sizeof(GASparser), user_data);
-    if (p == NULL) { return NULL; }
+    GAS_CHECK_MEM(p);
 
     memset(p, 0, sizeof(GASparser));
 
     p->context = context;
+    p->handle = handle;
     p->build_tree = GAS_TRUE;
     p->get_payloads = GAS_TRUE;
 
-    return p;
-}
+    *parser = p;
 
-void gas_parser_destroy (GASparser *p, GASvoid* user_data)
+    return GAS_OK;
+}/*}}}*/
+
+GASresult gas_parser_destroy (GASparser *p, GASvoid* user_data)/*{{{*/
 {
     gas_free(p, user_data);
-}
+    return GAS_OK;
+}/*}}}*/
 
 /**
  * @param user_data Will be stored in the tree.
  */
-GASresult gas_parse (GASparser* p, const char *resource, GASchunk **out, GASvoid* user_data)
+GASresult gas_parse (GASparser* p, const char *resource, GASchunk **out, GASvoid* user_data)/*{{{*/
 {
     GASresult result;
     GASchunk *c = NULL;
@@ -324,7 +331,7 @@ GASresult gas_parse (GASparser* p, const char *resource, GASchunk **out, GASvoid
 
     *out = c;
     return result;
-}
+}/*}}}*/
 /*}}}*/
 
 /* vim: set sw=4 fdm=marker : */

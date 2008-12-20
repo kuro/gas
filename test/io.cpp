@@ -35,7 +35,10 @@
 
 void test0001 (void)
 {
-    GASchunk* root = gas_new_named("header");
+    GASchunk* root = NULL;
+
+    gas_new_named(&root, "header");
+
     gas_set_attribute_ss(root, "class", "samurai");
     gas_set_attribute_ss(root, "checksum", "11235");
 
@@ -43,17 +46,21 @@ void test0001 (void)
     gas_set_payload(root, &num, sizeof(num));
 
 
-    GASchunk* message = gas_new_named("message");
+    GASchunk* message = NULL;
+    gas_new_named(&message, "message");
+
     gas_set_attribute_ss(message, "reason", "because i can");
     gas_set_attribute_ss(message, "project", "GekkoWare");
     gas_set_payload(message, "hello world", strlen("hello world"));
     gas_add_child(root, message);
 
-    GASchunk* media = gas_new_named("media");
+    GASchunk* media = NULL;
+    gas_new_named(&media, "media");
     gas_add_child(root, media);
 
 
-    GASchunk* movie = gas_new_named("movie");
+    GASchunk* movie = NULL;
+    gas_new_named(&movie, "movie");
     gas_set_attribute_ss(movie, "title", "TMNT");
     gas_add_child(media, movie);
 
@@ -76,7 +83,8 @@ void test0001 (void)
 
 void test0002 (void)
 {
-    GASchunk* root = gas_new_named("head");
+    GASchunk* root = NULL;
+    gas_new_named(&root, "head");
     gas_set_attribute_ss(root, "foo", "bar");
 
     FILE *fs = fopen("1attr.gas", "w");
@@ -97,7 +105,8 @@ void test0002 (void)
 
 void test0003 (void)
 {
-    GASchunk* root = gas_new(NULL, 0);
+    GASchunk* root = NULL;
+    gas_new(&root, NULL, 0);
 
     FILE* fs = fopen("empty.gas", "w");
     gas_update(root);
@@ -116,7 +125,8 @@ void test0003 (void)
 }
 void test0004 (void)
 {
-    GASchunk* root = gas_new(NULL, 0);
+    GASchunk* root = NULL;
+    gas_new(&root, NULL, 0);
 
     FILE* fs = fopen("double.gas", "w");
     gas_update(root);

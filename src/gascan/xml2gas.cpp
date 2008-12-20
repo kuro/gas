@@ -61,7 +61,8 @@ int xml2gas_main (int argc, char **argv)
         input->open(QIODevice::ReadOnly);
     }
 
-    GASchunk *cur = gas_new_named("fake_root");
+    GASchunk* cur = NULL;
+    gas_new_named(&cur, "fake_root");
 
     QXmlStreamReader xml (input);
     while ( ! xml.atEnd()) {
@@ -72,8 +73,9 @@ int xml2gas_main (int argc, char **argv)
         if (xml.isStartElement()) {
             //QXmlStreamAttributes& attr = xml.attributes();
 
-            GASchunk* n = gas_new((const char*)xml.name().toString().toAscii(),
-                               xml.name().size());
+            GASchunk* n = NULL;
+            gas_new(&n, (const char*)xml.name().toString().toAscii(),
+                    xml.name().size());
 
             foreach(QXmlStreamAttribute attr, xml.attributes()) {
                 gas_set_attribute_ss(n,

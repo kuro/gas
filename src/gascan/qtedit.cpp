@@ -312,7 +312,7 @@ void MainEditWindow::load (const QString& src)
         root = NULL;
     }
 
-    root = gas_new("root", 4);
+    gas_new_named(&root, "root");
     GASchunk *doc = NULL;
     result = gas_parse(parser, src.toAscii(), &doc);
     if (result != GAS_OK) {
@@ -545,8 +545,8 @@ int qtedit_main (int argc, char **argv)
 {
     int retval;
 
-    ctx = gas_context_new();
-    parser = gas_parser_new(ctx);
+    gas_context_new(&ctx);
+    gas_parser_new(&parser, ctx);
     root = NULL;
 
     QApplication app (argc, argv);

@@ -133,12 +133,16 @@ GASresult gas_qiodevice_seek (void *handle, unsigned long pos,
  */
 GAScontext* gas_new_qiodevice_context (void)
 {
-    GAScontext *ctx = gas_context_new();
+    GAScontext *ctx = NULL;
+
+    gas_context_new(&ctx);
+
     ctx->open = gas_qiodevice_open;
     ctx->close = gas_qiodevice_close;
     ctx->read = gas_qiodevice_read;
     ctx->write = gas_qiodevice_write;
     ctx->seek = gas_qiodevice_seek;
+
     return ctx;
 }
 

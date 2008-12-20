@@ -244,7 +244,12 @@ GASnum gas_read_buf (GASubyte* buf, GASunum limit, GASchunk** out,
     GAS_CHECK_PARAM(buf);
 
     GASunum i;
-    GASchunk* c = gas_new(NULL, 0, user_data);
+    GASchunk* c = NULL;
+
+    result = gas_new(&c, NULL, 0, user_data);
+    if (result != GAS_OK) {
+        return result;
+    }
 
     read_num(c->size);
     read_field(c->id);
