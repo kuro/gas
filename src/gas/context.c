@@ -149,7 +149,10 @@ GASresult gas_default_seek (void *handle, unsigned long pos,
 }
 /*}}}*/
 
-GAScontext* gas_context_new (GASvoid* user_data)
+/**
+ * @param user_data Not stored, only used for immediate memory methods.
+ */
+GAScontext* gas_context_new (GASvoid* user_data)/*{{{*/
 {
     GAScontext *s;
     s = (GAScontext*)gas_alloc(sizeof(GAScontext), user_data);
@@ -161,11 +164,14 @@ GAScontext* gas_context_new (GASvoid* user_data)
     s->seek = gas_default_seek;
     s->user_data = NULL;
     return s;
-}
+}/*}}}*/
 
-void gas_context_destroy (GAScontext* s, GASvoid* user_data)
+/**
+ * @param user_data Only used for immediate memory methods.
+ */
+void gas_context_destroy (GAScontext* s, GASvoid* user_data)/*{{{*/
 {
     gas_free(s, user_data);
-}
+}/*}}}*/
 
 /* vim: set sw=4 fdm=marker :*/

@@ -272,6 +272,9 @@ abort:
 }
 /*}}}*/
 /* parser routines {{{*/
+/**
+ * @param user_data Not stored, only used for immediate memory routines.
+ */
 GASparser* gas_parser_new (GAScontext* context, GASvoid* user_data)
 {
     GASparser *p;
@@ -297,6 +300,9 @@ void gas_parser_destroy (GASparser *p, GASvoid* user_data)
     gas_free(p, user_data);
 }
 
+/**
+ * @param user_data Will be stored in the tree.
+ */
 GASresult gas_parse (GASparser* p, const char *resource, GASchunk **out, GASvoid* user_data)
 {
     GASresult result;
