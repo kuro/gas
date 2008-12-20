@@ -68,7 +68,11 @@ endif ()
 # ctags {{{
 find_program(CTAGS NAMES exuberant-ctags ctags)
 if (CTAGS)
-    add_custom_target(tags ALL ${CTAGS} --recurse --extra=fq --langmap=c++:.inl.h.cpp ${CMAKE_CURRENT_SOURCE_DIR})
+    add_custom_target( tags ALL
+        COMMAND ${CTAGS} --recurse --extra=fq --langmap=c++:.inl.h.cpp ${CMAKE_CURRENT_SOURCE_DIR}
+        COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_CURRENT_BINARY_DIR}/tags ${CMAKE_CURRENT_SOURCE_DIR}/tags
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        )
 endif ()
 #}}}
 
