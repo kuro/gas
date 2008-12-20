@@ -55,6 +55,8 @@ GASnum gas_get_attribute_s (GASchunk* c, const GASchar* key,
                          GASvoid* value, GASunum limit);
 GASchar* gas_get_attribute_ss (GASchunk* c, const GASchar* key);
 
+GASbool gas_has_attribute_s (GASchunk* c, const GASchar* key);
+
 GASresult gas_set_payload_s (GASchunk* c, const GASchar* payload);
 GASchar* gas_get_payload_s (GASchunk* c);
 

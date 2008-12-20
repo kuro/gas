@@ -193,6 +193,11 @@ GASchar* gas_get_attribute_ss (GASchunk* c, const GASchar* key)
 }
 /*}}}*/
 
+GASbool gas_has_attribute_s (GASchunk* c, const GASchar* key)/*{{{*/
+{
+    return gas_has_attribute(c, key, strlen(key));
+}/*}}}*/
+
 GASresult gas_set_attribute_s_htonl(GASchunk* c, const GASchar* k, uint32_t v)/*{{{*/
 {
     uint32_t v_net = htonl(v);

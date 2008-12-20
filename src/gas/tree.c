@@ -413,10 +413,24 @@ GASnum gas_get_attribute (GASchunk* c, GASunum index,
 }
 /*}}}*/
 /* gas_has_attribute() {{{*/
+/**
+ * @warning errors simply return false.
+ */
 GASbool gas_has_attribute (GASchunk* c, const GASvoid* key, GASunum key_size)
 {
-    GAS_CHECK_PARAM(c);
-    GAS_CHECK_PARAM(key);
+
+#ifdef GAS_DEBUG
+    if (c == NULL) {
+        fprintf(stderr, "gas error: %s @ %d: chunk was null\n",
+                basename(__FILE__), __LINE__);
+        return GAS_FALSE;
+    }
+    if (key == NULL) {
+        fprintf(stderr, "gas error: %s @ %d: key was null\n",
+                basename(__FILE__), __LINE__);
+        return GAS_FALSE;
+    }
+#endif
 
     return gas_index_of_attribute(c, key, key_size) < 0 ? GAS_FALSE : GAS_TRUE;
 }
