@@ -93,6 +93,10 @@ GASresult gas_hexdump_f (FILE* fs, const GASvoid *input, GASunum size)
     GASubyte *buf = (GASubyte*)input;
     GASchar characters[17];
 
+    if (size == 0) {
+        fprintf(fs, "%07lx: \n", 0x0l);
+        return GAS_OK;
+    }
 
     GAS_CHECK_PARAM(fs);
     GAS_CHECK_PARAM(input);
