@@ -20,14 +20,17 @@
 
 #include "memory.h"
 
+static
 void* gas_default_alloc (unsigned int size, GASvoid* user_data)/*{{{*/
 {
     return malloc(size);
 }/*}}}*/
+static
 void* gas_default_realloc (void *ptr, unsigned int size, GASvoid* user_data)/*{{{*/
 {
     return realloc(ptr, size);
 }/*}}}*/
+static
 void gas_default_free (void *ptr, GASvoid* user_data)/*{{{*/
 {
     free(ptr);

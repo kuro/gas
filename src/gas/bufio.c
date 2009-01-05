@@ -240,11 +240,10 @@ GASnum gas_read_buf (GASubyte* buf, GASunum limit, GASchunk** out,
 {
     GASresult result;
     GASunum offset = 0;
-
-    GAS_CHECK_PARAM(buf);
-
     GASunum i;
     GASchunk* c = NULL;
+
+    GAS_CHECK_PARAM(buf);
 
     result = gas_new(&c, NULL, 0, user_data);
     if (result != GAS_OK) {

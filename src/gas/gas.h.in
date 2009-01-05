@@ -101,7 +101,10 @@
 
 
 #ifdef GAS_DEBUG
-#include <libgen.h>
+#include <string.h>
+#  ifndef basename
+#    define basename(str) str
+#  endif
 #define GAS_CHECK_PARAM(arg)                                                \
     if (arg == NULL) {                                                      \
         fprintf(stderr, "gas error: %s @ %d: " #arg " was null\n",          \
