@@ -89,7 +89,8 @@ GASresult gas_parser_new (
 GASresult gas_parser_destroy (GASparser *p, GASvoid* DEFAULT_NULL(user_data));
 
 GASresult gas_read_encoded_num_parser (GASparser *p, GASunum *out);
-GASresult gas_read_parser (GASparser *p, GASchunk **out, GASvoid* user_data);
+GASresult gas_read_parser (GASparser *p, GASchunk **out,
+                           GASvoid* DEFAULT_NULL(user_data));
 
 GASresult gas_parse (GASparser* p, const char *resource, GASchunk **out,
                      GASvoid* DEFAULT_NULL(user_data));

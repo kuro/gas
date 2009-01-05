@@ -55,7 +55,8 @@ GASresult gas_io_destroy (GASio *io, GASvoid* DEFAULT_NULL(user_data));
 
 GASresult gas_io_set_handle (GASio* io, GASvoid* handle);
 
-GASresult gas_read_io (GASio* io, GASchunk** out, GASvoid* user_data);
+GASresult gas_read_io (GASio* io, GASchunk** out,
+                       GASvoid* DEFAULT_NULL(user_data));
 GASresult gas_write_io (GASio* io, GASchunk* c);
 
 /*@}*/
