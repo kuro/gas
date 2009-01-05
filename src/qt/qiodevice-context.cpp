@@ -29,11 +29,12 @@
  * This callback does nothing.  It is assumed that the application opens the
  * device manually.
  */
+static
 GASresult gas_qiodevice_open (const char *name, const char *mode,
                               void **handle, void **user_data)
-{
+{// {{{
     return GAS_OK;
-}
+}// }}}
 
 /**
  * @brief does nothing
@@ -42,18 +43,20 @@ GASresult gas_qiodevice_open (const char *name, const char *mode,
  * This callback does nothing.  It is assumed that the application closes the
  * device manually.
  */
+static
 GASresult gas_qiodevice_close (void *handle, void *user_data)
-{
+{// {{{
     return GAS_OK;
-}
+}// }}}
 
 /**
  * @brief called by gas to read from the device.
  */
+static
 GASresult gas_qiodevice_read (void *handle, void *buffer,
                               unsigned int size_bytes, unsigned int *bytes_read,
                               void *user_data)
-{
+{// {{{
     QIODevice& io = *static_cast<QIODevice*>(handle);
 
     if (io.bytesAvailable() < size_bytes) {
@@ -67,15 +70,16 @@ GASresult gas_qiodevice_read (void *handle, void *buffer,
     }
 
     return GAS_OK;
-}
+}// }}}
 
 /**
  * @brief called by gas to write to the device.
  */
+static
 GASresult gas_qiodevice_write (void *handle, void *buffer,
                                unsigned int size_bytes,
                                unsigned int *bytes_written, void *user_data)
-{
+{// {{{
     if (!handle) {
         return GAS_ERR_INVALID_PARAM;
     }
@@ -90,16 +94,17 @@ GASresult gas_qiodevice_write (void *handle, void *buffer,
     }
 
     return GAS_OK;
-}
+}// }}}
 
 /**
  * @brief called by gas to write seek through the device.
  *
  * @warning only support SEEK_CUR.
  */
+static
 GASresult gas_qiodevice_seek (void *handle, unsigned long pos,
                               int whence, void *user_data)
-{
+{// {{{
     if (!handle) {
         return GAS_ERR_INVALID_PARAM;
     }
@@ -126,13 +131,13 @@ GASresult gas_qiodevice_seek (void *handle, unsigned long pos,
     }
 
     return GAS_OK;
-}
+}// }}}
 
 /**
  * @brief Creates a new gas context taylored for QIODevice.
  */
 GAScontext* gas_new_qiodevice_context (void)
-{
+{// {{{
     GAScontext *ctx = NULL;
 
     gas_context_new(&ctx);
@@ -144,6 +149,6 @@ GAScontext* gas_new_qiodevice_context (void)
     ctx->seek = gas_qiodevice_seek;
 
     return ctx;
-}
+}// }}}
 
 // vim: sw=4 fdm=marker

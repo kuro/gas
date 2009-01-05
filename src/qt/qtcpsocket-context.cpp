@@ -30,10 +30,11 @@
  * This callback does nothing.  It is assumed that the application opens the
  * socket manually.
  */
+static
 GASresult gas_qtcpsocket_open (const char *name, const char *mode, void **handle, void **user_data)
-{
+{// {{{
     return GAS_OK;
-}
+}// }}}
 
 /**
  * @brief does nothing
@@ -42,18 +43,20 @@ GASresult gas_qtcpsocket_open (const char *name, const char *mode, void **handle
  * This callback does nothing.  It is assumed that the application closes the
  * socket manually.
  */
+static
 GASresult gas_qtcpsocket_close (void *handle, void *user_data)
-{
+{// {{{
     return GAS_OK;
-}
+}// }}}
 
 /**
  * @brief called by gas to read from the socket.
  */
+static
 GASresult gas_qtcpsocket_read (void *handle, void *buffer,
                                unsigned int size_bytes,
                                unsigned int *bytes_read, void *user_data)
-{
+{// {{{
     QTcpSocket& io = *static_cast<QTcpSocket*>(handle);
 
     for (int i = 0; io.bytesAvailable() < size_bytes && i < 5; i++) {
@@ -75,15 +78,16 @@ GASresult gas_qtcpsocket_read (void *handle, void *buffer,
     }
 
     return GAS_OK;
-}
+}// }}}
 
 /**
  * @brief called by gas to write to the socket.
  */
+static
 GASresult gas_qtcpsocket_write (void *handle, void *buffer,
                                 unsigned int size_bytes,
                                 unsigned int *bytes_written, void *user_data)
-{
+{// {{{
     if (!handle) {
         return GAS_ERR_INVALID_PARAM;
     }
@@ -98,14 +102,15 @@ GASresult gas_qtcpsocket_write (void *handle, void *buffer,
     }
 
     return GAS_OK;
-}
+}// }}}
 
 /**
  * @brief called by gas to write to the socket.
  */
+static
 GASresult gas_qtcpsocket_seek (void *handle, unsigned long pos,
                          int whence, void *user_data)
-{
+{// {{{
     if (!handle) {
         return GAS_ERR_INVALID_PARAM;
     }
@@ -129,10 +134,10 @@ GASresult gas_qtcpsocket_seek (void *handle, unsigned long pos,
     }
 
     return GAS_OK;
-}
+}// }}}
 
 GAScontext* gas_new_qtcpsocket_context (void)
-{
+{// {{{
     GAScontext *ctx = NULL;
 
     gas_context_new(&ctx);
@@ -143,6 +148,6 @@ GAScontext* gas_new_qtcpsocket_context (void)
     ctx->write = gas_qtcpsocket_write;
     ctx->seek = gas_qtcpsocket_seek;
     return ctx;
-}
+}// }}}
 
 // vim: sw=4 fdm=marker

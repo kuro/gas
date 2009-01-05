@@ -29,11 +29,12 @@
  * This callback does nothing.  It is assumed that the application opens the
  * device manually.
  */
+static
 GASresult gas_apr_socket_open (const char *name, const char *mode,
                              void **handle, void **user_data)
-{
+{/*{{{*/
     return GAS_OK;
-}
+}/*}}}*/
 
 /**
  * @brief does nothing
@@ -42,18 +43,20 @@ GASresult gas_apr_socket_open (const char *name, const char *mode,
  * This callback does nothing.  It is assumed that the application closes the
  * device manually.
  */
+static
 GASresult gas_apr_socket_close (void *handle, void *user_data)
-{
+{/*{{{*/
     return GAS_OK;
-}
+}/*}}}*/
 
 /**
  * @brief called by gas to read from the device.
  */
+static
 GASresult gas_apr_socket_read (void *handle, void *buffer,
                                unsigned int size_bytes,unsigned int *bytes_read,
                                void *user_data)
-{
+{/*{{{*/
     apr_socket_t* socket = (apr_socket_t*)handle;
     apr_status_t status;
     apr_size_t len;
@@ -72,15 +75,16 @@ GASresult gas_apr_socket_read (void *handle, void *buffer,
     }
 
     return GAS_OK;
-}
+}/*}}}*/
 
 /**
  * @brief called by gas to write to the device.
  */
+static
 GASresult gas_apr_socket_write (void *handle, void *buffer,
                                unsigned int size_bytes,
                                unsigned int *bytes_written, void *user_data)
-{
+{/*{{{*/
     apr_socket_t* socket = (apr_socket_t*)handle;
     apr_status_t status;
     apr_size_t len;
@@ -99,16 +103,17 @@ GASresult gas_apr_socket_write (void *handle, void *buffer,
     }
 
     return GAS_OK;
-}
+}/*}}}*/
 
 /**
  * @brief called by gas to write seek through the device.
  *
  * @warning only support SEEK_CUR.
  */
+static
 GASresult gas_apr_socket_seek (void *handle, unsigned long pos,
                                int whence, void *user_data)
-{
+{/*{{{*/
     apr_socket_t* socket = (apr_socket_t*)handle;
     apr_status_t status;
     char buf[1024];
@@ -135,13 +140,13 @@ GASresult gas_apr_socket_seek (void *handle, unsigned long pos,
     }
 
     return GAS_OK;
-}
+}/*}}}*/
 
 /**
  * @brief Creates a new gas context taylored for apr files.
  */
 GAScontext* gas_new_apr_socket_context (GASvoid* user_data)
-{
+{/*{{{*/
     GAScontext *ctx = NULL;
 
     gas_context_new(&ctx, user_data);
@@ -152,6 +157,6 @@ GAScontext* gas_new_apr_socket_context (GASvoid* user_data)
     ctx->write = gas_apr_socket_write;
     ctx->seek = gas_apr_socket_seek;
     return ctx;
-}
+}/*}}}*/
 
 // vim: sw=4 fdm=marker
