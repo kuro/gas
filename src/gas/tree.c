@@ -36,8 +36,6 @@
 
 static int overwrite_attributes = GAS_TRUE;
 
-GASunum encoded_size (GASunum value);
-
 GASchar* gas_error_string (GASresult result)/*{{{*/
 {
     switch (result) {
@@ -151,8 +149,8 @@ GASresult gas_hexdump (const GASvoid *input, GASunum size)
 
 /** @name helper functions and macros */
 /*@{*/
-/* encoded_size() {{{*/
-GASunum encoded_size (GASunum value)
+/* gas_encoded_size() {{{*/
+GASunum gas_encoded_size (GASunum value)
 {
     int i, coded_length;
 	int zero_count, zero_bytes;
@@ -604,28 +602,28 @@ GASresult gas_update (GASchunk* c)
 
     sum = 0;
     /* id*/
-    sum += encoded_size(c->id_size);
+    sum += gas_encoded_size(c->id_size);
     sum += c->id_size;
     /* attributes */
-    sum += encoded_size(c->nb_attributes);
+    sum += gas_encoded_size(c->nb_attributes);
     for (i = 0; i < c->nb_attributes; i++) {
-        sum += encoded_size(c->attributes[i].key_size);
+        sum += gas_encoded_size(c->attributes[i].key_size);
         sum += c->attributes[i].key_size;
-        sum += encoded_size(c->attributes[i].value_size);
+        sum += gas_encoded_size(c->attributes[i].value_size);
         sum += c->attributes[i].value_size;
     }
     /* payload */
-    sum += encoded_size(c->payload_size);
+    sum += gas_encoded_size(c->payload_size);
     sum += c->payload_size;
     /* children */
-    sum += encoded_size(c->nb_children);
+    sum += gas_encoded_size(c->nb_children);
     for (i = 0; i < c->nb_children; i++) {
         GASchunk* child = c->children[i];
         result = gas_update(child);
 #ifdef GAS_DEBUG
         if (result != GAS_OK) { return result; }
 #endif
-        sum += encoded_size(child->size);
+        sum += gas_encoded_size(child->size);
         sum += child->size;
     }
 
@@ -647,7 +645,7 @@ GASunum gas_total_size (GASchunk* c)
 #ifdef GAS_DEBUG
     if (c == NULL) { return 0; }
 #endif
-    return c->size + encoded_size(c->size);
+    return c->size + gas_encoded_size(c->size);
 }
 /*}}}*/
 /*@}*/

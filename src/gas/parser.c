@@ -90,7 +90,7 @@
 #include <stdio.h>
 #include <errno.h>
 
-GASunum encoded_size (GASunum value);
+GASunum gas_encoded_size (GASunum value);
 
 /* gas_read_encoded_num_parser() {{{*/
 GASresult gas_read_encoded_num_parser (GASparser *p, GASunum *out)
@@ -188,7 +188,7 @@ GASresult gas_read_parser (GASparser *p, GASchunk **out, GASvoid* user_data)
 /*}}}*/
 
     if ( ! cont) {
-        jump = c->size - encoded_size(c->id_size) - c->id_size;
+        jump = c->size - gas_encoded_size(c->id_size) - c->id_size;
         p->context->seek(p->handle, jump, SEEK_CUR, p->context->user_data);
         gas_destroy(c);
         *out = NULL;

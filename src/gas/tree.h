@@ -144,6 +144,8 @@ extern "C"
 /*}*/
 #endif
 
+GASunum gas_encoded_size (GASunum value);
+
 int gas_cmp(const GASubyte *a, GASunum a_len, const GASubyte *b, GASunum b_len);
 GASchar* gas_error_string (GASresult result);
 
