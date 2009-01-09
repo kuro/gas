@@ -202,8 +202,12 @@ GASresult gas_read_parser (GASparser *p, GASchunk **out, GASvoid* user_data)
 /* attributes {{{*/
     result = gas_read_encoded_num_parser(p, &c->nb_attributes);
     if (result != GAS_OK) { goto abort; }
-    c->attributes = (GASattribute*)gas_alloc(c->nb_attributes * sizeof(GASattribute), user_data);
-    GAS_CHECK_MEM(c->attributes);
+    if (c->nb_attributes > 0) {
+        c->attributes = (GASattribute*)gas_alloc(
+            c->nb_attributes * sizeof(GASattribute), user_data
+            );
+        GAS_CHECK_MEM(c->attributes);
+    }
     for (i = 0; i < c->nb_attributes; i++) {
         read_field(c->attributes[i].key);
         read_field(c->attributes[i].value);
@@ -238,8 +242,11 @@ GASresult gas_read_parser (GASparser *p, GASchunk **out, GASvoid* user_data)
 /* children {{{*/
     result = gas_read_encoded_num_parser(p, &c->nb_children);
     if (result != GAS_OK) { goto abort; }
-    c->children = (GASchunk**)gas_alloc(c->nb_children * sizeof(GASchunk*), user_data);
-    GAS_CHECK_MEM(c->children);
+    if (c->nb_children > 0) {
+        c->children = (GASchunk**)gas_alloc(c->nb_children * sizeof(GASchunk*),
+                                            user_data);
+        GAS_CHECK_MEM(c->children);
+    }
     for (i = 0; i < c->nb_children; i++) {
         result = gas_read_parser(p, &c->children[i], user_data);
         if (result != GAS_OK) { goto abort; }
