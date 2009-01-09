@@ -66,8 +66,8 @@ if (GAS_ENABLE_TESTS)
 endif ()
 
 # ctags {{{
-find_program(CTAGS NAMES exuberant-ctags ctags)
-if (CTAGS)
+find_program(CTAGS NAMES exuberant-ctags)
+if (CTAGS AND "${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL "${CMAKE_SOURCE_DIR}")
     add_custom_target( tags ALL
         COMMAND ${CTAGS} --recurse --extra=fq --langmap=c++:.inl.h.cpp ${CMAKE_CURRENT_SOURCE_DIR}
         COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_CURRENT_BINARY_DIR}/tags ${CMAKE_CURRENT_SOURCE_DIR}/tags
