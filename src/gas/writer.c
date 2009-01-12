@@ -50,7 +50,7 @@ GASresult gas_write_encoded_num_writer (GASwriter *writer, GASunum value)
     byte = 0x0;
     for (i = 0; i < zero_bytes; i++) {
         result = writer->context->write(writer->handle, &byte, 1, &bytes_written, writer->context->user_data);
-        if (result != 0) {
+        if (result != GAS_OK) {
             return result;
         }
     }
@@ -66,7 +66,7 @@ GASresult gas_write_encoded_num_writer (GASwriter *writer, GASunum value)
         byte = mask;
     }
     result = writer->context->write(writer->handle, &byte, 1, &bytes_written, writer->context->user_data);
-    if (result != 0) {
+    if (result != GAS_OK) {
         return result;
     }
 
@@ -81,7 +81,7 @@ GASresult gas_write_encoded_num_writer (GASwriter *writer, GASunum value)
     for (si = coded_length - 2 - zero_bytes; si >= 0; si--) {
         byte = ((value >> (si<<3)) & 0xff);
         result = writer->context->write(writer->handle, &byte, 1, &bytes_written, writer->context->user_data);
-        if (result != 0) {
+        if (result != GAS_OK) {
             return result;
         }
     }

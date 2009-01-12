@@ -95,6 +95,7 @@ GASunum gas_encoded_size (GASunum value);
 /* gas_read_encoded_num_parser() {{{*/
 GASresult gas_read_encoded_num_parser (GASparser *p, GASunum *out)
 {
+    GASresult result = GAS_OK;
     GASunum retval;
     unsigned int bytes_read;
     GASnum i, zero_byte_count, first_bit_set;
@@ -106,8 +107,9 @@ GASresult gas_read_encoded_num_parser (GASparser *p, GASunum *out)
 
     /* find first non 0x00 byte */
     for (zero_byte_count = 0; 1; zero_byte_count++) {
-        p->context->read(p->handle, &byte, 1, &bytes_read,
+        result = p->context->read(p->handle, &byte, 1, &bytes_read,
                                   p->context->user_data);
+        if (result != GAS_OK) { return result; }
         if (bytes_read != 1) {
             return GAS_ERR_FILE_EOF;
         }
@@ -128,8 +130,9 @@ GASresult gas_read_encoded_num_parser (GASparser *p, GASunum *out)
     /* at this point, i have enough information to construct retval */
     retval = mask & byte;
     for (i = 0; i < additional_bytes_to_read; i++) {
-        p->context->read(p->handle, &byte, 1, &bytes_read,
+        result = p->context->read(p->handle, &byte, 1, &bytes_read,
                                   p->context->user_data);
+        if (result != GAS_OK) { return result; }
         if (bytes_read != 1) {
             return GAS_ERR_FILE_EOF;
         }
@@ -147,8 +150,9 @@ GASresult gas_read_encoded_num_parser (GASparser *p, GASunum *out)
         if (result != GAS_OK) { goto abort; }                               \
         field = (GASubyte*)gas_alloc(field##_size + 1, user_data);          \
         GAS_CHECK_MEM(field);                                               \
-        p->context->read(p->handle, field, field##_size,                    \
+        result = p->context->read(p->handle, field, field##_size,           \
                                   &bytes_read, p->context->user_data);      \
+        if (result != GAS_OK) { goto abort; }                               \
         ((GASubyte*)field)[field##_size] = 0;                               \
     } while (0)
 
@@ -189,7 +193,9 @@ GASresult gas_read_parser (GASparser *p, GASchunk **out, GASvoid* user_data)
 
     if ( ! cont) {
         jump = c->size - gas_encoded_size(c->id_size) - c->id_size;
-        p->context->seek(p->handle, jump, SEEK_CUR, p->context->user_data);
+        result = p->context->seek(p->handle, jump, SEEK_CUR,
+                                  p->context->user_data);
+        if (result != GAS_OK) { goto abort; }
         gas_destroy(c);
         *out = NULL;
         return GAS_OK;
@@ -229,9 +235,10 @@ GASresult gas_read_parser (GASparser *p, GASchunk **out, GASvoid* user_data)
         if (result != GAS_OK) { goto abort; }
         c->payload = NULL;
         jump = c->payload_size;
-        p->context->seek(p->handle, jump,
-                         SEEK_CUR,
-                         p->context->user_data);
+        result = p->context->seek(p->handle, jump,
+                                  SEEK_CUR,
+                                  p->context->user_data);
+        if (result != GAS_OK) { goto abort; }
     }
 /*}}}*/
 
