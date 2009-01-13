@@ -137,8 +137,8 @@ GASresult gas_write_writer (GASwriter *writer, GASchunk* self)
     result = gas_write_encoded_num_writer(writer, self->nb_children);
     if (result != GAS_OK) { return result; }
     for (i = 0; i < self->nb_children; i++) {
-        /// @todo check returned value
-        gas_write_writer(writer, self->children[i]);
+        result = gas_write_writer(writer, self->children[i]);
+        if (result != GAS_OK) { return result; }
     }
 
     return result;
