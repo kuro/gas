@@ -94,6 +94,10 @@ GASresult gas_apr_file_write (void *handle, void *buffer,
     status = apr_file_write_full(file, buffer, size_bytes, &bw);
     *bytes_written = bw;
 
+    if (size_bytes == 0) {
+        return GAS_OK;
+    }
+
     if (status != APR_SUCCESS) {
         return GAS_ERR_UNKNOWN;
     }
