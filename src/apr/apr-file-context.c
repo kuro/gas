@@ -22,6 +22,18 @@
 #include "context.h"
 #include <apr_file_io.h>
 
+#if GAS_DEBUG
+#define print_apr_error(status)                                             \
+    do {                                                                    \
+        char err_buf[1024];                                                 \
+        apr_strerror(status, err_buf, sizeof(err_buf));                     \
+        fprintf(stderr, "[%s] apr error: %d: %s\n", APR_POOL__FILE_LINE__,  \
+                status, err_buf);                                           \
+    } while (0)
+#else
+#define print_apr_error(status)
+#endif
+
 /**
  * @brief does nothing
  *
@@ -69,7 +81,12 @@ GASresult gas_apr_file_read (void *handle, void *buffer,
     *bytes_read = br;
 
     if (status != APR_SUCCESS) {
-        return GAS_ERR_UNKNOWN;
+        if (APR_STATUS_IS_EOF(status)) {
+            return GAS_ERR_FILE_EOF;
+        } else {
+            print_apr_error(status);
+            return GAS_ERR_UNKNOWN;
+        }
     }
 
     return GAS_OK;
@@ -99,6 +116,7 @@ GASresult gas_apr_file_write (void *handle, void *buffer,
     }
 
     if (status != APR_SUCCESS) {
+        print_apr_error(status);
         return GAS_ERR_UNKNOWN;
     }
 
@@ -139,6 +157,7 @@ GASresult gas_apr_file_seek (void *handle, unsigned long pos,
     status = apr_file_seek(file, where, &offset);
 
     if (status != APR_SUCCESS) {
+        print_apr_error(status);
         return GAS_ERR_UNKNOWN;
     }
 

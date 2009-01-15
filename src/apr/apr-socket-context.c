@@ -22,6 +22,18 @@
 #include "context.h"
 #include <apr_network_io.h>
 
+#if GAS_DEBUG
+#define print_apr_error(status)                                             \
+    do {                                                                    \
+        char err_buf[1024];                                                 \
+        apr_strerror(status, err_buf, sizeof(err_buf));                     \
+        fprintf(stderr, "[%s] apr error: %d: %s\n", APR_POOL__FILE_LINE__,  \
+                status, err_buf);                                           \
+    } while (0)
+#else
+#define print_apr_error(status)
+#endif
+
 /**
  * @brief does nothing
  *
@@ -71,6 +83,7 @@ GASresult gas_apr_socket_read (void *handle, void *buffer,
     *bytes_read = len;
 
     if (status != APR_SUCCESS) {
+        print_apr_error(status);
         return GAS_ERR_UNKNOWN;
     }
 
@@ -99,6 +112,7 @@ GASresult gas_apr_socket_write (void *handle, void *buffer,
     *bytes_written = len;
 
     if (status != APR_SUCCESS) {
+        print_apr_error(status);
         return GAS_ERR_UNKNOWN;
     }
 
@@ -134,6 +148,7 @@ GASresult gas_apr_socket_seek (void *handle, unsigned long pos,
         len = bytes_remaining > sizeof(buf) ? sizeof(buf) : bytes_remaining;
         status = apr_socket_recv(socket, buf, &len);
         if (status != APR_SUCCESS) {
+            print_apr_error(status);
             return GAS_ERR_UNKNOWN;
         }
         bytes_remaining -= len;
