@@ -51,7 +51,7 @@ void print_gas_file (string fname)
         fs = fopen(fname.c_str(), "r");
     }
     if (fs == NULL) {
-        fprintf(stderr, "file not found");
+        fprintf(stderr, "file not found\n");
         return;
     }
     while (!feof(fs)) {
