@@ -121,6 +121,24 @@
 #define DEFAULT_NULL(param)
 #endif
 
+/*{{{*/
+#define GAS_SIZEOF_SHORT_INT ${GAS_SIZEOF_SHORT_INT}
+#define GAS_SIZEOF_INT       ${GAS_SIZEOF_INT}
+#define GAS_SIZEOF_LONG_INT  ${GAS_SIZEOF_LONG_INT}
+
+#if GAS_SIZEOF_INT == 2
+#  define GAS_INT32_FMT      "ld"
+#  define GAS_UINT32_FMT     "lu"
+#  define GAS_UINT32_HEX_FMT "lx"
+#elif GAS_SIZEOF_INT == 4
+#  define GAS_INT32_FMT      "d"
+#  define GAS_UINT32_FMT     "u"
+#  define GAS_UINT32_HEX_FMT "x"
+#else
+#  error GAS_SIZEOF_INT (${GAS_SIZEOF_INT}) formats currently unsupported
+#endif
+/*}}}*/
+
 #endif  /* GAS_GAS_H defined */
 
 /* vim: set sw=4 fdm=marker: */
