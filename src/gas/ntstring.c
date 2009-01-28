@@ -148,7 +148,7 @@ GASchar* gas_get_attribute_ss (GASchunk* c, const GASchar* key)
     if (c == NULL) {
         return NULL;
     }
-    if (c == key) {
+    if (key == NULL) {
         return NULL;
     }
 #endif
