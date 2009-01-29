@@ -79,6 +79,7 @@
 #endif
 
 
+
 #ifndef GAS_ENABLE_CPP
 #cmakedefine GAS_ENABLE_CPP 1
 #endif
@@ -147,6 +148,7 @@ const char* gas_basename (const char* path);
 #else
 #  error GAS_SIZEOF_INT (${GAS_SIZEOF_INT}) formats currently unsupported
 #endif
+
 /*}}}*/
 
 #endif  /* GAS_GAS_H defined */
