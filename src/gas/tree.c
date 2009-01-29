@@ -185,7 +185,7 @@ GASnum gas_get_id (GASchunk* c, GASvoid* id, GASunum limit)
     GAS_CHECK_PARAM(c);
     GAS_CHECK_PARAM(id);
 
-    if (c->id_size < limit) {
+    if (c->id_size > limit) {
         return GAS_ERR_INVALID_PARAM;
     }
 
@@ -387,7 +387,7 @@ GASnum gas_get_payload (GASchunk* c, GASvoid* payload, GASunum limit)
     GAS_CHECK_PARAM(c);
     GAS_CHECK_PARAM(payload);
 
-    if (c->payload_size < limit) {
+    if (c->payload_size > limit) {
         return GAS_ERR_INVALID_PARAM;
     }
 

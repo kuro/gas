@@ -25,6 +25,18 @@
 #ifndef GAS_GAS_H
 #define GAS_GAS_H
 
+#ifdef __cplusplus
+extern "C"
+{
+/*}*/
+#endif
+
+const char* gas_basename (const char* path);
+
+#ifdef __cplusplus
+}
+#endif
+
 
 #define GAS_OK                       0
 #define GAS_ERR_UNKNOWN           -101
@@ -106,8 +118,6 @@
     if (arg == NULL) {                                                      \
         return GAS_ERR_MEMORY;                                              \
     }
-
-const char* gas_basename (const char* path);
 
 #if defined(HAVE_BASENAME) && defined(HAVE_LIBGEN_H)
 #  include <libgen.h>
