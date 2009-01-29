@@ -70,6 +70,13 @@
 #cmakedefine HAVE_UNISTD_H 1
 #endif
 
+#ifndef HAVE_LIBGEN_H
+#cmakedefine HAVE_LIBGEN_H 1
+#endif
+
+#ifndef HAVE_BASENAME
+#cmakedefine HAVE_BASENAME 1
+#endif
 
 
 #ifndef GAS_ENABLE_CPP
@@ -99,12 +106,15 @@
         return GAS_ERR_MEMORY;                                              \
     }
 
+const char* gas_basename (const char* path);
+
+#if defined(HAVE_BASENAME) && defined(HAVE_LIBGEN_H)
+#  include <libgen.h>
+#else
+#  define basename(path) gas_basename(path)
+#endif
 
 #ifdef GAS_DEBUG
-#include <string.h>
-#  ifndef basename
-#    define basename(str) str
-#  endif
 #define GAS_CHECK_PARAM(arg)                                                \
     if (arg == NULL) {                                                      \
         fprintf(stderr, "gas error: %s @ %d: " #arg " was null\n",          \

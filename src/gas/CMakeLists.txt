@@ -9,6 +9,7 @@ set(headers
     ${CMAKE_CURRENT_BINARY_DIR}/gas.h
     bufio.h
     context.h
+    etc.c
     fdio.h
     fsio.h
     io.h
