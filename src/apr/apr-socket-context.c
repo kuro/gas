@@ -27,7 +27,8 @@
     do {                                                                    \
         char err_buf[1024];                                                 \
         apr_strerror(status, err_buf, sizeof(err_buf));                     \
-        fprintf(stderr, "[%s] apr error: %d: %s\n", APR_POOL__FILE_LINE__,  \
+        fprintf(stderr, "[%s:%d] apr error: %d: %s\n",                      \
+                gas_basename(__FILE__), __LINE__,                           \
                 status, err_buf);                                           \
     } while (0)
 #else
@@ -83,8 +84,12 @@ GASresult gas_apr_socket_read (void *handle, void *buffer,
     *bytes_read = len;
 
     if (status != APR_SUCCESS) {
-        print_apr_error(status);
-        return GAS_ERR_UNKNOWN;
+        if (APR_STATUS_IS_EOF(status)) {
+            return GAS_ERR_FILE_EOF;
+        } else {
+            print_apr_error(status);
+            return GAS_ERR_UNKNOWN;
+        }
     }
 
     return GAS_OK;

@@ -21,13 +21,15 @@
 
 #include "context.h"
 #include <apr_file_io.h>
+#include <gas/tree.h>
 
 #if GAS_DEBUG
 #define print_apr_error(status)                                             \
     do {                                                                    \
         char err_buf[1024];                                                 \
         apr_strerror(status, err_buf, sizeof(err_buf));                     \
-        fprintf(stderr, "[%s] apr error: %d: %s\n", APR_POOL__FILE_LINE__,  \
+        fprintf(stderr, "[%s:%d] apr error: %d: %s\n",                      \
+                gas_basename(__FILE__), __LINE__,                           \
                 status, err_buf);                                           \
     } while (0)
 #else
