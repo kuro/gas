@@ -163,10 +163,6 @@ GASresult gas_apr_file_seek (void *handle, unsigned long pos,
         return GAS_ERR_UNKNOWN;
     }
 
-    if (offset != pos) {
-        return GAS_ERR_UNKNOWN;
-    }
-
     return GAS_OK;
 }/*}}}*/
 
