@@ -28,7 +28,7 @@
     do {                                                                    \
         char err_buf[1024];                                                 \
         apr_strerror(status, err_buf, sizeof(err_buf));                     \
-        fprintf(stderr, "[%s:%d] apr error: %d: %s\n",                      \
+        fprintf(stderr, "[%s:%d] apr error: %" GAS_INT32_FMT ": %s\n",      \
                 gas_basename(__FILE__), __LINE__,                           \
                 status, err_buf);                                           \
     } while (0)
