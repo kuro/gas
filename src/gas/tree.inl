@@ -184,6 +184,7 @@ template<typename V>
 inline GASvoid Chunk::get_attribute (const GASchar* key, V& retval, bool auto_swap) /*{{{*/
 {
     GASresult r;
+    GASunum len;
 #if GAS_DEBUG
     GASnum index;
     index = gas_index_of_attribute(this, key, strlen(key));
@@ -192,7 +193,8 @@ inline GASvoid Chunk::get_attribute (const GASchar* key, V& retval, bool auto_sw
         fprintf(stderr, "gas warning: value size mismatch\n");
     }
 #endif
-    r = gas_get_attribute_s(this, key, &retval, sizeof(retval));
+    len = sizeof(retval);
+    r = gas_get_attribute_s(this, key, &retval, &len);
     GAS_CHECK_RESULT(r);
     if (auto_swap) {
         switch (sizeof(V)) {

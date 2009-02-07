@@ -177,20 +177,20 @@ GASunum gas_id_size (GASchunk* c)
 }
 /*}}}*/
 /* gas_get_id() {{{*/
-/**
- * @return The number of bytes fetched.
- */
-GASnum gas_get_id (GASchunk* c, GASvoid* id, GASunum limit)
+GASresult gas_get_id (GASchunk* c, GASvoid* id, GASunum* len)
 {
     GAS_CHECK_PARAM(c);
     GAS_CHECK_PARAM(id);
+    GAS_CHECK_PARAM(len);
 
-    if (c->id_size > limit) {
+    if (c->id_size > *len) {
         return GAS_ERR_INVALID_PARAM;
     }
 
     memcpy(((GASubyte*)id), c->id, c->id_size);
-    return c->id_size;
+    *len = c->id_size;
+
+    return GAS_OK;
 }
 /*}}}*/
 /*@}*/
@@ -271,18 +271,18 @@ GASnum gas_attribute_value_size (GASchunk* c, GASunum index)
     }
 }
 /*}}}*/
-/* gas_get_attribute() {{{*/
+/* gas_get_attribute_at() {{{*/
 /**
  * @note This method does not allocate or copy value data.
- * @return bytes fetched
  */
-GASnum gas_get_attribute (GASchunk* c, GASunum index,
-                          GASvoid* value, GASunum limit)
+GASresult gas_get_attribute_at (GASchunk* c, GASunum index,
+                                GASvoid* value, GASunum* len)
 {
     GASattribute* a;
 
     GAS_CHECK_PARAM(c);
     GAS_CHECK_PARAM(value);
+    GAS_CHECK_PARAM(len);
 
     a = &c->attributes[index];
 
@@ -291,13 +291,39 @@ GASnum gas_get_attribute (GASchunk* c, GASunum index,
         return GAS_ERR_OUT_OF_RANGE;
     }
 
-    if (a->value_size > limit) {
+    if (a->value_size > *len) {
         return GAS_ERR_INVALID_PARAM;
     }
 
     a = &c->attributes[index];
     memcpy(((GASubyte*)value), a->value, a->value_size);
-    return a->value_size;
+    *len = a->value_size;
+
+    return GAS_OK;
+}
+/*}}}*/
+/* gas_get_attribute() {{{*/
+/**
+ * @note This method does not allocate or copy value data.
+ */
+GASresult gas_get_attribute (GASchunk* c,
+                             const GASvoid* key, GASunum key_size,
+                             GASvoid* value, GASunum* len)
+{
+    GASnum index;
+
+    GAS_CHECK_PARAM(c);
+    GAS_CHECK_PARAM(key);
+    GAS_CHECK_PARAM(value);
+    GAS_CHECK_PARAM(len);
+
+    index = gas_index_of_attribute(c, key, key_size);
+
+    if (index < 0) {
+        return index;
+    }
+
+    return gas_get_attribute_at(c, index, value, len);
 }
 /*}}}*/
 /* gas_has_attribute() {{{*/
@@ -379,20 +405,19 @@ GASunum gas_payload_size (GASchunk* c)
 }
 /*}}}*/
 /* gas_get_payload() {{{*/
-/**
- * @return The number of bytes fetched.
- */
-GASnum gas_get_payload (GASchunk* c, GASvoid* payload, GASunum limit)
+GASresult gas_get_payload (GASchunk* c, GASvoid* payload, GASunum* len)
 {
     GAS_CHECK_PARAM(c);
     GAS_CHECK_PARAM(payload);
+    GAS_CHECK_PARAM(len);
 
-    if (c->payload_size > limit) {
+    if (c->payload_size > *len) {
         return GAS_ERR_INVALID_PARAM;
     }
 
     memcpy(((GASubyte*)payload), c->payload, c->payload_size);
-    return c->payload_size;
+    *len = c->payload_size;
+    return GAS_OK;
 }
 /*}}}*/
 /*@}*/

@@ -115,14 +115,10 @@ GASresult gas_set_attribute_ss (GASchunk* c,
  *
  * @return status
  */
-GASnum gas_get_attribute_s (GASchunk* c, const GASchar* key,
-                            GASvoid* value, GASunum limit)
+GASresult gas_get_attribute_s (GASchunk* c, const GASchar* key,
+                               GASvoid* value, GASunum* len)
 {
-    GASnum index = gas_index_of_attribute(c, key, strlen(key));
-    if (index < 0) {
-        return index;
-    }
-    return gas_get_attribute(c, index, value, limit);
+    return gas_get_attribute(c, key, strlen(key), value, len);
 }
 /*}}}*/
 /* gas_get_attribute_ss() {{{*/
@@ -170,7 +166,7 @@ GASchar* gas_get_attribute_ss (GASchunk* c, const GASchar* key)
         return NULL;
     }
 
-    status = gas_get_attribute(c, index, retval, len);
+    status = gas_get_attribute_at(c, index, retval, len);
 
     /**
      * @todo redundant checks
@@ -207,8 +203,9 @@ GASresult gas_get_attribute_s_ntohl(GASchunk* c, const GASchar* k, uint32_t *v)/
 {
     GASresult r;
     uint32_t v_net;
-    r = gas_get_attribute_s(c, k, &v_net, sizeof(v_net));
-    if (r >= GAS_OK) {
+    GASunum len = sizeof(v_net);
+    r = gas_get_attribute_s(c, k, &v_net, &len);
+    if (r == GAS_OK) {
         *v = ntohl(v_net);
     }
     return r;
@@ -222,8 +219,9 @@ GASresult gas_get_attribute_s_ntohs(GASchunk* c, const GASchar* k, uint16_t *v)/
 {
     GASresult r;
     uint16_t v_net;
-    r = gas_get_attribute_s(c, k, &v_net, sizeof(v_net));
-    if (r >= GAS_OK) {
+    GASunum len = sizeof(v_net);
+    r = gas_get_attribute_s(c, k, &v_net, &len);
+    if (r == GAS_OK) {
         *v = ntohs(v_net);
     }
     return GAS_OK;

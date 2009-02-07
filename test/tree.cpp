@@ -50,18 +50,20 @@ void test001 (void)
     gas_update(root);
     gas_print(root);
 
-    GASnum len;
+    GASunum len;
     uint32_t num_out;
     char c[1024];
     char *c_out;
     memset(c, 0, sizeof(c));
     c[64] = 0;
-    len = gas_get_attribute_s(root, "class", &c, sizeof(c));
+    len = sizeof(c);
+    gas_get_attribute_s(root, "class", &c, &len);
     printf("class was %ld bytes and \"%s\"\n", len, c);
     c_out = gas_get_attribute_ss(root, "class");
     printf("class was again %ld bytes and \"%s\"\n", len, c_out);
     free(c_out);
-    gas_get_attribute_s(root, "num", &num_out, sizeof(num_out));
+    len = sizeof(num_out);
+    gas_get_attribute_s(root, "num", &num_out, &len);
     printf("num (0x%x) was 0x%x\n", num, num_out);
 
     gas_destroy(root);

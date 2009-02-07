@@ -179,7 +179,7 @@ GASresult gas_destroy (GASchunk* c);
  */
 /*@{*/
 GASresult gas_set_id (GASchunk* c, const GASvoid *id, GASunum size);
-GASnum gas_get_id (GASchunk* c, GASvoid* id, GASunum limit);
+GASresult gas_get_id (GASchunk* c, GASvoid* id, GASunum* len);
 GASunum gas_id_size (GASchunk* c);
 /*@}*/
 /**
@@ -193,7 +193,8 @@ GASresult gas_set_attribute (GASchunk* c,
                              const GASvoid *value, GASunum value_size);
 GASbool gas_has_attribute (GASchunk* c, const GASvoid* key, GASunum key_size);
 GASnum gas_attribute_value_size (GASchunk* c, GASunum index);
-GASnum gas_get_attribute (GASchunk* c, GASunum index, GASvoid* value, GASunum limit);
+GASresult gas_get_attribute_at (GASchunk* c, GASunum index, GASvoid* value, GASunum* len);
+GASresult gas_get_attribute (GASchunk* c, const GASvoid* key, GASunum key_size, GASvoid* value, GASunum* len);
 GASresult gas_delete_attribute_at (GASchunk* c, GASunum index);
 GASresult gas_delete_child_at (GASchunk* c, GASunum index);
 /*@}*/
@@ -203,7 +204,7 @@ GASresult gas_delete_child_at (GASchunk* c, GASunum index);
  */
 /*@{*/
 GASresult gas_set_payload (GASchunk* c, const GASvoid *payload, GASunum payload_size);
-GASnum gas_get_payload (GASchunk* c, GASvoid* payload, GASunum limit);
+GASresult gas_get_payload (GASchunk* c, GASvoid* payload, GASunum* len);
 GASunum gas_payload_size (GASchunk* c);
 /*@}*/
 /**
