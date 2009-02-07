@@ -28,6 +28,7 @@
 
 #include <QXmlStreamReader>
 #include <QFile>
+#include <QtCore>
 
 int xml2gas_main (int argc, char **argv)
 {
@@ -68,7 +69,7 @@ int xml2gas_main (int argc, char **argv)
     while ( ! xml.atEnd()) {
         xml.readNext();
         if (xml.hasError()) {
-            qDebug(xml.errorString().toAscii());
+            qDebug() << xml.errorString();
         }
         if (xml.isStartElement()) {
             //QXmlStreamAttributes& attr = xml.attributes();
