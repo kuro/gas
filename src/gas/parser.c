@@ -87,8 +87,6 @@
 #include <gas/parser.h>
 
 #include <string.h>
-#include <errno.h>
-
 #if HAVE_STDIO_H
 #include <stdio.h>
 #endif
