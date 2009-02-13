@@ -25,7 +25,10 @@
 #include "swap.h"
 
 #include <string.h>
+
+#if HAVE_STDIO_H
 #include <stdio.h>
+#endif
 
 /**
  * @brief compile time option specifying whether or not to duplicate strings.
@@ -277,6 +280,8 @@ GASchar* gas_get_payload_s (GASchunk* c)
 /*}}}*/
 /*@}*/
 
+#if HAVE_FPRINTF
+
 /** @name misc */
 /*@{*/
 /* gas_print(), for string based debugging only {{{ */
@@ -389,5 +394,7 @@ GASresult gas_print (GASchunk* c)
 
 /* }}} */
 /*@}*/
+
+#endif
 
 /* vim: set sw=4 fdm=marker :*/

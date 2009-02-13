@@ -87,8 +87,11 @@
 #include <gas/parser.h>
 
 #include <string.h>
-#include <stdio.h>
 #include <errno.h>
+
+#if HAVE_STDIO_H
+#include <stdio.h>
+#endif
 
 GASunum gas_encoded_size (GASunum value);
 
@@ -193,7 +196,7 @@ GASresult gas_read_parser (GASparser *p, GASchunk **out, GASvoid* user_data)
 
     if ( ! cont) {
         jump = c->size - gas_encoded_size(c->id_size) - c->id_size;
-        result = p->context->seek(p->handle, jump, SEEK_CUR,
+        result = p->context->seek(p->handle, jump, GAS_SEEK_CUR,
                                   p->context->user_data);
         if (result != GAS_OK) { goto abort; }
         gas_destroy(c);
@@ -236,7 +239,7 @@ GASresult gas_read_parser (GASparser *p, GASchunk **out, GASvoid* user_data)
         c->payload = NULL;
         jump = c->payload_size;
         result = p->context->seek(p->handle, jump,
-                                  SEEK_CUR,
+                                  GAS_SEEK_CUR,
                                   p->context->user_data);
         if (result != GAS_OK) { goto abort; }
     }

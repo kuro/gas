@@ -47,6 +47,15 @@ const char* gas_basename (const char* path);
 #define GAS_ERR_OUT_OF_RANGE      -106
 #define GAS_ERR_MEMORY            -107
 
+#ifdef SEEK_CUR
+#  define GAS_SEEK_SET SEEK_SET
+#  define GAS_SEEK_CUR SEEK_CUR
+#  define GAS_SEEK_END SEEK_END
+#else
+#  define GAS_SEEK_SET 0
+#  define GAS_SEEK_CUR 1
+#  define GAS_SEEK_END 2
+#endif
 
 #ifndef GAS_DEBUG
 #cmakedefine GAS_DEBUG 1
@@ -86,9 +95,19 @@ const char* gas_basename (const char* path);
 #cmakedefine HAVE_LIBGEN_H 1
 #endif
 
+#ifndef HAVE_STDIO_H
+#cmakedefine HAVE_STDIO_H 1
+#endif
+
 #ifndef HAVE_BASENAME
 #cmakedefine HAVE_BASENAME 1
 #endif
+
+#ifndef HAVE_FPRINTF
+#cmakedefine HAVE_FPRINTF 1
+#endif
+
+
 
 
 
@@ -126,12 +145,19 @@ const char* gas_basename (const char* path);
 #endif
 
 #ifdef GAS_DEBUG
+#if HAVE_FPRINTF
 #define GAS_CHECK_PARAM(arg)                                                \
     if (arg == NULL) {                                                      \
         fprintf(stderr, "gas error: %s @ %d: " #arg " was null\n",          \
                 basename(__FILE__), __LINE__);                              \
         return GAS_ERR_INVALID_PARAM;                                       \
     }
+#else
+#define GAS_CHECK_PARAM(arg)                                                \
+    if (arg == NULL) {                                                      \
+        return GAS_ERR_INVALID_PARAM;                                       \
+    }
+#endif
 #else
 #define GAS_CHECK_PARAM(p)
 #endif

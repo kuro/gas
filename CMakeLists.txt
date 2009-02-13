@@ -22,12 +22,14 @@ endif ()
 
 include(CheckIncludeFiles)
 CHECK_INCLUDE_FILES(byteswap.h HAVE_BYTESWAP_H)
-CHECK_INCLUDE_FILES(stdint.h HAVE_STDINT_H)
-CHECK_INCLUDE_FILES(unistd.h HAVE_UNISTD_H)
-CHECK_INCLUDE_FILES(libgen.h HAVE_LIBGEN_H)
+CHECK_INCLUDE_FILES(stdint.h   HAVE_STDINT_H  )
+CHECK_INCLUDE_FILES(unistd.h   HAVE_UNISTD_H  )
+CHECK_INCLUDE_FILES(libgen.h   HAVE_LIBGEN_H  )
+CHECK_INCLUDE_FILES(stdio.h    HAVE_STDIO_H   )
 
 include(CheckFunctionExists)
 check_function_exists("basename" HAVE_BASENAME)
+check_function_exists("fprintf"  HAVE_FPRINTF)
 
 include(CheckTypeSize)
 check_type_size("short int" GAS_SIZEOF_SHORT_INT)

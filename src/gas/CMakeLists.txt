@@ -11,7 +11,6 @@ set(headers
     context.h
     etc.c
     fdio.h
-    fsio.h
     io.h
     ntstring.h
     memory.h
@@ -27,7 +26,6 @@ set(sources
     bufio.c
     context.c
     fdio.c
-    fsio.c
     io.c
     memory.c
     ntstring.c
@@ -36,6 +34,11 @@ set(sources
     tree.c
     writer.c
     )
+
+if (HAVE_FPRINTF)
+    set(headers ${headers} fsio.h)
+    set(sources ${sources} fsio.c)
+endif ()
 
 # use BUILD_SHARED_LIBS as necessary
 add_library(gas ${headers} ${sources})

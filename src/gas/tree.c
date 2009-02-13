@@ -31,7 +31,10 @@
 #include <gas/tree.h>
 
 #include <string.h>
+
+#if HAVE_STDIO_H
 #include <stdio.h>
+#endif
 
 static int overwrite_attributes = GAS_TRUE;
 
@@ -335,13 +338,17 @@ GASbool gas_has_attribute (GASchunk* c, const GASvoid* key, GASunum key_size)
 
 #ifdef GAS_DEBUG
     if (c == NULL) {
+#if HAVE_FPRINTF
         fprintf(stderr, "gas error: %s @ %d: chunk was null\n",
                 basename(__FILE__), __LINE__);
+#endif
         return GAS_FALSE;
     }
     if (key == NULL) {
+#if HAVE_FPRINTF
         fprintf(stderr, "gas error: %s @ %d: key was null\n",
                 basename(__FILE__), __LINE__);
+#endif
         return GAS_FALSE;
     }
 #endif

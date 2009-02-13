@@ -23,7 +23,7 @@
 #include <apr_file_io.h>
 #include <gas/tree.h>
 
-#if GAS_DEBUG
+#if GAS_DEBUG && HAVE_FPRINTF
 #define print_apr_error(status)                                             \
     do {                                                                    \
         char err_buf[1024];                                                 \
@@ -142,13 +142,13 @@ GASresult gas_apr_file_seek (void *handle, unsigned long pos,
     }
 
     switch(whence) {
-    case SEEK_SET:
+    case GAS_SEEK_SET:
         where = APR_SET;
         break;
-    case SEEK_CUR:
+    case GAS_SEEK_CUR:
         where = APR_CUR;
         break;
-    case SEEK_END:
+    case GAS_SEEK_END:
         where = APR_END;
         break;
     default:

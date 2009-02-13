@@ -24,7 +24,10 @@
 #define GAS_TREE_H
 
 #include <gas/memory.h>
+
+#if HAVE_STDIO_H
 #include <stdio.h>
+#endif
 
 #if defined(GAS_ENABLE_CPP) && defined(__cplusplus)
 #include <exception>
@@ -149,8 +152,10 @@ GASunum gas_encoded_size (GASunum value);
 int gas_cmp(const GASubyte *a, GASunum a_len, const GASubyte *b, GASunum b_len);
 GASchar* gas_error_string (GASresult result);
 
+#if HAVE_FPRINTF
 GASresult gas_hexdump_f (FILE* fs, const GASvoid *input, GASunum size);
 GASresult gas_hexdump (const GASvoid *input, GASunum size);
+#endif
 
 /**
  * @defgroup io IO

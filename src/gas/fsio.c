@@ -24,8 +24,11 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
 #include <errno.h>
+
+#if HAVE_STDIO_H
+#include <stdio.h>
+#endif
 
 /* gas_write_encoded_num_fs() {{{*/
 GASresult gas_write_encoded_num_fs (FILE* fs, GASunum value)

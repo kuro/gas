@@ -29,7 +29,10 @@
 #include <gas/bufio.h>
 
 #include <string.h>
+
+#if HAVE_STDIO_H
 #include <stdio.h>
+#endif
 
 /* gas_write_encoded_num_buf() {{{*/
 /**

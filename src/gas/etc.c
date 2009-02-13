@@ -83,6 +83,7 @@ int gas_cmp (const GASubyte *a, GASunum a_len, const GASubyte *b, GASunum b_len)
     return result;
 }/*}}}*/
 
+#if HAVE_FPRINTF
 GASresult gas_hexdump_f (FILE* fs, const GASvoid *input, GASunum size)/*{{{*/
 {
     GASunum i, x, o;
@@ -141,6 +142,7 @@ GASresult gas_hexdump (const GASvoid *input, GASunum size)/*{{{*/
 {
     return gas_hexdump_f(stderr, input, size);
 }/*}}}*/
+#endif
 
 
 

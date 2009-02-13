@@ -46,7 +46,7 @@ typedef GASresult (*GAS_FILE_WRITE_CALLBACK) (void *handle, void *buffer,
                                               unsigned int *byteswritten,
                                               void *userdata);
 /**
- * @brief provides the ability to seek forward (SEEK_CUR).
+ * @brief provides the ability to seek forward (GAS_SEEK_CUR).
  */
 typedef GASresult (*GAS_FILE_SEEK_CALLBACK)  (void *handle,
                                               unsigned long pos,

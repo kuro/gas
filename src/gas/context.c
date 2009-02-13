@@ -21,8 +21,13 @@
 
 #include "context.h"
 
-#include <stdio.h>
+#include <string.h>
 
+#if HAVE_STDIO_H
+#include <stdio.h>
+#endif
+
+#if HAVE_FPRINTF
 GASresult gas_default_open (const char *name, const char *mode,
                             void **handle, void **userdata);
 GASresult gas_default_close (void *handle, void *userdata);
@@ -35,11 +40,9 @@ GASresult gas_default_write (void *handle, void *buffer, unsigned int sizebytes,
 GASresult gas_default_seek (void *handle, unsigned long pos,
                             int whence, void *userdata);
 
-#define USE_FILE 1
 /* default callbacks {{{*/
 GASresult gas_default_open (const char *name, const char *mode, void **handle, void **userdata)
 {
-#if USE_FILE
     FILE *fp;
 
     fp = fopen(name, mode);
@@ -49,26 +52,6 @@ GASresult gas_default_open (const char *name, const char *mode, void **handle, v
 
     *userdata = NULL;
     *handle = (void*)fp;
-#else
-    long fd = 0;
-    int flags = O_CREAT;
-    if (mode == "r") {
-        flags |= O_RDONLY;
-    } else if (mode == "w") {
-        flags |= O_WRONLY;
-    } else if (mode == "rw") {
-        flags |= O_RDWR;
-    }
-
-    fd = open(name, flags, 0644);
-    if (fd == -1) {
-        perror("error: File::File(filename, mode)");
-        return GAS_ERR_FILE_NOT_FOUND;
-    }
-
-    *userdata = NULL;
-    *handle = (void*)(long)fd;
-#endif
 
     return GAS_OK;
 }
@@ -79,11 +62,7 @@ GASresult gas_default_close (void *handle, void *userdata)
         return GAS_ERR_INVALID_PARAM;
     }
 
-#if USE_FILE
     fclose((FILE *)handle);
-#else
-    close((long)handle);
-#endif
 
     return GAS_OK;
 }
@@ -95,7 +74,6 @@ GASresult gas_default_read (void *handle, void *buffer, unsigned int sizebytes,
         return GAS_ERR_INVALID_PARAM;
     }
 
-#if USE_FILE
     if (bytesread) {
         *bytesread = (int)fread(buffer, 1, sizebytes, (FILE *)handle);
 
@@ -103,9 +81,6 @@ GASresult gas_default_read (void *handle, void *buffer, unsigned int sizebytes,
             return GAS_ERR_FILE_EOF;
         }
     }
-#else
-    *bytesread = read((long)handle, buffer, sizebytes);
-#endif
 
     return GAS_OK;
 }
@@ -117,7 +92,6 @@ GASresult gas_default_write (void *handle, void *buffer, unsigned int sizebytes,
         return GAS_ERR_INVALID_PARAM;
     }
 
-#if USE_FILE
     if (byteswritten) {
         *byteswritten = (int)fwrite(buffer, 1, sizebytes, (FILE *)handle);
 
@@ -125,9 +99,6 @@ GASresult gas_default_write (void *handle, void *buffer, unsigned int sizebytes,
             return GAS_ERR_UNKNOWN;
         }
     }
-#else
-    *byteswritten = write((long)handle, buffer, sizebytes);
-#endif
 
     return GAS_OK;
 }
@@ -139,15 +110,13 @@ GASresult gas_default_seek (void *handle, unsigned long pos,
         return GAS_ERR_INVALID_PARAM;
     }
 
-#if USE_FILE
     fseek((FILE *)handle, pos, whence);
-#else
-    lseek((long)handle, pos, whence);
-#endif
 
     return GAS_OK;
 }
 /*}}}*/
+
+#endif // HAVE_FPRINTF
 
 /**
  * @param user_data Not stored, only used for immediate memory methods.
@@ -159,12 +128,16 @@ GASresult gas_context_new (GAScontext** ctx_out, GASvoid* user_data)/*{{{*/
     ctx = (GAScontext*)gas_alloc(sizeof(GAScontext), user_data);
     GAS_CHECK_MEM(ctx);
 
+#if HAVE_FPRINTF
     ctx->open      = gas_default_open;
     ctx->close     = gas_default_close;
     ctx->read      = gas_default_read;
     ctx->write     = gas_default_write;
     ctx->seek      = gas_default_seek;
     ctx->user_data = NULL;
+#else
+    memset(ctx, 0, sizeof(GAScontext));
+#endif
 
     *ctx_out = ctx;
 

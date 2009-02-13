@@ -115,7 +115,7 @@ GASresult gas_qtcpsocket_seek (void *handle, unsigned long pos,
         return GAS_ERR_INVALID_PARAM;
     }
 
-    if (whence != SEEK_CUR) {
+    if (whence != GAS_SEEK_CUR) {
         return GAS_ERR_INVALID_PARAM;
     }
 

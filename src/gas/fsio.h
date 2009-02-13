@@ -21,7 +21,10 @@
 
 #include <gas/memory.h>
 #include <gas/tree.h>
+
+#if HAVE_STDIO_H
 #include <stdio.h>
+#endif
 
 #ifndef GAS_FSIO_H
 #define GAS_FSIO_H

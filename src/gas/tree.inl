@@ -190,7 +190,9 @@ inline GASvoid Chunk::get_attribute (const GASchar* key, V& retval, bool auto_sw
     index = gas_index_of_attribute(this, key, strlen(key));
     GAS_CHECK_RESULT(index);
     if (sizeof(retval) != this->attributes[index].value_size) {
+#if HAVE_FPRINTF
         fprintf(stderr, "gas warning: value size mismatch\n");
+#endif
     }
 #endif
     len = sizeof(retval);

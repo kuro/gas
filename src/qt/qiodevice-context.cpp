@@ -99,7 +99,7 @@ GASresult gas_qiodevice_write (void *handle, void *buffer,
 /**
  * @brief called by gas to write seek through the device.
  *
- * @warning only support SEEK_CUR.
+ * @warning only support GAS_SEEK_CUR.
  */
 static
 GASresult gas_qiodevice_seek (void *handle, unsigned long pos,
@@ -109,7 +109,7 @@ GASresult gas_qiodevice_seek (void *handle, unsigned long pos,
         return GAS_ERR_INVALID_PARAM;
     }
 
-    if (whence != SEEK_CUR) {
+    if (whence != GAS_SEEK_CUR) {
         return GAS_ERR_INVALID_PARAM;
     }
 

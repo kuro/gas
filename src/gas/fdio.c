@@ -25,8 +25,11 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
 #include <errno.h>
+
+#if HAVE_STDIO_H
+#include <stdio.h>
+#endif
 
 #if HAVE_UNISTD_H
 #include <unistd.h>

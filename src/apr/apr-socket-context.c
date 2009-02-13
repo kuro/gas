@@ -22,7 +22,7 @@
 #include "context.h"
 #include <apr_network_io.h>
 
-#if GAS_DEBUG
+#if GAS_DEBUG && HAVE_FPRINTF
 #define print_apr_error(status)                                             \
     do {                                                                    \
         char err_buf[1024];                                                 \
@@ -127,7 +127,7 @@ GASresult gas_apr_socket_write (void *handle, void *buffer,
 /**
  * @brief called by gas to write seek through the device.
  *
- * @warning only support SEEK_CUR.
+ * @warning only support GAS_SEEK_CUR.
  */
 static
 GASresult gas_apr_socket_seek (void *handle, unsigned long pos,
@@ -143,7 +143,7 @@ GASresult gas_apr_socket_seek (void *handle, unsigned long pos,
         return GAS_ERR_INVALID_PARAM;
     }
 
-    if (whence != SEEK_CUR) {
+    if (whence != GAS_SEEK_CUR) {
         printf("oops %d\n", __LINE__);
         return GAS_ERR_INVALID_PARAM;
     }
