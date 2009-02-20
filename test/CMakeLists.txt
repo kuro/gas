@@ -11,6 +11,7 @@ set(std_tests
 set(qt_tests
     bufio
     cplusplus
+    mapped
     writer
     )
 

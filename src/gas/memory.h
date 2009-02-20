@@ -24,6 +24,12 @@
 
 #include <gas/types.h>
 
+/**
+ * @defgroup memory Memory
+ * @brief Gas Memory Management
+ */
+/*@{*/
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -46,7 +52,7 @@ GASresult gas_memory_initialize (
 /**
  * @brief Get current memory usage from default allocator.
  */
-GASunum gas_memory_current_usage (void);
+GASunum gas_memory_usage (void);
 #endif
 
 extern GAS_MEMORY_ALLOC_CALLBACK   gas_alloc;
@@ -56,6 +62,8 @@ extern GAS_MEMORY_FREE_CALLBACK    gas_free;
 #ifdef __cplusplus
 } /* extern C */
 #endif
+
+/*@}*/
 
 #endif  /* GAS_MEMORY_H defined */
 

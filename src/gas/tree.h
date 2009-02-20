@@ -175,6 +175,7 @@ GASresult gas_new (GASchunk** chunk, const GASvoid *id, GASunum id_size,
 GASresult gas_new_named (GASchunk** chunk, const GASchar *id,
                          GASvoid* DEFAULT_NULL(user_data));
 GASresult gas_destroy (GASchunk* c);
+GASresult gas_destroyn (GASchunk* c);
 /*@}*/
 /* }}}*/
 /* access {{{*/

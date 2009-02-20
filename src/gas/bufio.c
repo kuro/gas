@@ -288,6 +288,84 @@ GASnum gas_read_buf (GASubyte* buf, GASunum limit, GASchunk** out,
     *out = c;
     return offset;
 }
+
+#undef read_field
+#undef read_num
+
+/*}}}*/
+
+/* gas_read_buf() {{{*/
+
+#define read_field(field)                                                   \
+    do {                                                                    \
+        read_num(field##_size);                                             \
+        field = buf + offset;                                               \
+        offset += field##_size;                                             \
+    } while (0)
+
+#define read_num(field)                                                     \
+    result = gas_read_encoded_num_buf(                                      \
+        buf + offset, limit - offset, &field);                              \
+    if (result <= 0) {                                                      \
+        gas_destroy(c);                                                     \
+        return result;                                                      \
+    }                                                                       \
+    offset += result;
+
+GASnum gas_read_bufn (GASubyte* buf, GASunum limit, GASchunk** out,
+                      GASvoid* user_data)
+{
+    GASresult result;
+    GASunum offset = 0;
+    GASunum i;
+    GASchunk* c = NULL;
+
+    GAS_CHECK_PARAM(buf);
+
+    result = gas_new(&c, NULL, 0, user_data);
+    if (result != GAS_OK) {
+        return result;
+    }
+
+    read_num(c->size);
+    read_field(c->id);
+    read_num(c->nb_attributes);
+    if (c->nb_attributes > 0) {
+        c->attributes =
+            (GASattribute*)gas_alloc(c->nb_attributes*sizeof(GASattribute),
+                                     user_data);
+        GAS_CHECK_MEM(c->attributes);
+    }
+    for (i = 0; i < c->nb_attributes; i++) {
+        read_field(c->attributes[i].key);
+        read_field(c->attributes[i].value);
+    }
+    read_field(c->payload);
+    read_num(c->nb_children);
+    if (c->nb_children > 0) {
+        c->children = (GASchunk**)gas_alloc(c->nb_children * sizeof(GASchunk*),
+                                            user_data);
+        GAS_CHECK_MEM(c->children);
+    }
+    memset(c->children, 0, c->nb_children * sizeof(GASchunk*));
+    for (i = 0; i < c->nb_children; i++) {
+        result = gas_read_bufn(buf + offset, limit - offset, &c->children[i],
+                               user_data);
+        if (result <= 0) {
+            gas_destroy(c);
+            return result;
+        }
+        c->children[i]->parent = c;
+        offset += result;
+    }
+
+    *out = c;
+    return offset;
+}
+
+#undef read_field
+#undef read_num
+
 /*}}}*/
 
 /* vim: set sw=4 fdm=marker : */

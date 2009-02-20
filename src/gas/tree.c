@@ -157,6 +157,33 @@ GASresult gas_destroy (GASchunk* c)
     return GAS_OK;
 }
 /*}}}*/
+/* gas_destroyn() {{{*/
+/**
+ * @brief Destroy a chunk tree.
+ *
+ * @note This does not release data for id, or the data contained in the
+ * attributes, or the payload data.
+ */
+GASresult gas_destroyn (GASchunk* c)
+{
+    GASunum i;
+    GASresult result;
+
+    GAS_CHECK_PARAM(c);
+
+    gas_free(c->attributes, c->user_data);
+    for (i = 0; i < c->nb_children; i++) {
+        result = gas_destroyn(c->children[i]);
+#ifdef GAS_DEBUG
+        if (result != GAS_OK) { return result; }
+#endif
+    }
+    gas_free(c->children, c->user_data);
+    gas_free(c, c->user_data);
+
+    return GAS_OK;
+}
+/*}}}*/
 /*@}*/
 
 /** @name id access */

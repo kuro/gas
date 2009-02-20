@@ -39,6 +39,8 @@ extern "C"
 
 GASnum gas_read_buf (GASubyte* buf, GASunum limit, GASchunk** out,
                      GASvoid* DEFAULT_NULL(user_data));
+GASnum gas_read_bufn (GASubyte* buf, GASunum limit, GASchunk** out,
+                      GASvoid* DEFAULT_NULL(user_data));
 GASnum gas_write_buf (GASubyte* buf, GASunum limit, GASchunk* self);
 
 GASnum gas_read_encoded_num_buf (GASubyte* buf, GASunum limit, GASunum* result);

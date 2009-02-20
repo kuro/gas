@@ -38,6 +38,10 @@ void* gas_default_alloc (unsigned int size, GASvoid* user_data)/*{{{*/
     GASubyte* p = NULL;
 
     p = malloc(size + sizeof(GASmemory_header));
+    if (p == NULL) {
+        return NULL;
+    }
+
     header = (GASmemory_header*)p;
     p += sizeof(GASmemory_header);
     header->bytes_allocated = size;
@@ -67,6 +71,10 @@ void* gas_default_realloc (void *ptr, unsigned int size, GASvoid* user_data)/*{{
     }
 
     p = realloc(p, size + sizeof(GASmemory_header));
+    if (p == NULL) {
+        return NULL;
+    }
+
     header = (GASmemory_header*)p;
     p += sizeof(GASmemory_header);
 
@@ -91,7 +99,7 @@ void gas_default_free (void *ptr, GASvoid* user_data)/*{{{*/
     }
 }/*}}}*/
 
-GASunum gas_memory_current_usage (void)/*{{{*/
+GASunum gas_memory_usage (void)/*{{{*/
 {
     return bytes_allocated;
 }/*}}}*/
@@ -104,7 +112,11 @@ void* gas_default_alloc (unsigned int size, GASvoid* user_data)/*{{{*/
     return malloc(size);
 }/*}}}*/
 static
-void* gas_default_realloc (void *ptr, unsigned int size, GASvoid* user_data)/*{{{*/                                                                             {                                                                                   return realloc(ptr, size);                                                  }/*}}}*/                                                                        static
+void* gas_default_realloc (void *ptr, unsigned int size, GASvoid* user_data)/*{{{*/
+{
+    return realloc(ptr, size);
+}/*}}}*/
+static
 void gas_default_free (void *ptr, GASvoid* user_data)/*{{{*/
 {
     free(ptr);
