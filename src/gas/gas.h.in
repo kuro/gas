@@ -61,6 +61,10 @@ const char* gas_basename (const char* path);
 #cmakedefine GAS_DEBUG 1
 #endif
 
+#ifndef GAS_DEBUG_MEMORY
+#cmakedefine GAS_DEBUG_MEMORY 1
+#endif
+
 #ifndef UNIX
 #cmakedefine UNIX
 #endif

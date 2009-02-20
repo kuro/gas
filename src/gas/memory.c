@@ -20,21 +20,97 @@
 
 #include "memory.h"
 
+#if GAS_DEBUG_MEMORY || defined(DOXYGEN)
+static GASunum bytes_allocated = 0;
+
+struct MemoryHeader
+{
+    GASunum bytes_allocated;
+};
+
+typedef struct MemoryHeader GASmemory_header;
+
+
+static
+void* gas_default_alloc (unsigned int size, GASvoid* user_data)/*{{{*/
+{
+    GASmemory_header* header = NULL;
+    GASubyte* p = NULL;
+
+    p = malloc(size + sizeof(GASmemory_header));
+    header = (GASmemory_header*)p;
+    p += sizeof(GASmemory_header);
+    header->bytes_allocated = size;
+    bytes_allocated += size;
+
+
+    return p;
+}/*}}}*/
+static
+void* gas_default_realloc (void *ptr, unsigned int size, GASvoid* user_data)/*{{{*/
+{
+    GASmemory_header* header = NULL;
+    GASubyte* p = ptr;
+    GASnum delta;
+
+    if (ptr == NULL) {
+        return gas_default_alloc(size, user_data);
+    }
+
+    p -= sizeof(GASmemory_header);
+    header = (GASmemory_header*)p;
+
+    delta = size - header->bytes_allocated;
+
+    if (delta <= 0) {
+        return ptr;
+    }
+
+    p = realloc(p, size + sizeof(GASmemory_header));
+    header = (GASmemory_header*)p;
+    p += sizeof(GASmemory_header);
+
+    header->bytes_allocated += delta;
+    bytes_allocated += delta;
+
+    return p;
+}/*}}}*/
+static
+void gas_default_free (void *ptr, GASvoid* user_data)/*{{{*/
+{
+    GASmemory_header* header = NULL;
+    GASubyte* p = ptr;
+
+    if (ptr != NULL) {
+        p -= sizeof(GASmemory_header);
+        header = (GASmemory_header*)p;
+
+        bytes_allocated -= header->bytes_allocated;
+
+        free(p);
+    }
+}/*}}}*/
+
+GASunum gas_memory_current_usage (void)/*{{{*/
+{
+    return bytes_allocated;
+}/*}}}*/
+
+#else
+
 static
 void* gas_default_alloc (unsigned int size, GASvoid* user_data)/*{{{*/
 {
     return malloc(size);
 }/*}}}*/
 static
-void* gas_default_realloc (void *ptr, unsigned int size, GASvoid* user_data)/*{{{*/
-{
-    return realloc(ptr, size);
-}/*}}}*/
-static
+void* gas_default_realloc (void *ptr, unsigned int size, GASvoid* user_data)/*{{{*/                                                                             {                                                                                   return realloc(ptr, size);                                                  }/*}}}*/                                                                        static
 void gas_default_free (void *ptr, GASvoid* user_data)/*{{{*/
 {
     free(ptr);
 }/*}}}*/
+
+#endif
 
 GAS_MEMORY_ALLOC_CALLBACK   gas_alloc   = gas_default_alloc;
 GAS_MEMORY_REALLOC_CALLBACK gas_realloc = gas_default_realloc;

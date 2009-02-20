@@ -11,6 +11,7 @@ option(GAS_ENABLE_CPP "Enable C++ wrapper" ON)
 option(GAS_ENABLE_INSTALLER "Enable installer commands" OFF)
 option(GAS_ENABLE_TESTS "Enable test building" OFF)
 option(GAS_USE_LONG_TYPES "Enable use of long types" ON)
+option(GAS_DEBUG_MEMORY "Enable debugging of default allocator" OFF)
 
 if (CMAKE_COMPILER_IS_GNUCC)
     add_definitions(-Wall)

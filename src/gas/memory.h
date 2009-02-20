@@ -24,6 +24,12 @@
 
 #include <gas/types.h>
 
+#ifdef __cplusplus
+extern "C"
+{
+/*}*/
+#endif
+
 typedef void* (*GAS_MEMORY_ALLOC_CALLBACK)   (unsigned int size,
                                               GASvoid* user_data);
 typedef void* (*GAS_MEMORY_REALLOC_CALLBACK) (void *ptr, unsigned int size,
@@ -36,9 +42,20 @@ GASresult gas_memory_initialize (
     GAS_MEMORY_FREE_CALLBACK    user_free
     );
 
+#if GAS_DEBUG_MEMORY || defined(DOXYGEN)
+/**
+ * @brief Get current memory usage from default allocator.
+ */
+GASunum gas_memory_current_usage (void);
+#endif
+
 extern GAS_MEMORY_ALLOC_CALLBACK   gas_alloc;
 extern GAS_MEMORY_REALLOC_CALLBACK gas_realloc;
 extern GAS_MEMORY_FREE_CALLBACK    gas_free;
+
+#ifdef __cplusplus
+} /* extern C */
+#endif
 
 #endif  /* GAS_MEMORY_H defined */
 
