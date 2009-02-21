@@ -367,14 +367,14 @@ GASbool gas_has_attribute (GASchunk* c, const GASvoid* key, GASunum key_size)
     if (c == NULL) {
 #if HAVE_FPRINTF
         fprintf(stderr, "gas error: %s @ %d: chunk was null\n",
-                basename(__FILE__), __LINE__);
+                gas_basename(__FILE__), __LINE__);
 #endif
         return GAS_FALSE;
     }
     if (key == NULL) {
 #if HAVE_FPRINTF
         fprintf(stderr, "gas error: %s @ %d: key was null\n",
-                basename(__FILE__), __LINE__);
+                gas_basename(__FILE__), __LINE__);
 #endif
         return GAS_FALSE;
     }
