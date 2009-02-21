@@ -46,24 +46,24 @@ if (QT4_FOUND)
         )
 endif ()
 
-create_test_sourcelist(driver_list test-driver.cpp ${driver_files})
+create_test_sourcelist(driver_list driver.cpp ${driver_files})
 
-add_executable(test-driver ${driver_list})
+add_executable(driver ${driver_list})
 
 # link libraries
-target_link_libraries(test-driver
+target_link_libraries(driver
     gas
     )
 
 # register tests
 
 foreach(test ${std_tests})
-    add_test(${test} ${VALGRIND} ./test-driver ${test})
+    add_test(${test} ${VALGRIND} ./driver ${test})
 endforeach()
 
 if (QT4_FOUND)
     foreach(test ${qt_tests})
-        add_test(${test} ${VALGRIND} ./test-driver ${test})
+        add_test(${test} ${VALGRIND} ./driver ${test})
     endforeach()
 endif ()
 
