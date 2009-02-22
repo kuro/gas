@@ -31,6 +31,8 @@
 #include <gas/parser.h>
 #include <gas/ntstring.h>
 
+#include "EditWindow.h"
+
 using namespace Gas;
 
 static GAScontext *ctx;
@@ -550,12 +552,16 @@ int qtedit_main (int argc, char **argv)
     root = NULL;
 
     QApplication app (argc, argv);
-    MainEditWindow win;
 
-    if (argc > 1) {
-        win.load(argv[argc-1]);
-    }
+//    MainEditWindow win;
+//
+//    if (argc > 1) {
+//        win.load(argv[argc-1]);
+//    }
+//
+//    win.show();
 
+    EditWindow win;
     win.show();
 
     retval = app.exec();

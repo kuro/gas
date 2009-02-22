@@ -12,10 +12,18 @@ if (QT4_FOUND)
         ${CMAKE_CURRENT_BINARY_DIR}
         )
     add_definitions(-DHAVE_QT4=1)
+    qt4_wrap_ui(ui_files EditWindow.ui)
     set(sources ${sources} xml2gas.cpp)
     set(sources ${sources} qtedit.h qtedit.cpp)
-    qt4_automoc(qtedit.cpp)
+    set(sources ${sources}
+        ${ui_files}
+        EditWindow.h EditWindow.cpp
+        GasTreeModel.h GasTreeModel.cpp
+        GasTableModel.h GasTableModel.cpp
+        )
+    qt4_automoc(${sources})
     link_libraries(
+        gas-qt
         ${QT_QTCORE_LIBRARY}
         ${QT_QTGUI_LIBRARY}
         ${QT_QTXML_LIBRARY}
