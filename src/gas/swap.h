@@ -24,8 +24,6 @@
 #ifndef GAS_SWAP_H
 #define GAS_SWAP_H
 
-GAS_INLINE float swapf (float fin);
-
 #ifdef HAVE_BYTESWAP_H
 
 #  include <byteswap.h>
@@ -65,11 +63,15 @@ GAS_INLINE float swapf (float fin);
 
 #endif
 
+#ifdef GAS_INLINE
 GAS_INLINE float swapf (float fin)
 {
     uint32_t tmp = swap32(*(uint32_t*)&fin);
     return *(float*)&tmp;
 }
+#else
+float swapf (float fin);
+#endif
 
 #if GAS_BIG_ENDIAN
 # define ntohs(x)       (x)

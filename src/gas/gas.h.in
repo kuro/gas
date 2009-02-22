@@ -130,7 +130,7 @@ const char* gas_basename (const char* path);
 #endif
 
 #ifndef GAS_INLINE
-#define GAS_INLINE ${GAS_INLINE}
+#cmakedefine GAS_INLINE ${GAS_INLINE}
 #endif
 
 #define GAS_CHECK_MEM(arg)                                                  \

@@ -14,7 +14,15 @@
  * limitations under the License.
  */
 
-#include <gas/swap.h>
+#include "swap.h"
+
+#ifndef GAS_INLINE
+float swapf (float fin)
+{
+    uint32_t tmp = swap32(*(uint32_t*)&fin);
+    return *(float*)&tmp;
+}
+#endif
 
 /**
  * @brief Unconditional array swapping routine.

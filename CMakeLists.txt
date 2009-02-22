@@ -46,12 +46,10 @@ if ("${tmp}" MATCHES "DEBUG")
     set(GAS_DEBUG 1)
 endif ()
 
-if (CMAKE_COMPILER_IS_GNUCC)
+if (UNIX AND CMAKE_COMPILER_IS_GNUCC)
     set(GAS_INLINE "inline")
 elseif (MSVC)
     set(GAS_INLINE "__inline")
-else ()
-    set(GAS_INLINE "static")
 endif ()
 
 configure_file(
