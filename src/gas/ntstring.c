@@ -22,7 +22,6 @@
  */
 
 #include "ntstring.h"
-#include "swap.h"
 
 #include <string.h>
 

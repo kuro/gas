@@ -24,6 +24,7 @@
 #define GAS_TREE_H
 
 #include <gas/memory.h>
+#include <gas/swap.h>
 
 #if HAVE_STDIO_H
 #include <stdio.h>

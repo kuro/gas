@@ -23,7 +23,6 @@
 #include <iostream>
 
 #include <gas/ntstring.h>
-#include <gas/swap.h>
 
 #ifndef GAS_TREE_INL
 #define GAS_TREE_INL
