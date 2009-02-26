@@ -1,9 +1,17 @@
 
-if (CMAKE_COMPILER_IS_GNUCC)
-    message(STATUS "Hardcore checks enabled")
-    #add_definitions(-pedantic -ansi)
-    add_definitions(-pedantic -std=c99)
+if (QT4_FOUND)
+    subdirs(qt)
 endif ()
+
+if (APR_FOUND)
+    subdirs(apr)
+endif ()
+
+#if (CMAKE_COMPILER_IS_GNUCC)
+#    message(STATUS "Hardcore checks enabled")
+#    #add_definitions(-pedantic -ansi)
+#    add_definitions(-pedantic -std=c99)
+#endif ()
 
 set(headers
     ${CMAKE_CURRENT_BINARY_DIR}/gas.h

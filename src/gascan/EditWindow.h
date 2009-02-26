@@ -23,7 +23,7 @@
 #include <QTimer>
 
 #include <gas/io.h>
-#include <qt/context.h>  // gas/qt/context.h
+#include <gas/qt/context.h>
 
 #include "GasTreeModel.h"
 #include "GasTableModel.h"
