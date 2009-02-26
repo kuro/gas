@@ -24,6 +24,10 @@
 #ifndef GAS_SWAP_H
 #define GAS_SWAP_H
 
+#ifdef HAVE_NETINET_IN_H
+#  include <netinet/in.h>
+#endif
+
 #ifdef HAVE_BYTESWAP_H
 
 #  include <byteswap.h>
@@ -63,7 +67,35 @@
 
 #endif
 
-#ifdef GAS_INLINE
+#if !defined(HAVE_HTONL)
+#  if GAS_BIG_ENDIAN
+#   define ntohs(x)       (x)
+#   define ntohl(x)       (x)
+#  else
+#   define ntohs(x) swap16(x)
+#   define ntohl(x) swap32(x)
+#  endif
+
+#  define htons ntohs
+#  define htonl ntohl
+#endif
+
+#if GAS_BIG_ENDIAN
+# define ntohf(x)       (x)
+#else
+# define ntohf(x)  swapf(x)
+#endif
+
+#define htonf ntohf
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+GASresult gas_swap (GASvoid *buf, GASunum stride, GASunum bufsize);
+
+#if defined(GAS_INLINE) && defined(__cplusplus)
 GAS_INLINE float swapf (float fin)
 {
     uint32_t tmp = swap32(*(uint32_t*)&fin);
@@ -72,29 +104,6 @@ GAS_INLINE float swapf (float fin)
 #else
 float swapf (float fin);
 #endif
-
-#if GAS_BIG_ENDIAN
-# define ntohs(x)       (x)
-# define ntohl(x)       (x)
-# define ntohf(x)       (x)
-#else
-# define ntohs(x) swap16(x)
-# define ntohl(x) swap32(x)
-# define ntohf(x)  swapf(x)
-#endif
-
-#define htons ntohs
-#define htonl ntohl
-#define htonf ntohf
-#define htons ntohs
-#define htonl ntohl
-
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-
-GASresult gas_swap (GASvoid *buf, GASunum stride, GASunum bufsize);
 
 #ifdef __cplusplus
 }

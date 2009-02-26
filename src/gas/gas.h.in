@@ -103,9 +103,21 @@ const char* gas_basename (const char* path);
 #cmakedefine HAVE_STDIO_H 1
 #endif
 
+#ifndef HAVE_NETINET_IN_H
+#cmakedefine HAVE_NETINET_IN_H 1
+#endif
+
 #ifndef HAVE_FPRINTF
 #cmakedefine HAVE_FPRINTF 1
 #endif
+
+#ifndef HAVE_HTONL
+#cmakedefine HAVE_HTONL 1
+#endif
+
+
+
+
 
 
 
