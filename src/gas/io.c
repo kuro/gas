@@ -32,7 +32,7 @@ GASresult gas_io_new (
     GASresult rv = GAS_OK;
     GASio *io;
 
-    // helper methods will check context parameter
+    /* helper methods will check context parameter */
 
     io = (GASio*)gas_alloc(sizeof(GASio), user_data);
     GAS_CHECK_MEM(io);
@@ -82,4 +82,4 @@ GASresult gas_write_io (GASio* io, GASchunk* c)
     return gas_write_writer(io->writer, c);
 }
 
-// vim: sw=4 fdm=marker
+/* vim: set sw=4 fdm=marker :*/

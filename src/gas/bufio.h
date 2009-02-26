@@ -54,4 +54,4 @@ GASnum gas_write_encoded_num_buf (GASubyte* buf, GASunum limit, GASunum value);
 
 #endif /* GAS_BUFIO_H defined */
 
-// vim: sw=4 fdm=marker
+/* vim: set sw=4 fdm=marker :*/

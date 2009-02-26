@@ -67,4 +67,4 @@ extern GAS_MEMORY_FREE_CALLBACK    gas_free;
 
 #endif  /* GAS_MEMORY_H defined */
 
-// vim: sw=4 fdm=marker
+/* vim: set sw=4 fdm=marker :*/

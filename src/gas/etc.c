@@ -115,7 +115,7 @@ GASresult gas_hexdump_f (FILE* fs, const GASvoid *input, GASunum size)/*{{{*/
 
     memset(characters, 0, 16);
 
-    // finally
+    /* finally */
     fprintf(fs, "%07lx: ", (size >> 4) << 4);
     x = 0;
     for (i = 0; i < (size % 16); i++) {

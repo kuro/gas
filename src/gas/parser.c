@@ -259,7 +259,7 @@ GASresult gas_read_parser (GASparser *p, GASchunk **out, GASvoid* user_data)
         result = gas_read_parser(p, &c->children[i], user_data);
         if (result != GAS_OK) { goto abort; }
         if (p->build_tree) {
-            // if we are not building the tree, then the child will be null
+            /* if we are not building the tree, then the child will be null */
             c->children[i]->parent = c;
         }
     }

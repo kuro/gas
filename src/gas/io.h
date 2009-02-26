@@ -68,4 +68,4 @@ GASresult gas_write_io (GASio* io, GASchunk* c);
 #endif /* GAS_IO_H defined */
 
 
-// vim: sw=4 fdm=marker
+/* vim: set sw=4 fdm=marker :*/

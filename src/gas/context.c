@@ -116,7 +116,7 @@ GASresult gas_default_seek (void *handle, unsigned long pos,
 }
 /*}}}*/
 
-#endif // HAVE_FPRINTF
+#endif /* HAVE_FPRINTF */
 
 /**
  * @param user_data Not stored, only used for immediate memory methods.

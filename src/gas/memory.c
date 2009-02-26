@@ -150,4 +150,4 @@ GASresult gas_memory_initialize (/*{{{*/
     return GAS_OK;
 }/*}}}*/
 
-// vim: sw=4 fdm=marker
+/* vim: set sw=4 fdm=marker :*/

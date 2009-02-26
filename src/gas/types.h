@@ -32,7 +32,7 @@
 typedef          char   int8_t;
 typedef unsigned char  uint8_t;
 
-   // 16 bit type
+   /* 16 bit type */
 #  if GAS_SIZEOF_SHORT_INT == 2
      typedef          short  int16_t;
      typedef unsigned short uint16_t;
@@ -40,7 +40,7 @@ typedef unsigned char  uint8_t;
 #    error "unable to determine 16 bit type"
 #  endif
 
-   // 32 bit type
+   /* 32 bit type */
 #  if GAS_SIZEOF_INT == 4
      typedef          int  int32_t;
      typedef unsigned int uint32_t;
@@ -51,7 +51,7 @@ typedef unsigned char  uint8_t;
 #    error "unable to determine 32 bit type"
 #  endif
 
-#endif  // HAVE_STDINT_H
+#endif  /* HAVE_STDINT_H */
 
 #if GAS_USE_LONG_TYPES
 typedef unsigned long int GASunum;
