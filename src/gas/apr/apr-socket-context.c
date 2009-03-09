@@ -75,7 +75,6 @@ GASresult gas_apr_socket_read (void *handle, void *buffer,
     apr_size_t len;
 
     if (!handle) {
-        printf("oops %d\n", __LINE__);
         return GAS_ERR_INVALID_PARAM;
     }
 
@@ -108,7 +107,6 @@ GASresult gas_apr_socket_write (void *handle, void *buffer,
     apr_size_t len;
 
     if (!handle) {
-        printf("oops %d\n", __LINE__);
         return GAS_ERR_INVALID_PARAM;
     }
 
@@ -139,12 +137,10 @@ GASresult gas_apr_socket_seek (void *handle, unsigned long pos,
     apr_size_t bytes_remaining, len;
 
     if (!handle) {
-        printf("oops %d\n", __LINE__);
         return GAS_ERR_INVALID_PARAM;
     }
 
     if (whence != GAS_SEEK_CUR) {
-        printf("oops %d\n", __LINE__);
         return GAS_ERR_INVALID_PARAM;
     }
 
