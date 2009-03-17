@@ -31,7 +31,6 @@ struct MemoryHeader
 typedef struct MemoryHeader GASmemory_header;
 
 
-static
 void* gas_default_alloc (unsigned int size, GASvoid* user_data)/*{{{*/
 {
     GASmemory_header* header = NULL;
@@ -50,7 +49,6 @@ void* gas_default_alloc (unsigned int size, GASvoid* user_data)/*{{{*/
 
     return p;
 }/*}}}*/
-static
 void* gas_default_realloc (void *ptr, unsigned int size, GASvoid* user_data)/*{{{*/
 {
     GASmemory_header* header = NULL;
@@ -83,7 +81,6 @@ void* gas_default_realloc (void *ptr, unsigned int size, GASvoid* user_data)/*{{
 
     return p;
 }/*}}}*/
-static
 void gas_default_free (void *ptr, GASvoid* user_data)/*{{{*/
 {
     GASmemory_header* header = NULL;
@@ -106,17 +103,14 @@ GASunum gas_memory_usage (void)/*{{{*/
 
 #else
 
-static
 void* gas_default_alloc (unsigned int size, GASvoid* user_data)/*{{{*/
 {
     return malloc(size);
 }/*}}}*/
-static
 void* gas_default_realloc (void *ptr, unsigned int size, GASvoid* user_data)/*{{{*/
 {
     return realloc(ptr, size);
 }/*}}}*/
-static
 void gas_default_free (void *ptr, GASvoid* user_data)/*{{{*/
 {
     free(ptr);
