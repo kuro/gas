@@ -67,6 +67,19 @@ if (UNIX)
         )
 endif ()
 
+if ("${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL "${CMAKE_SOURCE_DIR}")
+    add_custom_target(doc)
+
+    add_custom_target(
+        README.html
+        COMMAND maruku README -o README.html
+        DEPENDS README
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        COMMENT "rendering README.html"
+        )
+
+endif ()
+
 subdirs(src doc)
 
 if (GAS_ENABLE_INSTALLER)
@@ -88,13 +101,6 @@ if (CTAGS AND "${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL "${CMAKE_SOURCE_DIR}")
         )
 endif ()
 #}}}
-
-add_custom_command(
-    OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/README.html
-    DEPENDS README
-    COMMAND maruku ${CMAKE_CURRENT_SOURCE_DIR}/README -o ${CMAKE_CURRENT_SOURCE_DIR}/README.html
-    )
-add_custom_target(README.html)
 
 configure_file(gas.pc.in ${CMAKE_CURRENT_BINARY_DIR}/gas.pc @ONLY)
 if(GAS_ENABLE_INSTALLER)

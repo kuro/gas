@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<QHelpCollectionProject version="1.0">
+    <assistant>
+        <title>Gas Help</title>
+        <homePage>qthelp://com.mentaldistortion.gas/gas/main.html</homePage>
+        <startPage>qthelp://com.mentaldistortion.gas/gas/main.html</startPage>
+    </assistant>
+    <docFiles>
+        <register>
+            <file>gas/gas.qch</file>
+        </register>
+    </docFiles>
+</QHelpCollectionProject>
