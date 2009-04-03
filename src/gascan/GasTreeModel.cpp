@@ -220,4 +220,10 @@ QModelIndex GasTreeModel::parent (const QModelIndex &child) const
 }
 /*}}}*/
 
+void GasTreeModel::setRoot (GASchunk* c)
+{
+    root = c;
+    reset();
+}
+
 // vim: sw=4 fdm=marker

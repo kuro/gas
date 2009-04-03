@@ -38,6 +38,8 @@ public:
     QModelIndex parent (const QModelIndex &index) const;
     int rowCount (const QModelIndex &parent = QModelIndex()) const;
     int columnCount (const QModelIndex &parent = QModelIndex()) const;
+
+    void setRoot (GASchunk* c);
 };
 
 // vim: sw=4 fdm=marker

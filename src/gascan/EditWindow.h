@@ -51,14 +51,21 @@ public:
 
 private:
     void load (QString fname);
+    void setInterfaceEnabled (bool enabled);
 
 private slots:
     void on_tree_selection_model_currentChanged (const QModelIndex&,
                                                  const QModelIndex&);
     void on_attribute_table_cellChanged (int, int);
 
-    void on_id_line_edit_textChanged ();
+    void on_id_line_edit_editingFinished ();
     void on_payload_text_edit_textChanged ();
 
     void on_payload_timer_timeout ();
+
+    void on_open_action_activated ();
+    void on_close_action_activated ();
+    void on_save_action_activated ();
+    void on_save_as_action_activated ();
+    void on_about_action_activated ();
 };

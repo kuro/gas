@@ -18,11 +18,13 @@
 #include "EditWindow.moc"
 
 #include <QtCore>
+#include <QFileDialog>
+#include <QMessageBox>
 
 #include <gas/fsio.h>
 #include <gas/bufio.h>
 
-EditWindow::EditWindow () :/*{{{*/
+EditWindow::EditWindow () :
     QMainWindow(),
     tree_selection_model(NULL),
     ignore_next_payload_text_changed(true),
@@ -54,29 +56,40 @@ EditWindow::EditWindow () :/*{{{*/
     tree_model = new GasTreeModel;
     treeView->setModel(tree_model);
 
-    tree_model->root = NULL;
-    load("data2.gas");
-    //load("alerts.gas");
+    tree_model->setRoot(NULL);
 
     tree_selection_model = new QItemSelectionModel(tree_model, this); 
     connect(tree_selection_model, SIGNAL(currentChanged(QModelIndex, QModelIndex)),
-            this, SLOT(on_tree_selection_model_currentChanged(QModelIndex, QModelIndex)));
+            SLOT(on_tree_selection_model_currentChanged(QModelIndex, QModelIndex)));
     treeView->setSelectionModel(tree_selection_model);
 
     payload_timer.setInterval(10000);
     payload_timer.setSingleShot(true);
-    connect(&payload_timer, SIGNAL(timeout()),
-            this, SLOT(on_payload_timer_timeout()));
-}/*}}}*/
+    connect(&payload_timer, SIGNAL(timeout()), SLOT(on_payload_timer_timeout()));
 
-EditWindow::~EditWindow ()/*{{{*/
+    setInterfaceEnabled(false);
+
+    connect(exit_action, SIGNAL(triggered()), qApp, SLOT(quit()));
+
+    // attempt to load first file found (if any)
+    foreach (QString arg, qApp->arguments()) {
+        if (QFile::exists(arg)) {
+            load(arg);
+            break;
+        }
+    }
+}
+
+EditWindow::~EditWindow ()
 {
-}/*}}}*/
+}
 
 void EditWindow::load (QString fname)
 {
+    qDebug() << "loading" << fname;
     GASresult gr;
     GASchunk* c;
+    GASchunk* dummy;
 
     QTime t0 = QTime::currentTime();
 #if 0
@@ -112,13 +125,27 @@ void EditWindow::load (QString fname)
         return;
     }
 
-    gas_new_named(&tree_model->root, "dummy");
-    gas_add_child(tree_model->root, c);
+    gas_new_named(&dummy, "dummy");
+    gas_add_child(dummy, c);
+    tree_model->setRoot(dummy);
 
     QtConcurrent::run(gas_update, c);
+
+    setInterfaceEnabled(true);
 }
 
-void EditWindow::on_tree_selection_model_currentChanged (/*{{{*/
+void EditWindow::setInterfaceEnabled (bool enabled)
+{
+    save_action->setEnabled(enabled);
+    save_as_action->setEnabled(enabled);
+    close_action->setEnabled(enabled);
+
+    id_line_edit->setEnabled(enabled);
+    attribute_table->setEnabled(enabled);
+    payload_text_edit->setEnabled(enabled);
+}
+
+void EditWindow::on_tree_selection_model_currentChanged (
         const QModelIndex& cur, const QModelIndex& prev
         )
 {
@@ -160,9 +187,9 @@ void EditWindow::on_tree_selection_model_currentChanged (/*{{{*/
                        current_chunk->payload_size));
 
     ignore_changes = false;
-}/*}}}*/
+}
 
-void EditWindow::on_id_line_edit_textChanged ()/*{{{*/
+void EditWindow::on_id_line_edit_editingFinished ()
 {
     if (ignore_changes) {
         return;
@@ -171,9 +198,9 @@ void EditWindow::on_id_line_edit_textChanged ()/*{{{*/
     QString str = id_line_edit->text();
     gas_set_id(current_chunk, qPrintable(str), str.size());
     QtConcurrent::run(gas_update, tree_model->root);
-}/*}}}*/
+}
 
-void EditWindow::on_attribute_table_cellChanged (int row, int col)/*{{{*/
+void EditWindow::on_attribute_table_cellChanged (int row, int col)
 {
     if (ignore_changes) {
         return;
@@ -189,7 +216,7 @@ void EditWindow::on_attribute_table_cellChanged (int row, int col)/*{{{*/
     {
         QString key = key_item->text();
         attr->key_size = key.size();
-        attr->key = (GASubyte*)realloc(attr->key, attr->key_size + 1);
+        attr->key = (GASubyte*)gas_realloc(attr->key, attr->key_size + 1, NULL);
         memcpy(attr->key, qPrintable(key), attr->key_size);
         attr->key[attr->key_size] = 0;
         break;
@@ -198,7 +225,7 @@ void EditWindow::on_attribute_table_cellChanged (int row, int col)/*{{{*/
     {
         QString value = value_item->text();
         attr->value_size = value.size();
-        attr->value = (GASubyte*)realloc(attr->value, attr->value_size + 1);
+        attr->value = (GASubyte*)gas_realloc(attr->value, attr->value_size + 1, NULL);
         memcpy(attr->value, qPrintable(value), attr->value_size);
         attr->value[attr->value_size] = 0;
         break;
@@ -209,23 +236,83 @@ void EditWindow::on_attribute_table_cellChanged (int row, int col)/*{{{*/
 
     QtConcurrent::run(gas_update, tree_model->root);
 
-}/*}}}*/
+}
 
-void EditWindow::on_payload_text_edit_textChanged ()/*{{{*/
+void EditWindow::on_payload_text_edit_textChanged ()
 {
     if (ignore_next_payload_text_changed) {
         ignore_next_payload_text_changed = false;
         return;
     }
     payload_timer.start(10000);
-}/*}}}*/
+}
 
-void EditWindow::on_payload_timer_timeout ()/*{{{*/
+void EditWindow::on_payload_timer_timeout ()
 {
     qDebug() << "save payload";
+    if (current_chunk == NULL) {
+        qWarning() << "no current chunk";
+        return;
+    }
     QString str = payload_text_edit->toPlainText();
     gas_set_payload(current_chunk, qPrintable(str), str.size());
     QtConcurrent::run(gas_update, tree_model->root);
-}/*}}}*/
+}
 
-// vim: sw=4 fdm=marker
+void EditWindow::on_open_action_activated ()
+{
+    QString fname = QFileDialog::getOpenFileName(this);
+    if (fname.isEmpty()) {
+        return;
+    }
+    load(fname);
+}
+
+void EditWindow::on_close_action_activated ()
+{
+    setInterfaceEnabled(false);
+
+    id_line_edit->clear();
+    payload_text_edit->clear();
+    attribute_table->setRowCount(0);
+
+    payload_timer.stop();  // activated by clearing
+
+    current_chunk = NULL;
+    GASchunk* dummy = tree_model->root;
+    tree_model->setRoot(NULL);
+    gas_destroy(dummy);
+}
+
+void EditWindow::on_save_action_activated ()
+{
+    GASchunk* dummy = tree_model->root;
+    if (dummy == NULL) {
+        qDebug() << "nothing loaded";
+        return;
+    }
+    for (GASunum i = 0; i < dummy->nb_children; i++) {
+        gas_print(dummy->children[i]);
+    }
+}
+
+void EditWindow::on_save_as_action_activated ()
+{
+    QString fname = QFileDialog::getSaveFileName(this);
+    if (fname.isEmpty()) {
+        return;
+    }
+    qDebug() << fname;
+}
+
+void EditWindow::on_about_action_activated ()
+{
+    QString text =
+        "Gas Editor<br />"
+        "<br />"
+        "See <a href=\"http://github.com/kuro/gas\">http://github.com/kuro/gas</a>"
+        ;
+    QMessageBox::about(this, "About Gas Editor", text);
+}
+
+// vim: sw=4 fdm=syntax
