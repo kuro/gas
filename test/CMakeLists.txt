@@ -1,4 +1,8 @@
-set(VALGRIND valgrind --tool=memcheck --leak-check=yes)
+
+find_program(VALGRIND valgrind)
+if (VALGRIND)
+    set(VALGRIND_COMMAND ${VALGRIND} --tool=memcheck --leak-check=yes)
+endif()
 
 set(std_tests
     encoding
@@ -28,22 +32,8 @@ set(driver_files ${std_files})
 
 if (QT4_FOUND)
     qt4_automoc(${qt_files})
-    include_directories(
-        ${QT_INCLUDE_DIR}
-        ${QT_QTCORE_INCLUDE_DIR}
-        ${QT_QTGUI_INCLUDE_DIR}
-        ${QT_QTXML_INCLUDE_DIR}
-        ${QT_QTTEST_INCLUDE_DIR}
-        )
-
     set(driver_files ${driver_files} ${qt_files})
-
-    link_libraries(
-        ${QT_QTCORE_LIBRARY}
-        ${QT_QTGUI_LIBRARY}
-        ${QT_QTXML_LIBRARY}
-        ${QT_QTTEST_LIBRARY}
-        )
+    link_libraries(${QT_LIBRARIES})
 endif ()
 
 create_test_sourcelist(driver_list driver.cpp ${driver_files})
@@ -51,19 +41,17 @@ create_test_sourcelist(driver_list driver.cpp ${driver_files})
 add_executable(driver ${driver_list})
 
 # link libraries
-target_link_libraries(driver
-    gas
-    )
+target_link_libraries(driver gas)
 
 # register tests
 
 foreach(test ${std_tests})
-    add_test(${test} ${VALGRIND} ./driver ${test})
+    add_test(${test} ${VALGRIND_COMMAND} ./driver ${test})
 endforeach()
 
 if (QT4_FOUND)
     foreach(test ${qt_tests})
-        add_test(${test} ${VALGRIND} ./driver ${test})
+        add_test(${test} ${VALGRIND_COMMAND} ./driver ${test})
     endforeach()
 endif ()
 

@@ -1,12 +1,4 @@
 
-if (QT4_FOUND)
-    subdirs(qt)
-endif ()
-
-if (APR_FOUND)
-    subdirs(apr)
-endif ()
-
 #if (CMAKE_COMPILER_IS_GNUCC)
 #    message(STATUS "Hardcore checks enabled")
 #    #add_definitions(-pedantic -ansi)
@@ -46,6 +38,17 @@ set(sources
 if (HAVE_FPRINTF)
     set(headers ${headers} fsio.h)
     set(sources ${sources} fsio.c)
+endif ()
+
+if (QT4_FOUND)
+    set(headers ${headers} qt/context.h)
+    set(sources ${sources} qt/qiodevice-context.cpp qt/qtcpsocket-context.cpp)
+endif ()
+
+if (APR_FOUND)
+    include_directories(${APR_INCLUDE_DIRS})
+    set(headers ${headers} apr/context.h)
+    set(sources ${sources} apr/apr-file-context.c apr/apr-socket-context.c)
 endif ()
 
 # use BUILD_SHARED_LIBS as necessary
