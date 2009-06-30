@@ -90,7 +90,7 @@ int xml2gas_main (int argc, char **argv)
             cur = n;
         }
         if ((xml.isCharacters() || xml.isCDATA()) && !xml.isWhitespace()) {
-            const char *str = (const char*)xml.text().toString().toAscii();
+            const char* str = qPrintable(xml.text().toString().trimmed());
             int length = xml.text().size();
             int total_new_len = length + cur->payload_size;
             cur->payload = (GASubyte*)realloc(cur->payload, total_new_len + 1);
