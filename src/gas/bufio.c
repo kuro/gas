@@ -232,10 +232,7 @@ GASnum gas_write_buf (GASubyte* buf, GASunum limit, GASchunk* self)
 #define read_num(field)                                                     \
     result = gas_read_encoded_num_buf(                                      \
         buf + offset, limit - offset, &field);                              \
-    if (result <= 0) {                                                      \
-        gas_destroy(c);                                                     \
-        return result;                                                      \
-    }                                                                       \
+    if (result <= 0) { gas_destroy(c); return result; }                     \
     offset += result;
 
 GASnum gas_read_buf (GASubyte* buf, GASunum limit, GASchunk** out,
@@ -277,10 +274,7 @@ GASnum gas_read_buf (GASubyte* buf, GASunum limit, GASchunk** out,
     for (i = 0; i < c->nb_children; i++) {
         result = gas_read_buf(buf + offset, limit - offset, &c->children[i],
                               user_data);
-        if (result <= 0) {
-            gas_destroy(c);
-            return result;
-        }
+        if (result <= 0) { gas_destroy(c); return result; }
         c->children[i]->parent = c;
         offset += result;
     }
@@ -294,7 +288,7 @@ GASnum gas_read_buf (GASubyte* buf, GASunum limit, GASchunk** out,
 
 /*}}}*/
 
-/* gas_read_buf() {{{*/
+/* gas_read_bufn() {{{*/
 
 #define read_field(field)                                                   \
     do {                                                                    \
@@ -306,10 +300,7 @@ GASnum gas_read_buf (GASubyte* buf, GASunum limit, GASchunk** out,
 #define read_num(field)                                                     \
     result = gas_read_encoded_num_buf(                                      \
         buf + offset, limit - offset, &field);                              \
-    if (result <= 0) {                                                      \
-        gas_destroy(c);                                                     \
-        return result;                                                      \
-    }                                                                       \
+    if (result <= 0) { gas_destroyn(c); return result; }                    \
     offset += result;
 
 GASnum gas_read_bufn (GASubyte* buf, GASunum limit, GASchunk** out,
@@ -351,10 +342,7 @@ GASnum gas_read_bufn (GASubyte* buf, GASunum limit, GASchunk** out,
     for (i = 0; i < c->nb_children; i++) {
         result = gas_read_bufn(buf + offset, limit - offset, &c->children[i],
                                user_data);
-        if (result <= 0) {
-            gas_destroy(c);
-            return result;
-        }
+        if (result <= 0) { gas_destroyn(c); return result; }
         c->children[i]->parent = c;
         offset += result;
     }
