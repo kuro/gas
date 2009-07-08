@@ -18,7 +18,24 @@
 #include  <gas/ntstring.h>
 #include "mapped.moc"
 
-void TestMapped::tree ()
+void TestMapped::non_mapped ()
+{
+    QFile file ("test.gas");
+    file.open(QIODevice::ReadOnly);
+    QByteArray data = file.readAll();
+    GASchunk* root = NULL;
+
+    QBENCHMARK
+    {
+        gas_read_buf((GASubyte*)data.data(), data.size(), &root);
+        gas_destroy(root);
+    }
+#if GAS_DEBUG_MEMORY
+    QCOMPARE(gas_memory_usage(), 0ul);
+#endif
+}
+
+void TestMapped::mapped_tree ()
 {
     QFile file ("test.gas");
     file.open(QIODevice::ReadOnly);
@@ -35,7 +52,7 @@ void TestMapped::tree ()
 #endif
 }
 
-void TestMapped::treen ()
+void TestMapped::mapped_treen ()
 {
     QFile file ("test.gas");
     file.open(QIODevice::ReadOnly);

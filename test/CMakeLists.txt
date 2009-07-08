@@ -14,6 +14,7 @@ set(std_tests
 
 set(qt_tests
     bufio
+    fsio
     cplusplus
     mapped
     qt

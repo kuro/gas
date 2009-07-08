@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Blanton Black
+ * Copyright 2009 Blanton Black
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,28 +14,16 @@
  * limitations under the License.
  */
 
-/**
- * @file test_bufio.h
- * @brief test_bufio definition
- */
-
 #pragma once
 
 #include  <QObject>
 
-#include <gas/bufio.h>
-
-class TestMapped : public QObject
+class TestFsio : public QObject
 {
     Q_OBJECT
 
-private:
-    GASubyte buf[1024];
-
 private slots:
-    void non_mapped ();
-    void mapped_tree ();
-    void mapped_treen ();
+    void read ();
 };
 
-// vim: sw=4 fdm=marker
+// vim: sw=4

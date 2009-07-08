@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Blanton Black
+ * Copyright 2009 Blanton Black
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,28 +14,27 @@
  * limitations under the License.
  */
 
-/**
- * @file test_bufio.h
- * @brief test_bufio definition
- */
+#include  <QtTest>
+#include  <gas/fsio.h>
+#include "fsio.moc"
 
-#pragma once
 
-#include  <QObject>
-
-#include <gas/bufio.h>
-
-class TestMapped : public QObject
+void TestFsio::read ()
 {
-    Q_OBJECT
+    FILE* fs = NULL;
+    fs = fopen("test.gas", "r");
 
-private:
-    GASubyte buf[1024];
+    GASchunk* c = NULL;
+    QBENCHMARK {
+        rewind(fs);
+        gas_read_fs(fs, &c, NULL);
+        gas_destroy(c);
+    }
+    fclose(fs);
+}
 
-private slots:
-    void non_mapped ();
-    void mapped_tree ();
-    void mapped_treen ();
-};
-
-// vim: sw=4 fdm=marker
+int fsio (int argc, char **argv)
+{
+    TestFsio tc;
+    return QTest::qExec(&tc, argc, argv);
+}
