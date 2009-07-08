@@ -41,8 +41,19 @@ if (HAVE_FPRINTF)
 endif ()
 
 if (QT4_FOUND)
-    set(headers ${headers} qt/context.h)
-    set(sources ${sources} qt/qiodevice-context.cpp qt/qtcpsocket-context.cpp)
+    set(headers
+        ${headers}
+        qt/context.h
+        qt/chunk.h
+        )
+    set(sources
+        ${sources}
+        qt/qiodevice-context.cpp
+        qt/qtcpsocket-context.cpp
+        qt/chunk.cpp
+        )
+    include_directories(${CMAKE_CURRENT_BINARY_DIR})
+    qt4_automoc(${sources})
 endif ()
 
 if (APR_FOUND)

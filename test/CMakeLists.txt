@@ -16,6 +16,7 @@ set(qt_tests
     bufio
     cplusplus
     mapped
+    qt
     writer
     )
 
