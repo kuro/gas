@@ -346,4 +346,16 @@ Chunk* Chunk::parse (QIODevice* io)
     return c;
 }
 
+QDataStream& operator<< (QDataStream& stream, const Gas::Qt::Chunk& c)
+{
+    c.write(stream.device());
+    return stream;
+}
+
+QDataStream& operator>> (QDataStream& stream, Gas::Qt::Chunk& c)
+{
+    c.read(stream.device());
+    return stream;
+}
+
 // vim: sw=4

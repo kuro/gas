@@ -26,6 +26,7 @@ private slots:
     void test_001 ();
     void non_mapped ();
     void mapped ();
+    void streams ();
 };
 
 // vim: sw=4 fdm=marker

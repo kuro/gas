@@ -77,4 +77,7 @@ protected:
 }
 }
 
+QDataStream& operator<< (QDataStream& stream, const Gas::Qt::Chunk& c);
+QDataStream& operator>> (QDataStream& stream, Gas::Qt::Chunk& c);
+
 // vim: sw=4

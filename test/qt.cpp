@@ -149,6 +149,24 @@ void TestGasQt::mapped ()
     file.close();
 }
 
+void TestGasQt::streams ()
+{
+    QFile file ("test.gas");
+    file.open(QIODevice::ReadOnly);
+    QDataStream stream (&file);
+    Chunk c;
+    stream >> c;
+    walk(&c);
+
+    QByteArray ba;
+    QBuffer buf (&ba);
+    buf.open(QIODevice::WriteOnly);
+    stream.setDevice(&buf);
+    stream << c;
+
+    QCOMPARE((int)ba.size(), (int)file.size());
+}
+
 int qt (int argc, char **argv)
 {
     TestGasQt tc;
