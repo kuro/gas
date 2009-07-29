@@ -40,6 +40,19 @@ class Chunk : public QObject
     Q_PROPERTY(Chunk* parentChunk READ parentChunk WRITE setParentChunk)
 
 public:
+    /// @returns number of bytes produced
+    /// @retval 0 error
+    template <typename T>
+    static inline
+    unsigned int encode (QIODevice* io, const T& value);
+
+    /// @returns number of bytes consumed
+    /// @retval 0 error
+    template <typename T>
+    static inline
+    unsigned int decode (QIODevice* io, T& value);
+
+public:
     Chunk (QString id = QString(), Chunk* parent = NULL);
     virtual ~Chunk ();
 
@@ -66,14 +79,14 @@ public:
     bool write (QIODevice* io) const;
     bool read (QIODevice* io);
 
-    static bool encode (QIODevice* io, const unsigned int& val);
-    static bool decode (QIODevice* io, unsigned int& val);
-
     static Chunk* parse (QIODevice* io);
 
 protected:
     ChunkPrivate* d;
 };
+
+#include "chunk.inl"
+
 }
 }
 

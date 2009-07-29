@@ -45,6 +45,7 @@ if (QT4_FOUND)
         ${headers}
         qt/context.h
         qt/chunk.h
+        qt/chunk.inl
         )
     set(sources
         ${sources}
