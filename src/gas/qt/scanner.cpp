@@ -15,8 +15,8 @@ struct Gas::Qt::ScannerPrivate
 {
     Scanner::Error error;
     QIODevice* dev;
-    QString id;
-    QHash<QString, QByteArray> attributes;
+    QByteArray id;
+    QHash<QByteArray, QByteArray> attributes;
     QByteArray payload;
     QStack<unsigned int> children_remaining;
     bool skip;
@@ -57,7 +57,7 @@ Scanner::TokenType Scanner::readNext ()
 {
     unsigned int size;
     unsigned int attributes_left;
-    QString key;
+    QByteArray key;
     QByteArray val;
 
     if (!d->children_remaining.isEmpty() && d->children_remaining.top() == 0) {
@@ -110,12 +110,12 @@ Scanner::TokenType Scanner::readNext ()
     return Push;
 }
 
-QString& Scanner::id () const
+QByteArray& Scanner::id () const
 {
     return d->id;
 }
 
-QHash<QString, QByteArray>& Scanner::attributes () const
+QHash<QByteArray, QByteArray>& Scanner::attributes () const
 {
     return d->attributes;
 }

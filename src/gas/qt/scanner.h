@@ -42,8 +42,8 @@ public:
 
     Error error () const;
 
-    QString& id () const;
-    QHash<QString, QByteArray>& attributes () const;
+    QByteArray& id () const;
+    QHash<QByteArray, QByteArray>& attributes () const;
     QByteArray& payload () const;
 
     void skip ();
