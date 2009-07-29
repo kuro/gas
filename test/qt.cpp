@@ -16,8 +16,11 @@
 
 #include  <QtTest>
 #include  <gas/qt/chunk.h>
+#include  <gas/qt/scanner.h>
 #include  <gas/types.h>
 #include "qt.moc"
+
+#define TEST_FILE "test.gas"
 
 using namespace Gas::Qt;
 
@@ -119,7 +122,7 @@ void TestGasQt::test_001 ()
 
 void TestGasQt::non_mapped ()
 {
-    QFile file ("test.gas");
+    QFile file (TEST_FILE);
     file.open(QIODevice::ReadOnly);
     Chunk* c = NULL;
     QBENCHMARK {
@@ -133,7 +136,7 @@ void TestGasQt::non_mapped ()
 
 void TestGasQt::mapped ()
 {
-    QFile file ("test.gas");
+    QFile file (TEST_FILE);
     file.open(QIODevice::ReadOnly);
     uchar* p = file.map(0, file.size());
     QByteArray ba = QByteArray::fromRawData((char*)p, file.size());
@@ -151,7 +154,7 @@ void TestGasQt::mapped ()
 
 void TestGasQt::streams ()
 {
-    QFile file ("test.gas");
+    QFile file (TEST_FILE);
     file.open(QIODevice::ReadOnly);
     QDataStream stream (&file);
     Chunk c;
@@ -165,6 +168,62 @@ void TestGasQt::streams ()
     stream << c;
 
     QCOMPARE((int)ba.size(), (int)file.size());
+}
+
+void TestGasQt::scanner ()
+{
+    QFile file (TEST_FILE);
+    file.open(QIODevice::ReadOnly);
+
+    int depth = 0;
+
+    Scanner scanner (&file);
+    while (!scanner.atEnd())
+    {
+        QCOMPARE(scanner.error(), Scanner::NoError);
+        switch (scanner.readNext())
+        {
+        case Scanner::Push:
+            //for (int i = 0; i < depth; i++) { printf("  "); }
+            qDebug() << "id:" << scanner.id();
+            if (!scanner.attributes().isEmpty()) {
+                //for (int i = 0; i < depth; i++) { printf("  "); }
+                qDebug() << "attributes:" << scanner.attributes();
+            }
+            if (!scanner.payload().isEmpty()) {
+                //for (int i = 0; i < depth; i++) { printf("  "); }
+                qDebug() << "payload:" << scanner.payload();
+            }
+            depth++;
+            break;
+        case Scanner::Pop:
+            depth--;
+            break;
+        default:
+            QFAIL("oops");
+            break;
+        }
+    }
+}
+
+void TestGasQt::scanner_bm ()
+{
+    QFile file (TEST_FILE);
+    file.open(QIODevice::ReadOnly);
+    Scanner scanner (&file);
+    QBENCHMARK {
+        file.reset();
+        while (!scanner.atEnd()) {
+            switch (scanner.readNext()) {
+            case Scanner::Push:
+                //scanner.skip();
+                break;
+            default:
+                break;
+            }
+            QCOMPARE(scanner.error(), Scanner::NoError);
+        }
+    }
 }
 
 int qt (int argc, char **argv)

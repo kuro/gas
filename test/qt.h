@@ -27,6 +27,8 @@ private slots:
     void non_mapped ();
     void mapped ();
     void streams ();
+    void scanner ();
+    void scanner_bm ();
 };
 
 // vim: sw=4 fdm=marker
