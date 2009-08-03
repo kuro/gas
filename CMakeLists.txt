@@ -71,13 +71,16 @@ endif ()
 if ("${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL "${CMAKE_SOURCE_DIR}")
     add_custom_target(doc)
 
-    add_custom_target(
-        README.html
-        COMMAND maruku README -o README.html
-        DEPENDS README
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        COMMENT "rendering README.html"
-        )
+    find_program(MARUKU maruku)
+    if (MARUKU)
+        add_custom_target(
+            README.html
+            COMMAND maruku README -o README.html
+            DEPENDS README
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+            COMMENT "rendering README.html"
+            )
+    endif ()
 
 endif ()
 
