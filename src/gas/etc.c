@@ -144,7 +144,16 @@ GASresult gas_hexdump (const GASvoid *input, GASunum size)/*{{{*/
 }/*}}}*/
 #endif
 
-
+/**
+ * @brief Checks to see if @a id matches id of @a c.
+ *
+ * @retval true match
+ * @retval false no match
+ */
+GASbool gas_id_is (const GASchunk* c, const GASchar* id)/*{{{*/
+{
+    return gas_cmp(c->id, c->id_size, (GASubyte*)id, strlen(id)) == 0;
+}/*}}}*/
 
 /*@}*/
 
