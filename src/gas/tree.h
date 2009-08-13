@@ -111,6 +111,8 @@ public:
 
     inline Chunk* operator<< (Chunk* child);
 
+    inline GASunum totalSize () const;
+
 #endif
 };
 

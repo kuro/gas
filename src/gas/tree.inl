@@ -258,6 +258,11 @@ inline GASbool Chunk::has_attribute (const GASchar* key)
     return gas_has_attribute(this, key, strlen(key));
 }
 
+inline GASunum Chunk::totalSize () const
+{
+    return gas_total_size(const_cast<Chunk*>(this));
+}
+
 } // naemspace Gas
 
 #undef GAS_CHECK_RESULT
