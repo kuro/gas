@@ -111,6 +111,8 @@ public:
 
     inline Chunk* operator<< (Chunk* child);
 
+    inline GASunum totalSize () const;
+
 #endif
 };
 
@@ -151,6 +153,9 @@ extern "C"
 GASunum gas_encoded_size (GASunum value);
 
 int gas_cmp(const GASubyte *a, GASunum a_len, const GASubyte *b, GASunum b_len);
+
+GASbool gas_id_is (const GASchunk* c, const GASchar* id);
+
 GASchar* gas_error_string (GASresult result);
 
 #if HAVE_FPRINTF
