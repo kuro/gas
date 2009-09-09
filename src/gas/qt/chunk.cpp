@@ -114,7 +114,17 @@ QHash<QString, QByteArray>& Chunk::attributes ()
     return d->attributes;
 }
 
+const QHash<QString, QByteArray> Chunk::attributes () const
+{
+    return d->attributes;
+}
+
 QByteArray& Chunk::operator[] (const QString& key)
+{
+    return d->attributes[key];
+}
+
+const QByteArray Chunk::operator[] (const QString& key) const
 {
     return d->attributes[key];
 }

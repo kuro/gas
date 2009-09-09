@@ -69,7 +69,9 @@ public:
     QList<Chunk*> childChunks () const;
 
     QHash<QString, QByteArray>& attributes ();
+    const QHash<QString, QByteArray> attributes () const;
     QByteArray& operator[] (const QString& key);
+    const QByteArray operator[] (const QString& key) const;
 
     void setAttribute (const QString& key, const QByteArray& value);
     void setAttribute (const QString& key, const QVariant& value);
