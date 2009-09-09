@@ -215,15 +215,95 @@ void TestGasQt::scanner_bm ()
         file.reset();
         while (!scanner.atEnd()) {
             switch (scanner.readNext()) {
-            case Scanner::Push:
+            case Scanner::Push: {
+                //const QString& id = scanner.id();
+                //qDebug() << id;
                 //scanner.skip();
                 break;
+            }
             default:
                 break;
             }
             QCOMPARE(scanner.error(), Scanner::NoError);
         }
     }
+}
+
+void TestGasQt::scanner_mapped_bm ()
+{
+    QFile file (TEST_FILE);
+    file.open(QIODevice::ReadOnly);
+    uchar* map = file.map(0, file.size());
+    QByteArray ba = QByteArray::fromRawData((char*)map, file.size());
+    QBuffer dev (&ba);
+    dev.open(QIODevice::ReadOnly);
+
+    Scanner scanner (&dev);
+
+    QBENCHMARK {
+        file.reset();
+        while (!scanner.atEnd()) {
+            switch (scanner.readNext()) {
+            case Scanner::Push: {
+                //const QString& id = scanner.id();
+                //qDebug() << id;
+                //scanner.skip();
+                break;
+            }
+            default:
+                break;
+            }
+            QCOMPARE(scanner.error(), Scanner::NoError);
+        }
+    }
+}
+
+void TestGasQt::data ()
+{
+    Chunk* c = new Chunk("root");
+    quint32 val = 0x30313233u;
+    c->dataInsert("quint32", val);
+    c->dataInsert("x", 0x30313233u);
+    val = 0;
+    val = c->dataValue<quint32>("quint32");
+    qDebug().nospace() << hex << "0x" << val;
+    QCOMPARE(val, 0x30313233u);
+
+    c->dataInsert("today", QDate::currentDate());
+
+    qDebug() << c->attributes();
+    qDebug() << "should not be found>" << c->dataValue<int>("not found");
+}
+
+void TestGasQt::text ()
+{
+    Chunk* c = new Chunk("root");
+    quint32 val = 0x30313233u;
+    c->textInsert("quint32", val);
+    c->textInsert("string", "hello world");
+    qDebug() << c->textValue<quint32>("quint32");
+
+    c->textInsert("x", 0x30313233u);
+    val = 0;
+    val = c->textValue<quint32>("quint32");
+    qDebug().nospace() << hex << "0x" << val;
+    QCOMPARE(val, 0x30313233u);
+
+    qDebug() << c->attributes();
+    qDebug() << "should not be found>" << c->textValue<quint32>("not found");
+}
+
+void TestGasQt::raw ()
+{
+    Chunk* c = new Chunk("root");
+    (*c)["blah"] = QByteArray::fromRawData("abc", 3);
+    int iVal = 0x30313233u;
+    (*c)["blah"] = QByteArray::fromRawData((char*)&iVal, sizeof(iVal));
+    qDebug() << c->attributes();
+    qDebug().nospace() << hex << "0x" << *(int*)(*c)["blah"].data();
+    QCOMPARE(*(int*)(*c)["blah"].data(), iVal);
+    c->update();
+    qDebug() << c->size();
 }
 
 int qt (int argc, char **argv)

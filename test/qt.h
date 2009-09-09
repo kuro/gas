@@ -29,6 +29,10 @@ private slots:
     void streams ();
     void scanner ();
     void scanner_bm ();
+    void scanner_mapped_bm ();
+    void data ();
+    void text ();
+    void raw ();
 };
 
 // vim: sw=4 fdm=marker
