@@ -76,6 +76,21 @@ public:
     void setAttribute (const QString& key, const QByteArray& value);
     void setAttribute (const QString& key, const QVariant& value);
 
+    template <typename T>
+    inline
+    void dataInsert (const QString& key, const T& value);
+
+    template <typename T>
+    inline
+    T textValue (const QString& key) const;
+    template <typename T>
+    inline
+    void textInsert (const QString& key, const T& value);
+
+    template <typename T>
+    inline
+    T dataValue (const QString& key) const;
+
     int size () const;
     void update ();
     bool write (QIODevice* io) const;

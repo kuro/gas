@@ -119,3 +119,58 @@ unsigned int Chunk::decode (QIODevice* io, T& value)
     value = retval;
     return bytes_consumed;
 }
+
+/**
+ * @name QDataStream based access.
+ */
+//@{
+template <typename T>
+inline
+void Chunk::dataInsert (const QString& key, const T& value)
+{
+    QByteArray ba;
+    QDataStream ds (&ba, QIODevice::WriteOnly);
+    ds << value;
+
+    attributes().insert(key, ba);
+}
+
+template <typename T>
+inline
+T Chunk::dataValue (const QString& key) const
+{
+    QDataStream ds (attributes().value(key));
+
+    T retval;
+    ds >> retval;
+    return retval;
+}
+
+//@}
+
+/**
+ * @name QTextStream based access.
+ */
+//@{
+template <typename T>
+inline
+void Chunk::textInsert (const QString& key, const T& value)
+{
+    QByteArray ba;
+    QTextStream ts (&ba, QIODevice::WriteOnly);
+    ts << value << flush;
+
+    attributes().insert(key, ba);
+}
+
+template <typename T>
+inline
+T Chunk::textValue (const QString& key) const
+{
+    QTextStream ts (attributes().value(key));
+
+    T retval;
+    ts >> retval;
+    return retval;
+}
+//@}
