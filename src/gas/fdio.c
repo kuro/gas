@@ -21,7 +21,7 @@
  * @todo reconsider read() write() return values
  */
 
-#include <gas/fdio.h>
+#include "fdio.h"
 
 #include <stdlib.h>
 #include <string.h>

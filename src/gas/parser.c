@@ -84,7 +84,7 @@
  */
 /*}}}*/
 
-#include <gas/parser.h>
+#include "parser.h"
 
 #include <string.h>
 #if HAVE_STDIO_H

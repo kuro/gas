@@ -22,7 +22,7 @@
 #ifndef GAS_APR_CONTEXT_H
 #define GAS_APR_CONTEXT_H
 
-#include <gas/context.h>
+#include "../context.h"
 
 GAScontext* gas_new_apr_file_context (GASvoid* user_data);
 GAScontext* gas_new_apr_socket_context (GASvoid* user_data);

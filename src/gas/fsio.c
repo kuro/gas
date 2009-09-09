@@ -20,7 +20,7 @@
  * @brief File descriptor based io.
  */
 
-#include <gas/fsio.h>
+#include "fsio.h"
 
 #include <stdlib.h>
 #include <string.h>

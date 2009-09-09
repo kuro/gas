@@ -18,7 +18,7 @@
  * @file etc.c
  */
 
-#include <gas/tree.h>
+#include "tree.h"
 #include <string.h>
 #include <ctype.h>
 

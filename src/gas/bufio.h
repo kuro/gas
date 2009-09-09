@@ -19,7 +19,7 @@
  * @brief bufio definition
  */
 
-#include <gas/tree.h>
+#include "tree.h"
 
 #ifndef GAS_BUFIO_H
 #define GAS_BUFIO_H

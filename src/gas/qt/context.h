@@ -22,7 +22,7 @@
 #ifndef GAS_QT_CONTEXT_H
 #define GAS_QT_CONTEXT_H
 
-#include <gas/context.h>
+#include "../context.h"
 
 GAScontext* gas_new_qiodevice_context (void);
 GAScontext* gas_new_qtcpsocket_context (void);

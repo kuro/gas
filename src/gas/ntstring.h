@@ -19,8 +19,8 @@
  * @brief ntstring definition
  */
 
-#include <gas/memory.h>
-#include <gas/tree.h>
+#include "memory.h"
+#include "tree.h"
 
 #ifndef GAS_NTSTRING_H
 #define GAS_NTSTRING_H 

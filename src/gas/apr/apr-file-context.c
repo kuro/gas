@@ -21,7 +21,7 @@
 
 #include "context.h"
 #include <apr_file_io.h>
-#include <gas/tree.h>
+#include "../tree.h"
 
 #if GAS_DEBUG && HAVE_FPRINTF
 #define print_apr_error(status)                                             \

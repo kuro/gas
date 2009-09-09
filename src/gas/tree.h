@@ -23,8 +23,8 @@
 #ifndef GAS_TREE_H
 #define GAS_TREE_H
 
-#include <gas/memory.h>
-#include <gas/swap.h>
+#include "memory.h"
+#include "swap.h"
 
 #if HAVE_STDIO_H
 #include <stdio.h>
@@ -242,7 +242,7 @@ GASunum gas_total_size (GASchunk* c);
 /*}}}*/
 
 #if defined(GAS_ENABLE_CPP) && defined(__cplusplus)
-#include <gas/tree.inl>
+#include "tree.inl"
 #endif
 
 #endif /* GAS_TREE_H defined */

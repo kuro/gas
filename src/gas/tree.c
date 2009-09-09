@@ -28,7 +28,7 @@
  * - @ref parser
  */
 
-#include <gas/tree.h>
+#include "tree.h"
 
 #include <string.h>
 

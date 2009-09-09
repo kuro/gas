@@ -19,7 +19,7 @@
  * @brief swap definition
  */
 
-#include <gas/types.h>
+#include "types.h"
 
 #ifndef GAS_SWAP_H
 #define GAS_SWAP_H

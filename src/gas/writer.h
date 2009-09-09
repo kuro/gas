@@ -19,8 +19,8 @@
  * @brief writer definition
  */
 
-#include <gas/context.h>
-#include <gas/tree.h>
+#include "context.h"
+#include "tree.h"
 
 #ifndef GAS_WRITER_H
 #define GAS_WRITER_H

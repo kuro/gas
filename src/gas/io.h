@@ -23,8 +23,8 @@
 #ifndef GAS_IO_H
 #define GAS_IO_H
 
-#include <gas/parser.h>
-#include <gas/writer.h>
+#include "parser.h"
+#include "writer.h"
 
 #ifdef __cplusplus
 extern "C"

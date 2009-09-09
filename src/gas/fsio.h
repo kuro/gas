@@ -19,8 +19,8 @@
  * @brief fsio definition
  */
 
-#include <gas/memory.h>
-#include <gas/tree.h>
+#include "memory.h"
+#include "tree.h"
 
 #if HAVE_STDIO_H
 #include <stdio.h>

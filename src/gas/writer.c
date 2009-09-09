@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include <gas/writer.h>
+#include "writer.h"
 
 #include <string.h>
 

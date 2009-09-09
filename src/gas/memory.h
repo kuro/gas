@@ -22,7 +22,7 @@
 #ifndef GAS_MEMORY_H
 #define GAS_MEMORY_H
 
-#include <gas/types.h>
+#include "types.h"
 
 /**
  * @defgroup memory Memory

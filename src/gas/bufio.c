@@ -25,8 +25,8 @@
  * conditions.
  */
 
-#include <gas/tree.h>
-#include <gas/bufio.h>
+#include "tree.h"
+#include "bufio.h"
 
 #include <string.h>
 
