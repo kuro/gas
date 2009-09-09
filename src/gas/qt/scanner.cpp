@@ -110,17 +110,17 @@ Scanner::TokenType Scanner::readNext ()
     return Push;
 }
 
-QByteArray& Scanner::id () const
+QByteArray Scanner::id () const
 {
     return d->id;
 }
 
-QHash<QByteArray, QByteArray>& Scanner::attributes () const
+QHash<QByteArray, QByteArray> Scanner::attributes () const
 {
     return d->attributes;
 }
 
-QByteArray& Scanner::payload () const
+QByteArray Scanner::payload () const
 {
     return d->payload;
 }

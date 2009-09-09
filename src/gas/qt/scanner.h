@@ -42,9 +42,9 @@ public:
 
     Error error () const;
 
-    QByteArray& id () const;
-    QHash<QByteArray, QByteArray>& attributes () const;
-    QByteArray& payload () const;
+    QByteArray id () const;
+    QHash<QByteArray, QByteArray> attributes () const;
+    QByteArray payload () const;
 
     void skip ();
 
