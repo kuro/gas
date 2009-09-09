@@ -60,14 +60,6 @@ configure_file(
     ${CMAKE_CURRENT_BINARY_DIR}/src/gas/gas.h
     )
 
-if (UNIX)
-    execute_process(
-        COMMAND ${CMAKE_COMMAND} -E create_symlink
-        ${CMAKE_CURRENT_BINARY_DIR}/src/gas/gas.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/gas/gas.h
-        )
-endif ()
-
 if ("${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL "${CMAKE_SOURCE_DIR}")
     add_custom_target(doc)
 

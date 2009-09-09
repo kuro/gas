@@ -1,4 +1,12 @@
 
+if (UNIX AND NOT "${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_BINARY_DIR}")
+    execute_process(
+        COMMAND ${CMAKE_COMMAND} -E create_symlink
+        ${CMAKE_CURRENT_BINARY_DIR}/gas.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/gas.h
+        )
+endif ()
+
 #if (CMAKE_COMPILER_IS_GNUCC)
 #    message(STATUS "Hardcore checks enabled")
 #    #add_definitions(-pedantic -ansi)
