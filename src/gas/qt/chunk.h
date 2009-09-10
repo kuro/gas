@@ -59,7 +59,7 @@ public:
     QString id () const;
     void setId (const QString& id);
 
-    QByteArray payload () const;
+    QByteArray& payload () const;
     void setPayload (const QByteArray& payload);
     void setPayload (const QVariant& payload);
 

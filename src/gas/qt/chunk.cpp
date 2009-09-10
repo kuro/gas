@@ -69,7 +69,7 @@ void Chunk::setId (const QString& id)
     setObjectName(id);
 }
 
-QByteArray Chunk::payload () const
+QByteArray& Chunk::payload () const
 {
     return d->payload;
 }
