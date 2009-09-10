@@ -174,3 +174,31 @@ T Chunk::textValue (const QString& key) const
     return retval;
 }
 //@}
+
+/**
+ * @name gas encoded number based access.
+ */
+//@{
+inline
+quint32 Chunk::encodedValue (const QString& key)
+{
+    quint32 retval;
+    QByteArray data = attributes().value(key);
+    QBuffer io (&data);
+    io.open(QIODevice::ReadOnly);
+    unsigned int r = decode(&io, retval);
+    Q_ASSERT(r);
+    return retval;
+}
+
+inline
+void Chunk::encodedInsert (const QString& key, quint32 val)
+{
+    QByteArray data;
+    QBuffer io (&data);
+    io.open(QIODevice::WriteOnly);
+    unsigned int r = encode(&io, val);
+    Q_ASSERT(r);
+    setAttribute(key, data);
+}
+//@}

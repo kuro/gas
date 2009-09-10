@@ -26,6 +26,7 @@
 #include <QHash>
 #include <QVariant>
 #include <QTextStream>
+#include <QBuffer>
 
 namespace Gas
 {
@@ -83,6 +84,7 @@ public:
     template <typename T>
     inline
     T textValue (const QString& key) const;
+
     template <typename T>
     inline
     void textInsert (const QString& key, const T& value);
@@ -90,6 +92,9 @@ public:
     template <typename T>
     inline
     T dataValue (const QString& key) const;
+
+    inline quint32 encodedValue (const QString& key);
+    inline void encodedInsert (const QString& key, quint32 val);
 
     int size () const;
     void update ();
