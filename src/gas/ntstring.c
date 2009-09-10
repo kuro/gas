@@ -350,9 +350,11 @@ GASresult gas_print (GASchunk* c)
     for (i = 0; i < c->nb_attributes; i++) {
         indent();
         printf(
-            "attr %ld of %ld: \"%s\" ",
+            "attr %ld of %ld [%ld,%ld]: \"%s\" ",
             i,
             c->nb_attributes,
+            c->attributes[i].key_size,
+            c->attributes[i].value_size,
             gas_sanitize(c->attributes[i].key, c->attributes[i].key_size)
             );
         printf(
