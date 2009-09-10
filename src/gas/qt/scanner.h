@@ -7,6 +7,7 @@
 #pragma once
 
 #include <QHash>
+#include <QTextStream>
 
 class QIODevice;
 
@@ -48,9 +49,20 @@ public:
 
     void skip ();
 
+    template <typename T>
+    inline
+    T textValue (const QString& key) const;
+
+    template <typename T>
+    inline
+    T dataValue (const QString& key) const;
+
 private:
     ScannerPrivate* d;
 };
+
+#include "scanner.inl"
+
 } // namespace Qt
 } // namespace Gas
 
