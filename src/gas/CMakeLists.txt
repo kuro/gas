@@ -66,6 +66,7 @@ if (QT4_FOUND)
         qt/chunk.h
         qt/chunk.inl
         qt/scanner.h
+        qt/gasmodel.h
         )
     set(sources
         ${sources}
@@ -73,6 +74,7 @@ if (QT4_FOUND)
         qt/qtcpsocket-context.cpp
         qt/chunk.cpp
         qt/scanner.cpp
+        qt/gasmodel.cpp
         )
     include_directories(${CMAKE_CURRENT_BINARY_DIR})
     qt4_automoc(${sources})
