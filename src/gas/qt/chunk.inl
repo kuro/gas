@@ -33,7 +33,7 @@ unsigned int Chunk::encode (QIODevice* io, const T& value)
         if ((unsigned int)value < ((1UL << (7UL*i))-1UL)) {
             break;
         }
-        if ((i * 7L) > (sizeof(unsigned int) << 3)) {
+        if ((i * 7UL) > (sizeof(unsigned int) << 3)) {
             break;
         }
     }

@@ -1,4 +1,15 @@
 
+option(GAS_ENABLE_CPP "Enable C++ wrapper" ON)
+option(GAS_USE_LONG_TYPES "Enable use of long types" ON)
+option(GAS_DEBUG_MEMORY "Enable debugging of default allocator" OFF)
+
+include(discovery.cmake)
+
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/gas.h.in
+    ${CMAKE_CURRENT_BINARY_DIR}/gas.h
+    )
+
 if (UNIX AND NOT "${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_BINARY_DIR}")
     execute_process(
         COMMAND ${CMAKE_COMMAND} -E create_symlink
