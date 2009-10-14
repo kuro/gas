@@ -1,7 +1,7 @@
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/..)
 
-set(sources test.cpp main.cpp gas2c.cpp)
+set(sources test.cpp main.cpp)
 
 if (QT4_FOUND)
     include_directories(${CMAKE_CURRENT_BINARY_DIR})

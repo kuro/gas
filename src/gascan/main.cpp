@@ -37,8 +37,6 @@ int qtedit_main (int argc, char **argv);
 #endif
 
 
-int gas2c (int argc, char **argv);
-
 int bin2c (int argc, char** argv);
 
 void print_gas_file (string fname)
@@ -125,8 +123,6 @@ int main (int argc, char **argv)
     } else if (cmd == "bin2c") {
         bin2c(argc-1, &argv[1]);
 #endif
-    } else if (cmd == "gas2c") {
-        gas2c(argc-1, &argv[1]);
     } else {
         die("invalid command");
     }
