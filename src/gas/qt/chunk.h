@@ -96,13 +96,20 @@ public:
     inline void encodedInsert (const QString& key, quint32 val);
 
     int size () const;
-    void update ();
-    bool write (QIODevice* io) const;
+
+    void update () const;
+
+    /**
+     * @note It is *not* necessary to call update() first.
+     */
+    bool write (QIODevice* io, bool needsUpdate = true) const;
+
     bool read (QIODevice* io);
 
     static Chunk* parse (QIODevice* io);
 
-protected:
+
+private:
     struct Private;
     Private* d;
 };

@@ -52,7 +52,7 @@ QByteArray myread (QIODevice* dev, qint64 bytes)
 
 struct Chunk::Private
 {
-    unsigned int size;
+    mutable unsigned int size;
     QHash<QString, QByteArray> attributes;
     QByteArray payload;
 
@@ -162,7 +162,7 @@ int Chunk::size () const
     return d->size + gas_encoded_size(d->size);
 }
 
-void Chunk::update ()
+void Chunk::update () const
 {
     unsigned int& sum = d->size;
     Chunk* child;
@@ -192,8 +192,12 @@ void Chunk::update ()
     }
 }
 
-bool Chunk::write (QIODevice* io) const
+bool Chunk::write (QIODevice* io, bool needsUpdate) const
 {
+    if (needsUpdate) {
+        update();
+    }
+
     QHashIterator<QString, QByteArray> it (d->attributes);
     Chunk* child;
 
@@ -219,7 +223,7 @@ bool Chunk::write (QIODevice* io) const
     encode(io, children().size());
     foreach (QObject* o, children()) {
         child = qobject_cast<Chunk*>(o);
-        if (child && !child->write(io)) {
+        if (child && !child->write(io, false)) {
             return false;
         }
     }
@@ -286,7 +290,7 @@ Chunk* Chunk::parse (QIODevice* io)
 
 QDataStream& operator<< (QDataStream& stream, const Gas::Qt::Chunk& c)
 {
-    c.write(stream.device());
+    c.write(stream.device(), true);
     return stream;
 }
 
