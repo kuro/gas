@@ -39,6 +39,8 @@ int qtedit_main (int argc, char **argv);
 
 int gas2c (int argc, char **argv);
 
+int bin2c (int argc, char** argv);
+
 void print_gas_file (string fname)
 {
     FILE* fs;
@@ -120,6 +122,8 @@ int main (int argc, char **argv)
         xml2gas_main(argc-1, &argv[1]);
     } else if (cmd == "edit") {
         qtedit_main(argc-1, &argv[1]);
+    } else if (cmd == "bin2c") {
+        bin2c(argc-1, &argv[1]);
 #endif
     } else if (cmd == "gas2c") {
         gas2c(argc-1, &argv[1]);

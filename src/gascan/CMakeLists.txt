@@ -8,6 +8,7 @@ if (QT4_FOUND)
     add_definitions(-DHAVE_QT4=1)
     qt4_wrap_ui(ui_files EditWindow.ui)
     set(sources ${sources} xml2gas.cpp)
+    set(sources ${sources} bin2c.cpp)
     set(sources ${sources} qtedit.h qtedit.cpp)
     set(sources ${sources}
         ${ui_files}
