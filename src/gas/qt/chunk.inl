@@ -89,6 +89,14 @@ unsigned int Chunk::decode (QIODevice* io, T& value)
 
     /* find first non 0x00 byte */
     for (zero_byte_count = 0; 1; zero_byte_count++) {
+
+        while (io->bytesAvailable() < 1) {
+            if (!io->waitForReadyRead(100)) {
+                qWarning("%s", qPrintable(io->errorString()));
+                return 0;
+            }
+        }
+
         if (!io->getChar(reinterpret_cast<char*>(&byte))) {
             return 0;
         }
@@ -109,6 +117,14 @@ unsigned int Chunk::decode (QIODevice* io, T& value)
 
     retval = mask & byte;
     for (i = 0; i < additional_bytes_to_read; i++) {
+
+        while (io->bytesAvailable() < 1) {
+            if (!io->waitForReadyRead(100)) {
+                qWarning("%s", qPrintable(io->errorString()));
+                return 0;
+            }
+        }
+
         if (!io->getChar(reinterpret_cast<char*>(&byte))) {
             return 0;
         }

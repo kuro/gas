@@ -34,6 +34,22 @@ GASunum gas_encoded_size (GASunum value);
 
 using namespace Gas::Qt;
 
+static inline
+QByteArray myread (QIODevice* dev, qint64 bytes)
+{
+    QByteArray retval;
+    while (dev->bytesAvailable() < bytes) {
+        if (!dev->waitForReadyRead(100)) {
+            qWarning() << dev->errorString();
+            return QByteArray();
+        }
+    }
+
+    retval = dev->read(bytes);
+    qDebug() << "read:" << retval;
+    return retval;
+}
+
 struct Chunk::Private
 {
     unsigned int size;
@@ -220,7 +236,7 @@ bool Chunk::read (QIODevice* io)
 
     decode(io, d->size);
     decode(io, tmp);
-    buf = io->read(tmp);
+    buf = myread(io, tmp);
     if (tmp != (unsigned int)buf.size()) {
         return false;
     }
@@ -228,19 +244,19 @@ bool Chunk::read (QIODevice* io)
     decode(io, attr_count);
     for (unsigned int i = 0; i < attr_count; i++) {
         decode(io, tmp);
-        key = io->read(tmp);
+        key = myread(io, tmp);
         if (tmp != (unsigned int)key.size()) {
             return false;
         }
         decode(io, tmp);
-        val = io->read(tmp);
+        val = myread(io, tmp);
         if (tmp != (unsigned int)val.size()) {
             return false;
         }
         d->attributes.insert(key, val);
     }
     decode(io, tmp);
-    buf = io->read(tmp);
+    buf = myread(io, tmp);
     if (tmp != (unsigned int)buf.size()) {
         return false;
     }
@@ -261,6 +277,7 @@ Chunk* Chunk::parse (QIODevice* io)
     Chunk* c = NULL;
     c = new Chunk;
     if (!c->read(io)) {
+        qWarning() << "Chunk::read() failed";
         delete c;
         return NULL;
     }
