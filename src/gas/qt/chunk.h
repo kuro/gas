@@ -32,7 +32,6 @@ namespace Gas
 {
 namespace Qt
 {
-struct ChunkPrivate;
 class Chunk : public QObject
 {
     Q_OBJECT
@@ -104,7 +103,8 @@ public:
     static Chunk* parse (QIODevice* io);
 
 protected:
-    ChunkPrivate* d;
+    struct Private;
+    Private* d;
 };
 
 #include "chunk.inl"

@@ -34,23 +34,22 @@ GASunum gas_encoded_size (GASunum value);
 
 using namespace Gas::Qt;
 
-struct Gas::Qt::ChunkPrivate
+struct Chunk::Private
 {
     unsigned int size;
     QHash<QString, QByteArray> attributes;
     QByteArray payload;
 
-    ChunkPrivate() :
+    Private() :
         size(0)
     {
     }
 };
 
 Chunk::Chunk (QString id, Chunk* parent) :
-    QObject(parent)
+    QObject(parent),
+    d(new Private)
 {
-    d = new ChunkPrivate;
-
     setId(id);
 }
 
