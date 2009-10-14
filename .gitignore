@@ -12,3 +12,4 @@ src/gas/gas.h
 *.BASE.*
 *.LOCAL.*
 *.REMOTE.*
+*.BACKUP.*
