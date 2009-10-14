@@ -1,30 +1,25 @@
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/..)
 
-set(sources test.cpp main.cpp)
+qt4_wrap_ui(ui_files EditWindow.ui)
 
-if (QT4_FOUND)
-    include_directories(${CMAKE_CURRENT_BINARY_DIR})
-    add_definitions(-DHAVE_QT4=1)
-    qt4_wrap_ui(ui_files EditWindow.ui)
-    set(sources ${sources} xml2gas.cpp)
-    set(sources ${sources} bin2c.cpp)
-    set(sources ${sources} qtedit.h qtedit.cpp)
-    set(sources ${sources}
-        ${ui_files}
-        EditWindow.h EditWindow.cpp
-        GasTreeModel.h GasTreeModel.cpp
-        GasTableModel.h GasTableModel.cpp
-        )
-    qt4_automoc(${sources})
-    link_libraries(${QT_LIBRARIES})
-else ()
-    add_definitions(-DHAVE_QT4=0)
-endif ()
+set(sources
+    test.cpp main.cpp
+    xml2gas.cpp
+    bin2c.cpp
+    qtedit.h qtedit.cpp
+    EditWindow.h EditWindow.cpp
+    GasTreeModel.h GasTreeModel.cpp
+    GasTableModel.h GasTableModel.cpp
+    )
 
-add_executable(gascan ${sources})
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-target_link_libraries(gascan gas)
+qt4_automoc(${sources})
+
+add_executable(gascan ${sources} ${ui_files})
+
+target_link_libraries(gascan gas ${QT_LIBRARIES})
 
 #install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/gascan${CMAKE_EXECUTABLE_SUFFIX} DESTINATION bin)
 install(TARGETS gascan RUNTIME DESTINATION bin)

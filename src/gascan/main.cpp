@@ -31,10 +31,8 @@ using namespace std;
 
 int test_main (int argc, char **argv);
 
-#if HAVE_QT4
 int xml2gas_main (int argc, char **argv);
 int qtedit_main (int argc, char **argv);
-#endif
 
 
 int bin2c (int argc, char** argv);
@@ -115,14 +113,12 @@ int main (int argc, char **argv)
         }
     } else if (cmd == "test") {
         test_main(argc-1, &argv[1]);
-#if HAVE_QT4
     } else if (cmd == "xml2gas") {
         xml2gas_main(argc-1, &argv[1]);
     } else if (cmd == "edit") {
         qtedit_main(argc-1, &argv[1]);
     } else if (cmd == "bin2c") {
         bin2c(argc-1, &argv[1]);
-#endif
     } else {
         die("invalid command");
     }
