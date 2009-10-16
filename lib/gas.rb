@@ -336,6 +336,7 @@ module Gas
       @children.each do |child|
         child.test(io, depth+1)
       end
+      self
     end
 
   end # class Chunk
