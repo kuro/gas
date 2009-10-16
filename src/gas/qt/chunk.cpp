@@ -46,7 +46,6 @@ QByteArray myread (QIODevice* dev, qint64 bytes)
     }
 
     retval = dev->read(bytes);
-    qDebug() << "read:" << retval;
     return retval;
 }
 
