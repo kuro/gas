@@ -154,6 +154,11 @@ void Chunk::setAttribute (const QString& key, const QVariant& value)
     d->attributes.insert(key, value.toString().toUtf8());
 }
 
+bool Chunk::hasAttribute (const QString& key)
+{
+    return d->attributes.contains(key);
+}
+
 /**
  * @brief equivalent to gas_total_size().
  */
