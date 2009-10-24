@@ -346,4 +346,14 @@ void Chunk::dump (QIODevice* dev) const
     dump(QString(), dev);
 }
 
+QDebug operator<< (QDebug debug, const Gas::Qt::Chunk& c)
+{
+    QByteArray data;
+    QBuffer buf (&data);
+    buf.open(QIODevice::WriteOnly);
+    c.dump(&buf);
+    debug << data.data();
+    return debug;
+}
+
 // vim: sw=4
