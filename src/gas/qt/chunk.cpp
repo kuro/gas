@@ -26,6 +26,7 @@
 
 #include <QHash>
 #include <QtDebug>
+#include <QTextStream>
 
 extern "C"
 {
@@ -297,6 +298,24 @@ QDataStream& operator>> (QDataStream& stream, Gas::Qt::Chunk& c)
 {
     c.read(stream.device());
     return stream;
+}
+
+void Chunk::dump (const QString& prefix) const
+{
+    QHashIterator<QString, QByteArray> it (d->attributes);
+    QTextStream s (stdout);
+    s << prefix << "---" << endl;
+    s << prefix << "id: " << id() << endl;
+    while (it.hasNext()) {
+        it.next();
+        s << prefix << it.key() << ": " << it.value() << endl;
+    }
+    if (!d->payload.isEmpty()) {
+        s << prefix << "payload: " << d->payload << endl;
+    }
+    foreach (Chunk* child, childChunks()) {
+        child->dump(prefix + "  ");
+    }
 }
 
 // vim: sw=4

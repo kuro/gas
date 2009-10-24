@@ -108,6 +108,7 @@ public:
 
     static Chunk* parse (QIODevice* io);
 
+    void dump (const QString& prefix = QString()) const;
 
 private:
     struct Private;
