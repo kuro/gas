@@ -300,22 +300,50 @@ QDataStream& operator>> (QDataStream& stream, Gas::Qt::Chunk& c)
     return stream;
 }
 
-void Chunk::dump (const QString& prefix) const
+void Chunk::dump (const QString& prefix, QTextStream* s) const
 {
+    Q_ASSERT(s);
     QHashIterator<QString, QByteArray> it (d->attributes);
-    QTextStream s (stdout);
-    s << prefix << "---" << endl;
-    s << prefix << "id: " << id() << endl;
+    *s << prefix << "---" << endl;
+    *s << prefix << "id: " << id() << endl;
     while (it.hasNext()) {
         it.next();
-        s << prefix << it.key() << ": " << it.value() << endl;
+        *s << prefix << it.key() << ": " << it.value() << endl;
     }
     if (!d->payload.isEmpty()) {
-        s << prefix << "payload: " << d->payload << endl;
+        *s << prefix << "payload: " << d->payload << endl;
     }
     foreach (Chunk* child, childChunks()) {
-        child->dump(prefix + "  ");
+        child->dump(prefix + "  ", s);
     }
+}
+
+void Chunk::dump (const QString& prefix) const
+{
+    QTextStream s (stderr);
+    dump(prefix, &s);
+}
+
+void Chunk::dump () const
+{
+    QTextStream s (stderr);
+    dump(QString(), &s);
+}
+
+void Chunk::dump (QTextStream* stream) const
+{
+    dump(QString(), stream);
+}
+
+void Chunk::dump (const QString& prefix, QIODevice* dev) const
+{
+    QTextStream s (dev);
+    dump(prefix, &s);
+}
+
+void Chunk::dump (QIODevice* dev) const
+{
+    dump(QString(), dev);
 }
 
 // vim: sw=4

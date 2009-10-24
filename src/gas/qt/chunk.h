@@ -108,7 +108,23 @@ public:
 
     static Chunk* parse (QIODevice* io);
 
-    void dump (const QString& prefix = QString()) const;
+    /// @brief dump to stderr (without prefix)
+    void dump () const;
+
+    /// @brief dump to stderr with @a prefix
+    void dump (const QString& prefix) const;
+
+    /// @brief dump to @a stream with @a prefix
+    void dump (const QString& prefix, QTextStream* stream) const;
+
+    /// @brief dump to @a dev with @a prefix
+    void dump (const QString& prefix, QIODevice* dev) const;
+
+    /// @brief dump to @a stream (without prefix)
+    void dump (QTextStream* stream) const;
+
+    /// @brief dump to @a dev (without prefix)
+    void dump (QIODevice* dev) const;
 
 private:
     struct Private;
