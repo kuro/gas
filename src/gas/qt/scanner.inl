@@ -26,9 +26,10 @@
 
 template <typename T>
 inline
-T Scanner::dataValue (const QString& key) const
+T Scanner::dataValue (const QString& key, QDataStream::ByteOrder bo) const
 {
     QDataStream ds (attributes().value(key.toUtf8()));
+    ds.setByteOrder(bo);
 
     T retval;
     ds >> retval;

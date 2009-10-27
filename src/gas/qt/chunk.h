@@ -79,7 +79,8 @@ public:
 
     template <typename T>
     inline
-    void dataInsert (const QString& key, const T& value);
+    void dataInsert (const QString& key, const T& value,
+                     QDataStream::ByteOrder bo = QDataStream::BigEndian);
 
     template <typename T>
     inline
@@ -91,7 +92,8 @@ public:
 
     template <typename T>
     inline
-    T dataValue (const QString& key) const;
+    T dataValue (const QString& key,
+                 QDataStream::ByteOrder bo = QDataStream::BigEndian) const;
 
     inline quint32 encodedValue (const QString& key);
     inline void encodedInsert (const QString& key, quint32 val);

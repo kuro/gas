@@ -55,7 +55,8 @@ public:
 
     template <typename T>
     inline
-    T dataValue (const QString& key) const;
+    T dataValue (const QString& key,
+                 QDataStream::ByteOrder bo = QDataStream::BigEndian) const;
 
 private:
     ScannerPrivate* d;
