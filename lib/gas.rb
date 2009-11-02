@@ -304,10 +304,9 @@ module Gas
       self
     end
 
-    def test (io = $stderr, depth = 0)
+    def dump (prefix = '', io = $stderr)
       pi = proc do |data|
-        io.print('    ' * depth)
-        io.puts data
+        io.puts(prefix + data)
       end
       pi.call '---'
       pi.call "id: #{id}"
@@ -334,7 +333,7 @@ module Gas
         io.puts "+" << ('-' * m)
       end
       @children.each do |child|
-        child.test(io, depth+1)
+        child.dump(prefix + '  ', io)
       end
       self
     end
