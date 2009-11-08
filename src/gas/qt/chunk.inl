@@ -151,9 +151,7 @@ void Chunk::dataInsert (const QString& key, const T& value, QDataStream::ByteOrd
 {
     QByteArray ba;
     QDataStream ds (&ba, QIODevice::WriteOnly);
-    if (sizeof(T) == 4) {
-        ds.setFloatingPointPrecision(QDataStream::SinglePrecision);
-    }
+    ds.setFloatingPointPrecision(floatingPointPrecision());
     ds.setByteOrder(bo);
     ds << value;
 
@@ -165,9 +163,7 @@ inline
 T Chunk::dataValue (const QString& key, QDataStream::ByteOrder bo) const
 {
     QDataStream ds (attributes().value(key));
-    if (sizeof(T) == 4) {
-        ds.setFloatingPointPrecision(QDataStream::SinglePrecision);
-    }
+    ds.setFloatingPointPrecision(floatingPointPrecision());
     ds.setByteOrder(bo);
 
     T retval;

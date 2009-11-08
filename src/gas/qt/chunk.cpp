@@ -56,8 +56,11 @@ struct Chunk::Private
     QHash<QString, QByteArray> attributes;
     QByteArray payload;
 
+    QDataStream::FloatingPointPrecision floatingPointPrecision;
+
     Private() :
-        size(0)
+        size(0),
+        floatingPointPrecision(QDataStream::SinglePrecision)
     {
     }
 };
@@ -67,6 +70,10 @@ Chunk::Chunk (QString id, Chunk* parent) :
     d(new Private)
 {
     setId(id);
+
+    if (parent) {
+        d->floatingPointPrecision = parent->floatingPointPrecision();
+    }
 }
 
 Chunk::~Chunk ()
@@ -359,6 +366,16 @@ QDebug operator<< (QDebug debug, const Gas::Qt::Chunk& c)
     c.dump(&buf);
     debug << data.data();
     return debug;
+}
+
+void Chunk::setFloatingPointPrecision (QDataStream::FloatingPointPrecision v)
+{
+    d->floatingPointPrecision = v;
+}
+
+QDataStream::FloatingPointPrecision Chunk::floatingPointPrecision () const
+{
+    return d->floatingPointPrecision;
 }
 
 // vim: sw=4

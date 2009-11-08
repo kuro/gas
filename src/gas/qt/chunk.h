@@ -98,6 +98,9 @@ public:
     inline quint32 encodedValue (const QString& key);
     inline void encodedInsert (const QString& key, quint32 val);
 
+    void setFloatingPointPrecision (QDataStream::FloatingPointPrecision);
+    QDataStream::FloatingPointPrecision floatingPointPrecision () const;
+
     int size () const;
 
     void update () const;
