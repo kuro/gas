@@ -140,12 +140,20 @@ unsigned int Chunk::decode (QIODevice* io, T& value)
  * @name QDataStream based access.
  */
 //@{
+/**
+ * @remarks Qt now defaults to using double precision for both floats and
+ * doubles.  This becomes annoying when interacting with platforms that do not
+ * handle doubles well, at all.
+ */
 template <typename T>
 inline
 void Chunk::dataInsert (const QString& key, const T& value, QDataStream::ByteOrder bo)
 {
     QByteArray ba;
     QDataStream ds (&ba, QIODevice::WriteOnly);
+    if (sizeof(T) == 4) {
+        ds.setFloatingPointPrecision(QDataStream::SinglePrecision);
+    }
     ds.setByteOrder(bo);
     ds << value;
 
@@ -157,6 +165,9 @@ inline
 T Chunk::dataValue (const QString& key, QDataStream::ByteOrder bo) const
 {
     QDataStream ds (attributes().value(key));
+    if (sizeof(T) == 4) {
+        ds.setFloatingPointPrecision(QDataStream::SinglePrecision);
+    }
     ds.setByteOrder(bo);
 
     T retval;
