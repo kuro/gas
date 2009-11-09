@@ -11,7 +11,7 @@
 
 using namespace Gas::Qt;
 
-struct Gas::Qt::ScannerPrivate
+struct Gas::Qt::Scanner::Private
 {
     Scanner::Error error;
     QIODevice* dev;
@@ -22,14 +22,23 @@ struct Gas::Qt::ScannerPrivate
     bool skip;
     unsigned int size;
     unsigned int data_size;
+
+    QDataStream::FloatingPointPrecision floatingPointPrecision;
+    QDataStream::ByteOrder byteOrder;
+
+    Private() :
+        error(NoError),
+        skip(false),
+        floatingPointPrecision(QDataStream::SinglePrecision),
+        byteOrder(QDataStream::BigEndian)
+    {
+    }
 };
 
 Scanner::Scanner (QIODevice* dev) :
-    d(new ScannerPrivate)
+    d(new Private)
 {
     d->dev = dev;
-    d->error = NoError;
-    d->skip = false;
 }
 
 Scanner::~Scanner ()
@@ -128,6 +137,16 @@ QByteArray Scanner::payload () const
 void Scanner::skip ()
 {
     d->skip = true;
+}
+
+void Scanner::setFloatingPointPrecision (QDataStream::FloatingPointPrecision v)
+{
+    d->floatingPointPrecision = v;
+}
+
+QDataStream::FloatingPointPrecision Scanner::floatingPointPrecision () const
+{
+    return d->floatingPointPrecision;
 }
 
 // vim: sw=4

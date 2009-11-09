@@ -147,12 +147,12 @@ unsigned int Chunk::decode (QIODevice* io, T& value)
  */
 template <typename T>
 inline
-void Chunk::dataInsert (const QString& key, const T& value, QDataStream::ByteOrder bo)
+void Chunk::dataInsert (const QString& key, const T& value)
 {
     QByteArray ba;
     QDataStream ds (&ba, QIODevice::WriteOnly);
     ds.setFloatingPointPrecision(floatingPointPrecision());
-    ds.setByteOrder(bo);
+    ds.setByteOrder(byteOrder());
     ds << value;
 
     attributes().insert(key, ba);
@@ -160,11 +160,11 @@ void Chunk::dataInsert (const QString& key, const T& value, QDataStream::ByteOrd
 
 template <typename T>
 inline
-T Chunk::dataValue (const QString& key, QDataStream::ByteOrder bo) const
+T Chunk::dataValue (const QString& key) const
 {
     QDataStream ds (attributes().value(key));
     ds.setFloatingPointPrecision(floatingPointPrecision());
-    ds.setByteOrder(bo);
+    ds.setByteOrder(byteOrder());
 
     T retval;
     ds >> retval;

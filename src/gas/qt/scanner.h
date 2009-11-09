@@ -16,8 +16,6 @@ namespace Gas
 namespace Qt
 {
 
-struct ScannerPrivate;
-
 class Scanner
 {
 public:
@@ -55,11 +53,17 @@ public:
 
     template <typename T>
     inline
-    T dataValue (const QString& key,
-                 QDataStream::ByteOrder bo = QDataStream::BigEndian) const;
+    T dataValue (const QString& key) const;
+
+    void setByteOrder (QDataStream::ByteOrder);
+    QDataStream::ByteOrder byteOrder () const;
+
+    void setFloatingPointPrecision (QDataStream::FloatingPointPrecision);
+    QDataStream::FloatingPointPrecision floatingPointPrecision () const;
 
 private:
-    ScannerPrivate* d;
+    struct Private;
+    Private* d;
 };
 
 #include "scanner.inl"

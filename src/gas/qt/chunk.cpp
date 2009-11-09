@@ -57,10 +57,12 @@ struct Chunk::Private
     QByteArray payload;
 
     QDataStream::FloatingPointPrecision floatingPointPrecision;
+    QDataStream::ByteOrder byteOrder;
 
     Private() :
         size(0),
-        floatingPointPrecision(QDataStream::SinglePrecision)
+        floatingPointPrecision(QDataStream::SinglePrecision),
+        byteOrder(QDataStream::BigEndian)
     {
     }
 };
@@ -73,6 +75,7 @@ Chunk::Chunk (QString id, Chunk* parent) :
 
     if (parent) {
         d->floatingPointPrecision = parent->floatingPointPrecision();
+        d->byteOrder = parent->byteOrder();
     }
 }
 
@@ -366,6 +369,16 @@ QDebug operator<< (QDebug debug, const Gas::Qt::Chunk& c)
     c.dump(&buf);
     debug << data.data();
     return debug;
+}
+
+void Chunk::setByteOrder (QDataStream::ByteOrder v)
+{
+    d->byteOrder = v;
+}
+
+QDataStream::ByteOrder Chunk::byteOrder () const
+{
+    return d->byteOrder;
 }
 
 void Chunk::setFloatingPointPrecision (QDataStream::FloatingPointPrecision v)
