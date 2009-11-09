@@ -27,6 +27,7 @@
 #include <QHash>
 #include <QtDebug>
 #include <QTextStream>
+#include <QReadWriteLock>
 
 extern "C"
 {
@@ -34,6 +35,34 @@ GASunum gas_encoded_size (GASunum value);
 }
 
 using namespace Gas::Qt;
+
+static QDataStream::ByteOrder g_defaultByteOrder = QDataStream::BigEndian;
+static QDataStream::FloatingPointPrecision g_defaultFloatingPointPrecision
+    = QDataStream::SinglePrecision;
+static QReadWriteLock g_byteOrderLock;
+static QReadWriteLock g_floatingPointPrecisionLock;
+
+void Gas::Qt::setDefaultByteOrder (QDataStream::ByteOrder v)
+{
+    QWriteLocker ml (&g_byteOrderLock);
+    g_defaultByteOrder = v;
+}
+void Gas::Qt::setDefaultFloatingPointPrecision (
+    QDataStream::FloatingPointPrecision v)
+{
+    QWriteLocker ml (&g_floatingPointPrecisionLock);
+    g_defaultFloatingPointPrecision = v;
+}
+QDataStream::ByteOrder Gas::Qt::defaultByteOrder ()
+{
+    QReadLocker ml (&g_byteOrderLock);
+    return g_defaultByteOrder;
+}
+QDataStream::FloatingPointPrecision Gas::Qt::defaultFloatingPointPrecision ()
+{
+    QReadLocker ml (&g_floatingPointPrecisionLock);
+    return g_defaultFloatingPointPrecision;
+}
 
 static inline
 QByteArray myread (QIODevice* dev, qint64 bytes)
@@ -60,9 +89,7 @@ struct Chunk::Private
     QDataStream::ByteOrder byteOrder;
 
     Private() :
-        size(0),
-        floatingPointPrecision(QDataStream::SinglePrecision),
-        byteOrder(QDataStream::BigEndian)
+        size(0)
     {
     }
 };
@@ -76,6 +103,9 @@ Chunk::Chunk (QString id, Chunk* parent) :
     if (parent) {
         d->floatingPointPrecision = parent->floatingPointPrecision();
         d->byteOrder = parent->byteOrder();
+    } else {
+        d->floatingPointPrecision = defaultFloatingPointPrecision();
+        d->byteOrder = defaultByteOrder();
     }
 }
 

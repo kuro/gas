@@ -29,8 +29,8 @@ struct Gas::Qt::Scanner::Private
     Private() :
         error(NoError),
         skip(false),
-        floatingPointPrecision(QDataStream::SinglePrecision),
-        byteOrder(QDataStream::BigEndian)
+        floatingPointPrecision(defaultFloatingPointPrecision()),
+        byteOrder(defaultByteOrder())
     {
     }
 };

@@ -138,6 +138,11 @@ private:
     Private* d;
 };
 
+void setDefaultByteOrder (QDataStream::ByteOrder);
+void setDefaultFloatingPointPrecision (QDataStream::FloatingPointPrecision);
+QDataStream::ByteOrder defaultByteOrder ();
+QDataStream::FloatingPointPrecision defaultFloatingPointPrecision ();
+
 #include "chunk.inl"
 
 }
