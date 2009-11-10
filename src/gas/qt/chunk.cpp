@@ -69,7 +69,7 @@ QByteArray myread (QIODevice* dev, qint64 bytes)
 {
     QByteArray retval;
     while (dev->bytesAvailable() < bytes) {
-        if (!dev->waitForReadyRead(100)) {
+        if (!dev->waitForReadyRead(30000)) {
             qWarning() << dev->errorString();
             return QByteArray();
         }
