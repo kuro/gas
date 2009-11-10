@@ -99,7 +99,7 @@ GASresult gas_read_encoded_num_parser (GASparser *p, GASunum *out)
     GASresult result = GAS_OK;
     GASunum retval;
     unsigned int bytes_read;
-    GASnum i, zero_byte_count, first_bit_set;
+    GASunum i, zero_byte_count, first_bit_set;
     GASubyte byte, mask = 0x00;
     GASunum additional_bytes_to_read;
 
