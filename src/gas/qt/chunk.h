@@ -135,7 +135,9 @@ public:
 
 private:
     struct Private;
-    Private* d;
+    QScopedPointer<Private> d;
+
+    Q_DISABLE_COPY(Chunk);
 };
 
 void setDefaultByteOrder (QDataStream::ByteOrder);

@@ -111,7 +111,6 @@ Chunk::Chunk (QString id, Chunk* parent) :
 
 Chunk::~Chunk ()
 {
-    delete d;
 }
 
 QString Chunk::id () const

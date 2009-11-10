@@ -43,7 +43,6 @@ Scanner::Scanner (QIODevice* dev) :
 
 Scanner::~Scanner ()
 {
-    delete d;
 }
 
 Scanner::Error Scanner::error () const

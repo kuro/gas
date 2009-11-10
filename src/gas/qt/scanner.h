@@ -63,7 +63,9 @@ public:
 
 private:
     struct Private;
-    Private* d;
+    QScopedPointer<Private> d;
+
+    Q_DISABLE_COPY(Scanner);
 };
 
 #include "scanner.inl"
