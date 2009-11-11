@@ -14,6 +14,11 @@
  * limitations under the License.
  */
 
+
+#include "parser.moc"
+
+#include <QtTest>
+
 #include <gas/parser.h>
 #include <gas/ntstring.h>
 
@@ -71,7 +76,7 @@ void my_on_payload (GASunum payload_size, void *payload, void *user_data)
 /*}}}*/
 
 
-int parser (int argc, char **argv)
+void TestParser::parser ()
 {
     GASresult r;
 #if 1
@@ -111,8 +116,10 @@ int parser (int argc, char **argv)
     gas_write_cb(c, s);
     gas_destroy(c);
 #endif
-
-    return 0;
 }
 
-// vim: set fdm=marker sw=4
+int parser (int argc, char** argv)
+{
+    TestParser tc;
+    return QTest::qExec(&tc, argc, argv);
+}

@@ -4,25 +4,22 @@ if (VALGRIND)
     set(VALGRIND_COMMAND ${VALGRIND} --tool=memcheck --leak-check=yes)
 endif()
 
-set(std_tests
+
+set(tests
+    bufio
+    cplusplus
     encoding
+    fsio
     io
+    mapped
     numbers
     parser
-    tree
-    )
-
-set(qt_tests
-    bufio
-    fsio
-    cplusplus
-    mapped
     qt
+    tree
     writer
     )
 
-string(REGEX REPLACE "([-_a-z0-9]+)" "\\1.cpp" std_files "${std_tests}")
-string(REGEX REPLACE "([-_a-z0-9]+)" "\\1.cpp" qt_files  "${qt_tests}" )
+string(REGEX REPLACE "([-_a-z0-9]+)" "\\1.cpp" files "${tests}")
 
 include_directories(
     ${CMAKE_CURRENT_BINARY_DIR}
@@ -30,36 +27,23 @@ include_directories(
     ${CMAKE_CURRENT_BINARY_DIR}/../src
     )
 
-set(driver_files ${std_files})
+set(driver_files ${files})
 
-if (QT4_FOUND)
-    qt4_automoc(${qt_files})
-    set(driver_files ${driver_files} ${qt_files})
-    link_libraries(${QT_LIBRARIES})
-endif ()
+qt4_automoc(${files})
 
 create_test_sourcelist(driver_list driver.cpp ${driver_files})
 
 add_executable(driver ${driver_list})
 
-# link libraries
-target_link_libraries(driver gas)
+target_link_libraries(driver gas ${QT_LIBRARIES})
 
-# register tests
-
-foreach(test ${std_tests})
-    add_test(${test} ${VALGRIND_COMMAND} ./driver ${test})
+foreach(test ${tests})
+    add_test(${test}
+        ${CMAKE_COMMAND} -E chdir ${CMAKE_CURRENT_BINARY_DIR}/..
+        ${VALGRIND_COMMAND}
+        ./test/driver ${test}
+        )
 endforeach()
-
-if (QT4_FOUND)
-    foreach(test ${qt_tests})
-        add_test(${test}
-            ${CMAKE_COMMAND} -E chdir ${CMAKE_CURRENT_BINARY_DIR}/..
-            ${VALGRIND_COMMAND}
-            ./test/driver ${test}
-            )
-    endforeach()
-endif ()
 
 # ruby
 

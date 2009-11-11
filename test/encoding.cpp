@@ -18,6 +18,10 @@
  * @file encoding.c
  */
 
+#include "encoding.moc"
+
+#include <QtTest>
+
 #include <gas/tree.h>
 
 #include <stdlib.h>
@@ -33,7 +37,6 @@
 int success_count;
 int failure_count;
 
-/* size encoding/decoding {{{*/
 void write_size (int fd, GASunum val)
 {
     GASubyte byte;
@@ -98,7 +101,6 @@ GASunum read_size (int fd)
 
     return retval;
 }
-/*}}}*/
 
 int test_size_read(const char *fname, GASunum expected_value)
 {
@@ -157,9 +159,7 @@ void test_size_write(const char* fname, GASunum val)
     system(cmd);
 }
 
-
-
-int encoding (int argc, char** argv)
+int TestEncoding::encoding ()
 {
 //    test_size_read("2-111.bin", 111);
 //    test_size_read("2-1023.bin", 1023);
@@ -178,4 +178,9 @@ int encoding (int argc, char** argv)
     return 0;
 }
 
-// vim: sw=4 fdm=marker
+
+int encoding (int argc, char** argv)
+{
+    TestEncoding tc;
+    return QTest::qExec(&tc, argc, argv);
+}

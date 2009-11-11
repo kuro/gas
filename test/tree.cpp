@@ -19,6 +19,10 @@
  * @brief test_tree implementation
  */
 
+#include "tree.moc"
+
+#include <QtTest>
+
 #include <gas/gas.h>
 #include <gas/ntstring.h>
 
@@ -27,7 +31,7 @@
 #include <string.h>
 //#include <linux/types.h>
 
-void test001 (void)
+void TestTree::test001 (void)
 {
     GASchunk* root = NULL;
     gas_new_named(&root, "header");
@@ -69,7 +73,7 @@ void test001 (void)
     gas_destroy(root);
 }
 
-void test002 (void)
+void TestTree::test002 (void)
 {
     GASchunk* message = NULL;
     gas_new_named(&message, "message");
@@ -97,7 +101,7 @@ void test002 (void)
     gas_destroy(message);
 }
 
-void test003 (void)
+void TestTree::test003 (void)
 {
     GASchunk* root = NULL;
     gas_new_named(&root, "root");
@@ -140,11 +144,6 @@ void test003 (void)
 
 int tree (int argc, char** argv)
 {
-    test001();
-    //test002();
-    //test003();
-
-    return 0;
+    TestTree tc;
+    return QTest::qExec(&tc, argc, argv);
 }
-
-// vim: sw=4 fdm=marker

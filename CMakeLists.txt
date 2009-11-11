@@ -9,7 +9,7 @@ include(FindPkgConfig)
 pkg_check_modules(APR apr-1)
 
 option(GAS_ENABLE_INSTALLER "Enable installer commands" OFF)
-option(GAS_ENABLE_TESTS "Enable test building" OFF)
+option(GAS_ENABLE_TESTS "Enable test building (Requires Qt)" OFF)
 
 if ("${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL "${CMAKE_SOURCE_DIR}")
     add_custom_target(doc)
@@ -35,7 +35,11 @@ endif ()
 
 if (GAS_ENABLE_TESTS)
     enable_testing()
-    subdirs(test)
+    if (QT4_FOUND)
+        subdirs(test)
+    else ()
+        message("Unit tests require Qt")
+    endif ()
 endif ()
 
 # ctags {{{

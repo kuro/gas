@@ -19,6 +19,10 @@
  * @brief numbers implementation
  */
 
+#include "numbers.moc"
+
+#include <QtTest>
+
 #include <gas/fsio.h>
 
 #include <sys/types.h>
@@ -139,7 +143,7 @@ void test_number (GASunum num)
     unlink(fname);
 }
 
-int numbers (int argc, char** argv)
+void TestNumbers::numbers ()
 {
     //int i;
 
@@ -211,7 +215,11 @@ int numbers (int argc, char** argv)
     }
 #endif
 
-    return failures == 0 ? 0 : 1;
+    QCOMPARE(failures, 0);
 }
 
-// vim: sw=4 fdm=marker
+int numbers (int argc, char** argv)
+{
+    TestNumbers tc;
+    return QTest::qExec(&tc, argc, argv);
+}

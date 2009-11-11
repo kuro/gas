@@ -19,6 +19,10 @@
  * @brief io implementation
  */
 
+#include "io.moc"
+
+#include <QtTest>
+
 #include <gas/fdio.h>
 #include <gas/ntstring.h>
 #include <gas/fsio.h>
@@ -33,7 +37,7 @@
 #include <unistd.h>
 //#include <linux/types.h>
 
-void test0001 (void)
+void TestIo::test0001 (void)
 {
     GASchunk* root = NULL;
 
@@ -81,7 +85,7 @@ void test0001 (void)
     gas_destroy(root);
 }
 
-void test0002 (void)
+void TestIo::test0002 (void)
 {
     GASchunk* root = NULL;
     gas_new_named(&root, "head");
@@ -103,7 +107,7 @@ void test0002 (void)
     gas_destroy(root);
 }
 
-void test0003 (void)
+void TestIo::test0003 (void)
 {
     GASchunk* root = NULL;
     gas_new(&root, NULL, 0);
@@ -123,7 +127,7 @@ void test0003 (void)
 
     gas_destroy(root);
 }
-void test0004 (void)
+void TestIo::test0004 (void)
 {
     GASchunk* root = NULL;
     gas_new(&root, NULL, 0);
@@ -152,11 +156,6 @@ void test0004 (void)
 
 int io (int argc, char** argv)
 {
-    //test0004();
-    //test0003();
-    //test0002();
-    test0001();
-    return 0;
+    TestIo tc;
+    return QTest::qExec(&tc, argc, argv);
 }
-
-// vim: sw=4 fdm=marker
