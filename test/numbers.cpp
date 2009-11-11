@@ -63,7 +63,7 @@ void test_range (GASunum start, GASunum end)
     FILE* fs;
     GASunum i, j;
 
-    char fname[] = "/dev/shm/dump";
+    char fname[] = "numbers.tmp";
     fs = fopen(fname, "w+");
 
     for (i = start; i <= end; i++) {
@@ -95,7 +95,7 @@ void test_random (int count, GASunum mask)
     int i;
     FILE *fs, *fs_rand;
     GASunum num;
-    char fname[] = "/dev/shm/dump";
+    char fname[] = "numbers.tmp";
 
     fs = fopen(fname, "w+");
 
@@ -125,7 +125,7 @@ void test_random (int count, GASunum mask)
 void test_number (GASunum num)
 {
     FILE* fs;
-    char fname[] = "/dev/shm/dump";
+    char fname[] = "numbers.tmp";
     fs = fopen(fname, "w+");
 
     if ( ! tryit(fs, num)) {
@@ -177,8 +177,8 @@ void TestNumbers::numbers ()
     test_random(100, 0x00000000);
     test_random(100, 0xffff0000);
     test_random(100, 0xffffffff);
-#if SIZEOF_VOID_P >= 8
-    test_random(10000, 0xffffffffffffffff);
+#if GAS_SIZEOF_VOID_P >= 8
+    test_random(100, 0xffffffffffffffff);
     test_random(100, 0xff00000000000000);
     test_random(100, 0x00ff000000000000);
     test_random(100, 0x0000ff0000000000);
