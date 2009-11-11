@@ -53,7 +53,11 @@ endforeach()
 
 if (QT4_FOUND)
     foreach(test ${qt_tests})
-        add_test(${test} ${VALGRIND_COMMAND} ./driver ${test})
+        add_test(${test}
+            ${CMAKE_COMMAND} -E chdir ${CMAKE_CURRENT_BINARY_DIR}/..
+            ${VALGRIND_COMMAND}
+            ./test/driver ${test}
+            )
     endforeach()
 endif ()
 
