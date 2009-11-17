@@ -50,7 +50,7 @@ public:
     /// @retval 0 error
     template <typename T>
     static inline
-    unsigned int decode (QIODevice* io, T& value);
+    unsigned int decode (QIODevice* io, T& value, bool block = false);
 
 public:
     Chunk (QString id = QString(), Chunk* parent = NULL);

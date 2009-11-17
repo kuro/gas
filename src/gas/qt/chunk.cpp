@@ -28,6 +28,7 @@
 #include <QtDebug>
 #include <QTextStream>
 #include <QReadWriteLock>
+#include <QCoreApplication>
 
 extern "C"
 {
@@ -64,20 +65,6 @@ QDataStream::FloatingPointPrecision Gas::Qt::defaultFloatingPointPrecision ()
     return g_defaultFloatingPointPrecision;
 }
 
-static inline
-QByteArray myread (QIODevice* dev, qint64 bytes)
-{
-    QByteArray retval;
-    while (dev->bytesAvailable() < bytes) {
-        if (!dev->waitForReadyRead(30000)) {
-            qWarning() << dev->errorString();
-            return QByteArray();
-        }
-    }
-
-    retval = dev->read(bytes);
-    return retval;
-}
 
 struct Chunk::Private
 {
@@ -282,9 +269,17 @@ bool Chunk::read (QIODevice* io)
     QByteArray buf;
     Chunk* child;
 
-    decode(io, d->size);
+    decode(io, d->size, true);
+
+    while (io->bytesAvailable() < d->size) {
+        if (!io->waitForReadyRead(30000)) {
+            qWarning() << Q_FUNC_INFO << io->errorString();
+            return false;
+        }
+    }
+
     decode(io, tmp);
-    buf = myread(io, tmp);
+    buf = io->read(tmp);
     if (tmp != (unsigned int)buf.size()) {
         return false;
     }
@@ -292,19 +287,19 @@ bool Chunk::read (QIODevice* io)
     decode(io, attr_count);
     for (unsigned int i = 0; i < attr_count; i++) {
         decode(io, tmp);
-        key = myread(io, tmp);
+        key = io->read(tmp);
         if (tmp != (unsigned int)key.size()) {
             return false;
         }
         decode(io, tmp);
-        val = myread(io, tmp);
+        val = io->read(tmp);
         if (tmp != (unsigned int)val.size()) {
             return false;
         }
         d->attributes.insert(key, val);
     }
     decode(io, tmp);
-    buf = myread(io, tmp);
+    buf = io->read(tmp);
     if (tmp != (unsigned int)buf.size()) {
         return false;
     }

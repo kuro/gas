@@ -79,7 +79,7 @@ unsigned int Chunk::encode (QIODevice* io, const T& value)
 /// @retval 0 error
 template <typename T>
 inline
-unsigned int Chunk::decode (QIODevice* io, T& value)
+unsigned int Chunk::decode (QIODevice* io, T& value, bool block)
 {
     unsigned int retval = 0x0;
     unsigned int i, zero_byte_count, first_bit_set;
@@ -90,10 +90,12 @@ unsigned int Chunk::decode (QIODevice* io, T& value)
     /* find first non 0x00 byte */
     for (zero_byte_count = 0; 1; zero_byte_count++) {
 
-        while (io->bytesAvailable() < 1) {
-            if (!io->waitForReadyRead(100)) {
-                qWarning("%s", qPrintable(io->errorString()));
-                return 0;
+        if (block) {
+            while (io->bytesAvailable() < 1) {
+                if (!io->waitForReadyRead(100)) {
+                    qWarning("%s", qPrintable(io->errorString()));
+                    return 0;
+                }
             }
         }
 
@@ -118,10 +120,12 @@ unsigned int Chunk::decode (QIODevice* io, T& value)
     retval = mask & byte;
     for (i = 0; i < additional_bytes_to_read; i++) {
 
-        while (io->bytesAvailable() < 1) {
-            if (!io->waitForReadyRead(100)) {
-                qWarning("%s", qPrintable(io->errorString()));
-                return 0;
+        if (block) {
+            while (io->bytesAvailable() < 1) {
+                if (!io->waitForReadyRead(100)) {
+                    qWarning("%s", qPrintable(io->errorString()));
+                    return 0;
+                }
             }
         }
 
