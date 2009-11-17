@@ -75,7 +75,7 @@ public:
 
     void setAttribute (const QString& key, const QByteArray& value);
     void setAttribute (const QString& key, const QVariant& value);
-    bool hasAttribute (const QString& key);
+    bool hasAttribute (const QString& key) const;
 
     template <typename T>
     inline

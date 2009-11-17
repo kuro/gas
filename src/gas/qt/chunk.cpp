@@ -193,7 +193,7 @@ void Chunk::setAttribute (const QString& key, const QVariant& value)
     d->attributes.insert(key, value.toString().toUtf8());
 }
 
-bool Chunk::hasAttribute (const QString& key)
+bool Chunk::hasAttribute (const QString& key) const
 {
     return d->attributes.contains(key);
 }
