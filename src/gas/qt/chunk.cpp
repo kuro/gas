@@ -223,6 +223,11 @@ void Chunk::update () const
     }
 }
 
+/**
+ * @remarks Qt's write returns false when the byte array is empty.
+ *
+ * @todo check the encode calls
+ */
 bool Chunk::write (QIODevice* io, bool needsUpdate) const
 {
     if (needsUpdate) {
@@ -235,30 +240,37 @@ bool Chunk::write (QIODevice* io, bool needsUpdate) const
     encode(io, d->size);
     encode(io, id().toUtf8().size());
     if (!io->write(id().toUtf8())) {
-        return false;
+        goto abort;
     }
     encode(io, d->attributes.size());
     while (it.hasNext()) {
         it.next();
         encode(io, it.key().toUtf8().size());
         if (!io->write(it.key().toUtf8())) {
-            return false;
+            goto abort;
         }
         encode(io, it.value().size());
-        if (!io->write(it.value())) {
-            return false;
+        if ((it.value().size() > 0) && !io->write(it.value())) {
+            goto abort;
         }
     }
     encode(io, payload().size());
-    io->write(payload());
+    if ((payload().size() > 0) && !io->write(payload())) {
+        goto abort;
+    }
     encode(io, children().size());
     foreach (QObject* o, children()) {
         child = qobject_cast<Chunk*>(o);
         if (child && !child->write(io, false)) {
-            return false;
+            goto abort;
         }
     }
+
     return true;
+
+abort:
+    qWarning() << io->errorString();
+    return false;
 }
 
 bool Chunk::read (QIODevice* io)
