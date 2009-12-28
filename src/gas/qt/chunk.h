@@ -116,6 +116,7 @@ public:
     bool read (QIODevice* io);
 
     static Chunk* parse (QIODevice* io);
+    static Chunk* parse (const QByteArray& data);
 
     /// @brief dump to stderr (without prefix)
     void dump () const;

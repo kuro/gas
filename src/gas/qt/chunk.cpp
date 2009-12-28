@@ -348,6 +348,14 @@ Chunk* Chunk::parse (QIODevice* io)
     return c;
 }
 
+Chunk* Chunk::parse (const QByteArray& data)
+{
+    QBuffer buf;
+    buf.setData(data);
+    buf.open(QIODevice::ReadOnly);
+    return parse(&buf);
+}
+
 QDataStream& operator<< (QDataStream& stream, const Gas::Qt::Chunk& c)
 {
     c.write(stream.device(), true);
