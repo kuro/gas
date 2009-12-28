@@ -273,6 +273,15 @@ abort:
     return false;
 }
 
+QByteArray Chunk::serialize () const
+{
+    QByteArray byteArray;
+    QBuffer buffer (&byteArray);
+    buffer.open(QIODevice::WriteOnly);
+    write(&buffer);
+    return byteArray;
+}
+
 bool Chunk::read (QIODevice* io)
 {
     unsigned int tmp, attr_count, child_count;

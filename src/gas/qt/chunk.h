@@ -111,6 +111,8 @@ public:
      */
     bool write (QIODevice* io, bool needsUpdate = true) const;
 
+    QByteArray serialize () const;
+
     bool read (QIODevice* io);
 
     static Chunk* parse (QIODevice* io);
