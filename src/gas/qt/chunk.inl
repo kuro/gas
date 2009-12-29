@@ -82,9 +82,9 @@ inline
 unsigned int Chunk::decode (QIODevice* io, T& value, bool block)
 {
     unsigned int retval = 0x0;
-    unsigned int i, zero_byte_count, first_bit_set;
+    unsigned int zero_byte_count;
+    int i, first_bit_set, additional_bytes_to_read;
     quint8 byte, mask = 0x00;
-    unsigned int additional_bytes_to_read;
     unsigned int bytes_consumed = 0;
 
     /* find first non 0x00 byte */
