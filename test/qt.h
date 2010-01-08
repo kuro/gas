@@ -33,6 +33,7 @@ private slots:
     void data ();
     void text ();
     void raw ();
+    void at ();
 };
 
 // vim: sw=4 fdm=marker

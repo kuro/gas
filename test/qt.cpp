@@ -306,6 +306,25 @@ void TestGasQt::raw ()
     qDebug() << c->size();
 }
 
+void TestGasQt::at ()
+{
+    QScopedPointer<Chunk> root (new Chunk("root"));
+    Chunk* a = new Chunk("a", root.data());
+    Chunk* b = new Chunk("b", root.data());
+    Chunk* a1 = new Chunk("1", a);
+    Chunk* a2 = new Chunk("2", a);
+    Chunk* b1 = new Chunk("1", b);
+    Chunk* b2 = new Chunk("2", b);
+
+    QCOMPARE(root->at("a"), a);
+    QCOMPARE(root->at("b"), b);
+    QCOMPARE(root->at("c"), (Chunk*)NULL);
+    QCOMPARE(root->at("c/1"), (Chunk*)NULL);
+    QCOMPARE(root->at("a/1"), a1);
+    QCOMPARE(root->at("b/2"), b2);
+    QCOMPARE(root->at("b/3"), (Chunk*)NULL);
+}
+
 int qt (int argc, char **argv)
 {
     TestGasQt tc;

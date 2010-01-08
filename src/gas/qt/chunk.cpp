@@ -28,7 +28,7 @@
 #include <QtDebug>
 #include <QTextStream>
 #include <QReadWriteLock>
-#include <QCoreApplication>
+#include <QStringList>
 
 extern "C"
 {
@@ -148,6 +148,26 @@ QList<Chunk*> Chunk::childChunks () const
     }
 
     return list;
+}
+
+Chunk* Chunk::at (const QString& path) const
+{
+    const Chunk* top = this;
+    QStringList segments = path.split("/");
+    int remainingLevels = segments.size();
+    QStringListIterator segmentIter (segments);
+    while (segmentIter.hasNext()) {
+        const QString& segment = segmentIter.next();
+        QListIterator<Chunk*> children (top->childChunks());
+        while (children.hasNext()) {
+            if (children.next()->id() == segment) {
+                top = children.peekPrevious();
+                remainingLevels--;
+                break;
+            }
+        }
+    }
+    return remainingLevels ? NULL : const_cast<Chunk*>(top);
 }
 
 QHash<QString, QByteArray>& Chunk::attributes ()

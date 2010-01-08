@@ -68,6 +68,8 @@ public:
 
     QList<Chunk*> childChunks () const;
 
+    Chunk* at (const QString& path) const;
+
     QHash<QString, QByteArray>& attributes ();
     const QHash<QString, QByteArray> attributes () const;
     QByteArray& operator[] (const QString& key);
