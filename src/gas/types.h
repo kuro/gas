@@ -19,7 +19,7 @@
  * @brief types definition
  */
 
-#include "gas.h"
+#include <gas/gas.h>
 #include <stdlib.h>
 
 #ifndef GAS_TYPES_H
