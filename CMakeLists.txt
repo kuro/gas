@@ -28,7 +28,6 @@ if ("${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL "${CMAKE_SOURCE_DIR}")
 endif ()
 
 subdirs(src doc)
-subdirs(java)
 
 if (GAS_ENABLE_INSTALLER)
     include(CPack)
