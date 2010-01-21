@@ -127,7 +127,7 @@ void Chunk::setPayload (const QVariant& payload)
 
 Chunk* Chunk::parentChunk ()
 {
-    return qobject_cast<Chunk*>(parent());
+    return dynamic_cast<Chunk*>(parent());
 }
 
 void Chunk::setParentChunk (Chunk* p)
@@ -141,7 +141,7 @@ QList<Chunk*> Chunk::childChunks () const
     Chunk* child;
 
     foreach (QObject* o, children()) {
-        child = qobject_cast<Chunk*>(o);
+        child = dynamic_cast<Chunk*>(o);
         if (child) {
             list << child;
         }
@@ -214,7 +214,7 @@ void Chunk::update () const
     sum += payload().size();
     sum += gas_encoded_size(children().size());
     foreach (QObject* o, children()) {
-        child = qobject_cast<Chunk*>(o);
+        child = dynamic_cast<Chunk*>(o);
         if (child) {
             child->update();
             sum += gas_encoded_size(child->d->size);
@@ -260,7 +260,7 @@ bool Chunk::write (QIODevice* io, bool needsUpdate) const
     }
     encode(io, children().size());
     foreach (QObject* o, children()) {
-        child = qobject_cast<Chunk*>(o);
+        child = dynamic_cast<Chunk*>(o);
         if (child && !child->write(io, false)) {
             goto abort;
         }
