@@ -67,7 +67,7 @@ void TestGasQt::test_001 ()
     c = new Chunk("asdf", root);
     qDebug() << c->id();
     qDebug() << "root" << c->parentChunk()->id();
-    qDebug() << "root" << c->parent()->objectName();
+    qDebug() << "root" << c->parentChunk()->objectName();
 
     c->setProperty("payload", "this is my payload");
     qDebug() << "c->payload" << c->payload();
@@ -110,7 +110,7 @@ void TestGasQt::test_001 ()
     buf.reset();
     Chunk* n = Chunk::parse(&buf);
     qDebug() << "child" << n->findChild<Chunk*>("asdf");
-    qDebug() << "child's attributes" << n->findChild<Chunk*>("asdf")->attributes();
+    //qDebug() << "child's attributes" << n->findChild<Chunk*>("asdf")->attributes();
     delete n;
 
     buf.close();
@@ -323,6 +323,18 @@ void TestGasQt::at ()
     QCOMPARE(root->at("a/1"), a1);
     QCOMPARE(root->at("b/2"), b2);
     QCOMPARE(root->at("b/3"), (Chunk*)NULL);
+
+    QBENCHMARK {
+        root->at("a/1");
+    }
+}
+
+void TestGasQt::benchmark_update ()
+{
+    QScopedPointer<Chunk> root (Chunk::parse(QString(TEST_FILE)));
+    QBENCHMARK {
+        root->update();
+    }
 }
 
 int qt (int argc, char **argv)

@@ -32,6 +32,12 @@ namespace Gas
 {
 namespace Qt
 {
+
+class Chunk;
+
+typedef QList<Chunk*> ChunkList;
+typedef QListIterator<Chunk*> ChunkListIterator;
+
 class Chunk : public QObject
 {
     Q_OBJECT
@@ -66,7 +72,7 @@ public:
     Chunk* parentChunk ();
     void setParentChunk (Chunk* p);
 
-    QList<Chunk*> childChunks () const;
+    ChunkList childChunks () const;
 
     Chunk* at (const QString& path) const;
 
@@ -104,9 +110,16 @@ public:
     void setFloatingPointPrecision (QDataStream::FloatingPointPrecision);
     QDataStream::FloatingPointPrecision floatingPointPrecision () const;
 
+    /**
+     * @brief The total size.
+     * @note Equivalent to gas_total_size().
+     */
     int size () const;
 
-    void update () const;
+    /**
+     * @note The returned value is *not* the total size.
+     */
+    unsigned int update () const;
 
     /**
      * @note It is *not* necessary to call update() first.

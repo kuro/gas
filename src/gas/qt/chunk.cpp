@@ -31,9 +31,16 @@
 #include <QStringList>
 #include <QFile>
 
-extern "C"
+static inline
+unsigned int encoded_size (unsigned int value)
 {
-GASunum gas_encoded_size (GASunum value);
+    unsigned int i;
+    for (i = 1; 1; i++) {
+        if (value < ((1UL << (7UL*i))-1UL)) {
+            break;
+        }
+    }
+    return i + ((i - 1) >> 3);
 }
 
 using namespace Gas::Qt;
@@ -76,17 +83,23 @@ struct Chunk::Private
     QDataStream::FloatingPointPrecision floatingPointPrecision;
     QDataStream::ByteOrder byteOrder;
 
-    Private() :
-        size(0)
+    Chunk* parent;
+    ChunkList children;
+
+    Private () :
+        size(0),
+        parent(NULL)
     {
     }
 };
 
 Chunk::Chunk (QString id, Chunk* parent) :
-    QObject(parent),
+    QObject(),
     d(new Private)
 {
     setId(id);
+
+    setParentChunk(parent);
 
     if (parent) {
         d->floatingPointPrecision = parent->floatingPointPrecision();
@@ -99,6 +112,7 @@ Chunk::Chunk (QString id, Chunk* parent) :
 
 Chunk::~Chunk ()
 {
+    qDeleteAll(d->children);
 }
 
 QString Chunk::id () const
@@ -128,27 +142,20 @@ void Chunk::setPayload (const QVariant& payload)
 
 Chunk* Chunk::parentChunk ()
 {
-    return dynamic_cast<Chunk*>(parent());
+    return d->parent;
 }
 
-void Chunk::setParentChunk (Chunk* p)
+void Chunk::setParentChunk (Chunk* parent)
 {
-    setParent(p);
-}
-
-QList<Chunk*> Chunk::childChunks () const
-{
-    QList<Chunk*> list;
-    Chunk* child;
-
-    foreach (QObject* o, children()) {
-        child = dynamic_cast<Chunk*>(o);
-        if (child) {
-            list << child;
-        }
+    d->parent = parent;
+    if (parent) {
+        parent->d->children.append(this);
     }
+}
 
-    return list;
+ChunkList Chunk::childChunks () const
+{
+    return d->children;
 }
 
 Chunk* Chunk::at (const QString& path) const
@@ -206,42 +213,54 @@ bool Chunk::hasAttribute (const QString& key) const
     return d->attributes.contains(key);
 }
 
-/**
- * @brief equivalent to gas_total_size().
- */
 int Chunk::size () const
 {
-    return d->size + gas_encoded_size(d->size);
+    return d->size + encoded_size(d->size);
 }
 
-void Chunk::update () const
+unsigned int Chunk::update () const
 {
+    const Chunk* child;
     unsigned int& sum = d->size;
-    Chunk* child;
     QHashIterator<QString, QByteArray> it (d->attributes);
 
+    int tmp;
+
     sum = 0;
-    sum += gas_encoded_size(id().toUtf8().size());
-    sum += id().toUtf8().size();
-    sum += gas_encoded_size(attributes().size());
+    // id
+    tmp = id().size();
+    sum += encoded_size(tmp);
+    sum += tmp;
+    // attributes
+    sum += encoded_size(d->attributes.size());
     while (it.hasNext()) {
         it.next();
-        sum += gas_encoded_size(it.key().toUtf8().size());
-        sum += it.key().toUtf8().size();
-        sum += gas_encoded_size(it.value().size());
-        sum += it.value().size();
+        // key
+        tmp = it.key().size();
+        sum += encoded_size(tmp);
+        sum += tmp;
+        // value
+        tmp = it.value().size();
+        sum += encoded_size(tmp);
+        sum += tmp;
     }
-    sum += gas_encoded_size(payload().size());
-    sum += payload().size();
-    sum += gas_encoded_size(children().size());
-    foreach (QObject* o, children()) {
-        child = dynamic_cast<Chunk*>(o);
-        if (child) {
-            child->update();
-            sum += gas_encoded_size(child->d->size);
-            sum += child->d->size;
-        }
+    // payload
+    tmp = d->payload.size();
+    sum += encoded_size(tmp);
+    sum += tmp;
+    // children
+    sum += encoded_size(d->children.size());
+
+    for (ChunkList::ConstIterator it=d->children.begin(), end=d->children.end();
+         it != end; ++it)
+    {
+        child = *it;
+        tmp = child->update();
+        sum += encoded_size(tmp);
+        sum += tmp;
     }
+
+    return sum;
 }
 
 /**
@@ -256,7 +275,6 @@ bool Chunk::write (QIODevice* io, bool needsUpdate) const
     }
 
     QHashIterator<QString, QByteArray> it (d->attributes);
-    Chunk* child;
 
     encode(io, d->size);
     encode(io, id().toUtf8().size());
@@ -279,10 +297,9 @@ bool Chunk::write (QIODevice* io, bool needsUpdate) const
     if ((payload().size() > 0) && !io->write(payload())) {
         goto abort;
     }
-    encode(io, children().size());
-    foreach (QObject* o, children()) {
-        child = dynamic_cast<Chunk*>(o);
-        if (child && !child->write(io, false)) {
+    encode(io, d->children.size());
+    foreach (Chunk* child, d->children) {
+        if (!child->write(io, false)) {
             goto abort;
         }
     }
@@ -419,7 +436,7 @@ void Chunk::dump (const QString& prefix, QTextStream* s) const
     if (!d->payload.isEmpty()) {
         *s << prefix << "payload: " << d->payload << endl;
     }
-    foreach (Chunk* child, childChunks()) {
+    foreach (Chunk* child, d->children) {
         child->dump(prefix + "  ", s);
     }
 }

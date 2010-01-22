@@ -34,6 +34,7 @@ private slots:
     void text ();
     void raw ();
     void at ();
+    void benchmark_update ();
 };
 
 // vim: sw=4 fdm=marker
