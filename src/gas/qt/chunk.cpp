@@ -29,6 +29,7 @@
 #include <QTextStream>
 #include <QReadWriteLock>
 #include <QStringList>
+#include <QFile>
 
 extern "C"
 {
@@ -374,6 +375,23 @@ Chunk* Chunk::parse (const QByteArray& data)
     buf.setData(data);
     buf.open(QIODevice::ReadOnly);
     return parse(&buf);
+}
+
+Chunk* Chunk::parse (const QString& filename)
+{
+    QFile file (filename);
+
+    if (!file.open(QIODevice::ReadOnly)) {
+        qWarning() << file.errorString();
+        return NULL;
+    }
+
+    uchar* buf = file.map(0, file.size());
+    if (buf) {
+        return parse(QByteArray::fromRawData((char*)buf, file.size()));
+    } else {
+        return parse(&file);
+    }
 }
 
 QDataStream& operator<< (QDataStream& stream, const Gas::Qt::Chunk& c)
