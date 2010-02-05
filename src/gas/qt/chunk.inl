@@ -231,3 +231,41 @@ void Chunk::encodedInsert (const QString& key, quint32 val)
     setAttribute(key, data);
 }
 //@}
+
+/**
+ * @name QVariant based access.
+ */
+//@{
+template <typename T>
+inline
+void Chunk::variantInsert (const QString& key, const T& value, StorageType type)
+{
+    QVariant variant (value);
+    switch (type) {
+    case DATA:
+        dataInsert(key, variant);
+        break;
+    case STRING:
+        attributes().insert(key, variant.toString().toLocal8Bit());
+        break;
+    default:
+        qFatal("invalid StorageType");
+        break;
+    }
+}
+
+template <typename T>
+inline
+T Chunk::variantValue (const QString& key, StorageType type) const
+{
+    switch (type) {
+    case DATA:
+        return qvariant_cast<T>(dataValue<QVariant>(key));
+    case STRING:
+        return qvariant_cast<T>(QString::fromLocal8Bit(attributes().value(key)));
+    default:
+        qFatal("invalid StorageType");
+        break;
+    }
+}
+//@}

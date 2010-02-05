@@ -44,6 +44,7 @@ class Chunk : public QObject
     Q_PROPERTY(QString id READ id WRITE setId)
     Q_PROPERTY(QByteArray payload READ payload WRITE setPayload)
     Q_PROPERTY(Chunk* parentChunk READ parentChunk WRITE setParentChunk)
+    Q_ENUMS(StorageType)
 
 public:
     /// @returns number of bytes produced
@@ -57,6 +58,22 @@ public:
     template <typename T>
     static inline
     unsigned int decode (QIODevice* io, T& value, bool block = false);
+
+public:
+
+    /**
+     * @brief QVariant storage methods.
+     *
+     * SRING appears to be faster.
+     * DATA can handle more types.
+     *
+     * When STRING works, it will use less space than DATA.
+     */
+    enum StorageType
+    {
+        DATA,
+        STRING
+    };
 
 public:
     Chunk (QString id = QString(), Chunk* parent = NULL);
@@ -103,6 +120,15 @@ public:
 
     inline quint32 encodedValue (const QString& key);
     inline void encodedInsert (const QString& key, quint32 val);
+
+    template <typename T>
+    inline
+    void variantInsert (const QString& key, const T& value,
+                        StorageType type = DATA);
+
+    template <typename T>
+    inline
+    T variantValue (const QString& key, StorageType type = DATA) const;
 
     void setByteOrder (QDataStream::ByteOrder);
     QDataStream::ByteOrder byteOrder () const;
