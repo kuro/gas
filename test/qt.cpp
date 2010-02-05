@@ -22,6 +22,8 @@
 
 #define TEST_FILE "test.gas"
 
+#define showit(v) qDebug().nospace() << #v << ": " << v
+
 using namespace Gas::Qt;
 
 extern "C"
@@ -335,6 +337,83 @@ void TestGasQt::benchmark_update ()
     QBENCHMARK {
         root->update();
     }
+}
+
+void TestGasQt::variants ()
+{
+    QScopedPointer<Chunk> c (new Chunk("test"));
+    QDateTime currentDateTime = QDateTime::currentDateTime();
+    QDate currentDate = QDate::currentDate();
+    QTime currentTime = QTime::currentTime();
+    QVariantList list123;
+    list123 << 1 << 2 << 3;
+
+    Chunk::StorageType type;
+#if 0
+    type = Chunk::STRING;
+#else
+    type = Chunk::DATA;
+#endif
+
+    QBitArray flags (2);
+    flags.setBit(1);
+    int iflags;
+    QBENCHMARK {
+        flags.testBit(1);
+        //(iflags & (1 << 0)) == 1;
+    }
+    return;
+        c->variantInsert("true", true, type);
+        c->variantInsert("false", false, type);
+        c->variantInsert("true1", 1, type);
+        c->variantInsert("false0", 0, type);
+        c->variantInsert("0", 0, type);
+        c->variantInsert("1", 1, type);
+        c->variantInsert("123.4f", 123.4f, type);
+        c->variantInsert("123.4", 123.4, type);
+        c->variantInsert("currentDateTime", currentDateTime, type);
+        c->variantInsert("currentTime", currentTime, type);
+        c->variantInsert("currentDate", currentDate, type);
+        c->variantInsert("list123", list123, type);
+
+    c->dump("variants: ");
+
+    QFile file ("test-variants.gas");
+    file.open(QIODevice::WriteOnly);
+    c->write(&file);
+    file.close();
+
+//    showit(c->variantValue<bool>("true"));
+//    showit(c->variantValue<bool>("false"));
+//    showit(c->variantValue<bool>("0"));
+//    showit(c->variantValue<bool>("1"));
+//    showit(c->variantValue<QString>("true"));
+//    showit(c->variantValue<int>("1"));
+//    showit(c->variantValue<int>("123.4"));
+//    showit(c->variantValue<qreal>("1"));
+//    showit(c->variantValue<qreal>("123.4"));
+//    showit(c->variantValue<QTime>("now"));
+//    showit(c->variantValue<QVariantList>("list123"));
+
+    QCOMPARE(c->variantValue<bool>("true"), true);
+    QCOMPARE(c->variantValue<bool>("false"), false);
+    QCOMPARE(c->variantValue<bool>("true1"), true);
+    QCOMPARE(c->variantValue<bool>("false0"), false);
+    QCOMPARE(c->variantValue<bool>("1"), true);
+    QCOMPARE(c->variantValue<bool>("0"), false);
+    QCOMPARE(c->variantValue<int>("1"), 1);
+    QCOMPARE(c->variantValue<int>("0"), 0);
+    QCOMPARE(c->variantValue<float>("1"), 1.f);
+    QCOMPARE(c->variantValue<float>("0"), 0.f);
+    QCOMPARE(c->variantValue<QDateTime>("currentDateTime"), currentDateTime);
+    QCOMPARE(c->variantValue<QTime>("currentTime"), currentTime);
+    QCOMPARE(c->variantValue<QDate>("currentDate"), currentDate);
+    QCOMPARE(c->variantValue<QVariantList>("list123"), list123);
+    QCOMPARE(c->variantValue<float>("123.4f"), 123.4f);
+
+    /// @todo the following two tests fail
+    //QCOMPARE(c->variantValue<double>("123.4"), 123.4);
+    //QVERIFY(qFuzzyCompare(c->variantValue<double>("123.4"), 123.4));
 }
 
 int qt (int argc, char **argv)
