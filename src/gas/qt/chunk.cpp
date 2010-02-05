@@ -23,6 +23,7 @@
 
 
 #include "../types.h"
+#include "../tree.h"
 
 #include <QHash>
 #include <QtDebug>
@@ -73,6 +74,10 @@ QDataStream::FloatingPointPrecision Gas::Qt::defaultFloatingPointPrecision ()
     return g_defaultFloatingPointPrecision;
 }
 
+void Gas::Qt::hexdump (const QByteArray& buf)
+{
+    gas_hexdump(buf.data(), buf.size());
+}
 
 struct Chunk::Private
 {

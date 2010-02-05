@@ -164,6 +164,8 @@ void setDefaultFloatingPointPrecision (QDataStream::FloatingPointPrecision);
 QDataStream::ByteOrder defaultByteOrder ();
 QDataStream::FloatingPointPrecision defaultFloatingPointPrecision ();
 
+void hexdump (const QByteArray& buf);
+
 #include "chunk.inl"
 
 }
