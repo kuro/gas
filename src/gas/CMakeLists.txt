@@ -1,4 +1,6 @@
 
+project(gas)
+
 option(GAS_ENABLE_CPP "Enable C++ wrapper" ON)
 option(GAS_USE_LONG_TYPES "Enable use of long types" ON)
 option(GAS_DEBUG_MEMORY "Enable debugging of default allocator" OFF)

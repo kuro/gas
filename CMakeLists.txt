@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 2.6)
 
-project(Gas)
-
 find_package(Qt4 COMPONENTS QtCore QtGui QtNetwork QtTest)
 include(${QT_USE_FILE})
 
