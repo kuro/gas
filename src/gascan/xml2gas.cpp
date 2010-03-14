@@ -14,120 +14,174 @@
  * limitations under the License.
  */
 
+#define FAST 1
+
 /**
  * @file xml2gas.cpp
  * @brief xml2gas implementation
  */
 
-#include <gas/fsio.h>
-#include <gas/ntstring.h>
-
-#include "gascan.h"
-
-#include <fcntl.h>
+#include <gas/qt/chunk.h>
 
 #include <QXmlStreamReader>
 #include <QFile>
-#include <QtCore>
+#include <QTime>
+#include <QCoreApplication>
+#include <QPointer>
+#include <QStringList>
+#include <QDebug>
 
-int xml2gas_main (int argc, char **argv)
+using namespace Gas::Qt;
+
+static int verbose = 0;
+static int trim = 0;
+
+Chunk* parse (const QString& fin)
 {
-    QString fin, fout;
+    QTime t;
+    t.start();
 
-    switch (argc) {
-    case 1:
-        fin = "-";
-        fout = "-";
-        break;
-    case 2:
-        fin = argv[1];
-        fout = "-";
-        break;
-    case 3:
-        fin = argv[1];
-        fout = argv[2];
-        break;
-    default:
-        die("invalid usage");
-        break;
-    }
-
-    QFile *input;
-
+    QFile input (fin);
     if (fin == "-") {
-        input = new QFile();
-        input->open(stdin, QIODevice::ReadOnly);
+        input.open(stdin, QIODevice::ReadOnly);
     } else {
-        input = new QFile(fin);
-        input->open(QIODevice::ReadOnly);
+        input.open(QIODevice::ReadOnly);
     }
 
-    GASchunk* cur = NULL;
-    gas_new_named(&cur, "fake_root");
+    Chunk* cur = new Chunk("fake_root");
 
-    QXmlStreamReader xml (input);
-    while ( ! xml.atEnd()) {
+    if (verbose > 0) {
+        qDebug() << "parsing";
+    }
+
+    QPointer<QIODevice> dev (&input);
+    const uchar* map = NULL;
+    QByteArray mappedData;
+    if (!input.isSequential()) {
+        map = input.map(0, input.size());
+        mappedData = QByteArray::fromRawData((const char*)map,
+                                                        input.size());
+    }
+    if (map) {
+        QBuffer* buf = new QBuffer(&mappedData);
+        buf->open(QIODevice::ReadOnly);
+        dev = buf;
+    }
+
+    QXmlStreamReader xml (dev);
+    while (!xml.atEnd()) {
         xml.readNext();
         if (xml.hasError()) {
-            qDebug() << xml.errorString();
+            qWarning() << xml.errorString();
         }
         if (xml.isStartElement()) {
-            //QXmlStreamAttributes& attr = xml.attributes();
-
-            GASchunk* n = NULL;
-            gas_new(&n, (const char*)xml.name().toString().toAscii(),
-                    xml.name().size());
-
-            foreach(QXmlStreamAttribute attr, xml.attributes()) {
-                gas_set_attribute_ss(n,
-                        (const char*)attr.name().toString().toAscii(), 
-                        (const char*)attr.value().toString().toAscii()
-                        );
+            Chunk* n = new Chunk(xml.name().toString(), cur);
+            foreach(const QXmlStreamAttribute& attr, xml.attributes()) {
+                n->attributes().insert(attr.name().toString(),
+                                       attr.value().toString().toUtf8());
             }
-
-
-            gas_add_child(cur, n);
             cur = n;
         }
         if ((xml.isCharacters() || xml.isCDATA()) && !xml.isWhitespace()) {
-            const char* str = qPrintable(xml.text().toString().trimmed());
-            int length = xml.text().size();
-            int total_new_len = length + cur->payload_size;
-            cur->payload = (GASubyte*)realloc(cur->payload, total_new_len + 1);
-            GAS_CHECK_MEM(cur->payload);
-            memcpy(((GASubyte*)cur->payload) + cur->payload_size, str, length);
-            ((char*)cur->payload)[total_new_len] = 0;
-            cur->payload_size = total_new_len;
+            QByteArray payload = xml.text().toString().toUtf8();
+            if (trim > 0) {
+                payload = payload.trimmed();
+            }
+            cur->payload().append(payload);
         }
         if (xml.isEndElement()) {
-            cur = cur->parent;
+            cur = cur->parentChunk();
         }
     }
 
-    gas_update(cur);
-    int verbose = 0;
-    if (verbose) {
-        //puts("printing gas");
-        gas_print(cur);
+    input.close();
+
+    if (map) {
+        dev->close();
+        delete dev;
     }
-    //puts("saving gas");
-    FILE* fs = NULL;
+
+    if (verbose > 0) {
+        qDebug() << t.elapsed() << "ms";
+    }
+
+    Q_ASSERT(cur->id() == "fake_root");
+
+    return cur;
+}
+
+void write (const QString& fout, Chunk* root)
+{
+    QTime t;
+    t.start();
+
+    // write
+    QFile output (fout);
+
     if (fout == "-") {
-        fs = stdin;
+        output.open(stdout, QIODevice::WriteOnly);
     } else {
-        fs = fopen(fout.toAscii(), "w");
+        output.open(QIODevice::WriteOnly);
     }
+
+    if (verbose > 0) {
+        qDebug() << "writing";
+    }
+
     // i do not need to write the top root element,
     // so when reading the file back, there may be multiple top chunks
-    unsigned int i;
-    for (i = 0; i < cur->nb_children; i++) {
-        printf("total size: %ld\n", gas_total_size(cur->children[i]));
-        gas_write_fs(fs, cur->children[i]);
+    QListIterator<Chunk*> it (root->childChunks());
+    while (it.hasNext()) {
+        it.next()->write(&output);
     }
-    fclose(fs);
-    gas_destroy(cur);
+
+    output.close();
+
+    if (verbose > 0) {
+        qDebug() << t.restart() << "ms";
+    }
+}
+
+int xml2gas_main (int argc, char **argv)
+{
+    QCoreApplication app (argc, argv);
+    QStringList args = app.arguments();
+
+    verbose += args.removeAll("-v");
+    trim += args.removeAll("--trim");
+    trim -= args.removeAll("--no-trim");
+
+    QString fin  = "-";
+    QString fout = "-";
+
+    switch (args.size()) {
+    case 3:
+        fout = args[2];
+        // fall
+    case 2:
+        fin = args[1];
+        break;
+    case 1:
+        break;
+    default:
+        qFatal("invalid usage");
+        break;
+    }
+
+    Chunk* root = parse(fin);
+    Q_ASSERT(root);
+
+    write(fout, root);
+
+#if !FAST
+    if (verbose > 0) {
+        qDebug() << "cleaning";
+    }
+    delete root;
+    if (verbose > 0) {
+        qDebug() << t.restart() << "ms";
+    }
+#endif
 
     return 0;
 }
-
-// vim: sw=4 fdm=marker
