@@ -29,12 +29,18 @@
 #include <QCoreApplication>
 #include <QPointer>
 #include <QStringList>
+#include <QUuid>
 #include <QDebug>
 
 using namespace Gas::Qt;
 
 static int verbose = 0;
 static int trim = 0;
+static int translate = 0;
+
+QRegExp uuidRegex (
+    "\\{?[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\}?"
+    );
 
 Chunk* parse (const QString& fin)
 {
@@ -77,8 +83,17 @@ Chunk* parse (const QString& fin)
         if (xml.isStartElement()) {
             Chunk* n = new Chunk(xml.name().toString(), cur);
             foreach(const QXmlStreamAttribute& attr, xml.attributes()) {
-                n->attributes().insert(attr.name().toString(),
-                                       attr.value().toString().toUtf8());
+                QString key = attr.name().toString();
+                QString value = attr.value().toString();
+                if (translate) {
+                    if (uuidRegex.exactMatch(value)) {
+                        n->dataInsert(key, QUuid(value));
+                    } else {
+                        n->attributes().insert(key, value.toUtf8());
+                    }
+                } else {
+                    n->attributes().insert(key, value.toUtf8());
+                }
             }
             cur = n;
         }
@@ -150,6 +165,8 @@ int xml2gas_main (int argc, char **argv)
     verbose += args.removeAll("-v");
     trim += args.removeAll("--trim");
     trim -= args.removeAll("--no-trim");
+    translate += args.removeAll("--translate");
+    translate += args.removeAll("-t");
 
     QString fin  = "-";
     QString fout = "-";
