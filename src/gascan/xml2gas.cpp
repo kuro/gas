@@ -51,7 +51,9 @@ Chunk* parse (const QString& fin)
     if (fin == "-") {
         input.open(stdin, QIODevice::ReadOnly);
     } else {
-        input.open(QIODevice::ReadOnly);
+        if (!input.open(QIODevice::ReadOnly)) {
+            qFatal("can't open %s", qPrintable(fin));
+        }
     }
 
     Chunk* cur = new Chunk("fake_root");
@@ -136,7 +138,9 @@ void write (const QString& fout, Chunk* root)
     if (fout == "-") {
         output.open(stdout, QIODevice::WriteOnly);
     } else {
-        output.open(QIODevice::WriteOnly);
+        if (!output.open(QIODevice::WriteOnly)) {
+            qFatal("can't open %s", qPrintable(fout));
+        }
     }
 
     if (verbose > 0) {
