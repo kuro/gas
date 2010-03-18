@@ -72,7 +72,7 @@ public:
     Chunk* parentChunk ();
     void setParentChunk (Chunk* p);
 
-    ChunkList childChunks () const;
+    ChunkList& childChunks () const;
 
     Chunk* at (const QString& path) const;
 

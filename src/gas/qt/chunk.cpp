@@ -158,7 +158,7 @@ void Chunk::setParentChunk (Chunk* parent)
     }
 }
 
-ChunkList Chunk::childChunks () const
+ChunkList& Chunk::childChunks () const
 {
     return d->children;
 }
