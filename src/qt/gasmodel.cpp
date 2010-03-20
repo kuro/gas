@@ -8,7 +8,7 @@
 
 #include "chunk.h"
 
-using namespace Gas::Qt;
+using namespace Gas;
 
 static
 Chunk* chunk_cast (void* p)

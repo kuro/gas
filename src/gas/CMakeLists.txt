@@ -58,18 +58,11 @@ if (QT4_FOUND)
     set(headers
         ${headers}
         qt/context.h
-        qt/chunk.h
-        qt/chunk.inl
-        qt/scanner.h
-        qt/gasmodel.h
         )
     set(sources
         ${sources}
         qt/qiodevice-context.cpp
         qt/qtcpsocket-context.cpp
-        qt/chunk.cpp
-        qt/scanner.cpp
-        qt/gasmodel.cpp
         )
     include_directories(${CMAKE_CURRENT_BINARY_DIR})
     qt4_automoc(${sources})

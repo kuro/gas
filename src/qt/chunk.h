@@ -16,7 +16,7 @@
 
 /**
  * @file chunk.h
- * @brief Gas::Qt::Chunk definition
+ * @brief Gas::Chunk definition
  */
 
 #pragma once
@@ -29,8 +29,6 @@
 #include <QBuffer>
 
 namespace Gas
-{
-namespace Qt
 {
 
 class Chunk;
@@ -190,16 +188,17 @@ void setDefaultFloatingPointPrecision (QDataStream::FloatingPointPrecision);
 QDataStream::ByteOrder defaultByteOrder ();
 QDataStream::FloatingPointPrecision defaultFloatingPointPrecision ();
 
+#if 0
 void hexdump (const QByteArray& buf);
+#endif
 
 #include "chunk.inl"
 
-}
-}
+} // namespace Gas
 
-QDataStream& operator<< (QDataStream& stream, const Gas::Qt::Chunk& c);
-QDataStream& operator>> (QDataStream& stream, Gas::Qt::Chunk& c);
+QDataStream& operator<< (QDataStream& stream, const Gas::Chunk& c);
+QDataStream& operator>> (QDataStream& stream, Gas::Chunk& c);
 
-QDebug operator<< (QDebug stream, const Gas::Qt::Chunk& c);
+QDebug operator<< (QDebug stream, const Gas::Chunk& c);
 
 // vim: sw=4

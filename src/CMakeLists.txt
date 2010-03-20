@@ -11,5 +11,5 @@ endif ()
 subdirs(gas)
 
 if (QT4_FOUND)
-    subdirs(gascan)
+    subdirs(qt gascan)
 endif ()

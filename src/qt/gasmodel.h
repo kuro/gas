@@ -10,10 +10,7 @@
 
 namespace Gas
 {
-namespace Qt
-{
 class Chunk;
-}
 }
 
 class GasModel : public QAbstractItemModel
@@ -21,7 +18,7 @@ class GasModel : public QAbstractItemModel
     Q_OBJECT
 
 public:
-    GasModel (Gas::Qt::Chunk* root, QObject* parent);
+    GasModel (Gas::Chunk* root, QObject* parent);
     virtual ~GasModel ();
 
     virtual QModelIndex index(int, int, const QModelIndex&) const;

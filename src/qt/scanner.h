@@ -13,9 +13,6 @@ class QIODevice;
 
 namespace Gas
 {
-namespace Qt
-{
-
 class Scanner
 {
 public:
@@ -70,7 +67,6 @@ private:
 
 #include "scanner.inl"
 
-} // namespace Qt
 } // namespace Gas
 
 // vim: sw=4

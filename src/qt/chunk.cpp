@@ -16,14 +16,10 @@
 
 /**
  * @file chunk.cpp
- * @brief Gas::Qt::Chunk implementation
+ * @brief Gas::Chunk implementation
  */
 
 #include "chunk.moc"
-
-
-#include "../types.h"
-#include "../tree.h"
 
 #include <QHash>
 #include <QtDebug>
@@ -44,7 +40,7 @@ unsigned int encoded_size (unsigned int value)
     return i + ((i - 1) >> 3);
 }
 
-using namespace Gas::Qt;
+using namespace Gas;
 
 static QDataStream::ByteOrder g_defaultByteOrder = QDataStream::BigEndian;
 static QDataStream::FloatingPointPrecision g_defaultFloatingPointPrecision
@@ -52,32 +48,34 @@ static QDataStream::FloatingPointPrecision g_defaultFloatingPointPrecision
 static QReadWriteLock g_byteOrderLock;
 static QReadWriteLock g_floatingPointPrecisionLock;
 
-void Gas::Qt::setDefaultByteOrder (QDataStream::ByteOrder v)
+void Gas::setDefaultByteOrder (QDataStream::ByteOrder v)
 {
     QWriteLocker ml (&g_byteOrderLock);
     g_defaultByteOrder = v;
 }
-void Gas::Qt::setDefaultFloatingPointPrecision (
+void Gas::setDefaultFloatingPointPrecision (
     QDataStream::FloatingPointPrecision v)
 {
     QWriteLocker ml (&g_floatingPointPrecisionLock);
     g_defaultFloatingPointPrecision = v;
 }
-QDataStream::ByteOrder Gas::Qt::defaultByteOrder ()
+QDataStream::ByteOrder Gas::defaultByteOrder ()
 {
     QReadLocker ml (&g_byteOrderLock);
     return g_defaultByteOrder;
 }
-QDataStream::FloatingPointPrecision Gas::Qt::defaultFloatingPointPrecision ()
+QDataStream::FloatingPointPrecision Gas::defaultFloatingPointPrecision ()
 {
     QReadLocker ml (&g_floatingPointPrecisionLock);
     return g_defaultFloatingPointPrecision;
 }
 
-void Gas::Qt::hexdump (const QByteArray& buf)
+#if 0
+void Gas::hexdump (const QByteArray& buf)
 {
     gas_hexdump(buf.data(), buf.size());
 }
+#endif
 
 struct Chunk::Private
 {
@@ -416,13 +414,13 @@ Chunk* Chunk::parse (const QString& filename)
     }
 }
 
-QDataStream& operator<< (QDataStream& stream, const Gas::Qt::Chunk& c)
+QDataStream& operator<< (QDataStream& stream, const Gas::Chunk& c)
 {
     c.write(stream.device(), true);
     return stream;
 }
 
-QDataStream& operator>> (QDataStream& stream, Gas::Qt::Chunk& c)
+QDataStream& operator>> (QDataStream& stream, Gas::Chunk& c)
 {
     c.read(stream.device());
     return stream;
@@ -474,7 +472,7 @@ void Chunk::dump (QIODevice* dev) const
     dump(QString(), dev);
 }
 
-QDebug operator<< (QDebug debug, const Gas::Qt::Chunk& c)
+QDebug operator<< (QDebug debug, const Gas::Chunk& c)
 {
     QByteArray data;
     QBuffer buf (&data);

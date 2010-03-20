@@ -9,9 +9,9 @@
 
 #include <QStack>
 
-using namespace Gas::Qt;
+using namespace Gas;
 
-struct Gas::Qt::Scanner::Private
+struct Gas::Scanner::Private
 {
     Scanner::Error error;
     QIODevice* dev;
@@ -53,12 +53,6 @@ Scanner::Error Scanner::error () const
 bool Scanner::atEnd () const
 {
     return d->dev->atEnd();
-}
-
-#include "../types.h"
-extern "C"
-{
-GASunum gas_encoded_size (GASunum value);
 }
 
 Scanner::TokenType Scanner::readNext ()
