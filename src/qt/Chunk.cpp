@@ -15,11 +15,11 @@
  */
 
 /**
- * @file chunk.cpp
+ * @file Chunk.cpp
  * @brief Gas::Chunk implementation
  */
 
-#include "chunk.moc"
+#include "Chunk.moc"
 
 #include <QHash>
 #include <QtDebug>

@@ -1,11 +1,11 @@
 
 /**
- * @file scanner.cpp
- * @brief scanner implementation
+ * @file Scanner.cpp
+ * @brief Scanner implementation
  */
 
-#include "scanner.h"
-#include "chunk.h"
+#include "Scanner.h"
+#include "Chunk.h"
 
 #include <QStack>
 

@@ -15,7 +15,7 @@
  */
 
 /**
- * @file chunk.h
+ * @file Chunk.h
  * @brief Gas::Chunk definition
  */
 
@@ -192,7 +192,7 @@ QDataStream::FloatingPointPrecision defaultFloatingPointPrecision ();
 void hexdump (const QByteArray& buf);
 #endif
 
-#include "chunk.inl"
+#include "Chunk.inl"
 
 } // namespace Gas
 

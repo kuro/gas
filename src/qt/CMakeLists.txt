@@ -1,13 +1,13 @@
 project(GasQt)
 
 set(sources
-    chunk.h
-    chunk.inl
-    chunk.cpp
-    gasmodel.h
-    gasmodel.cpp
-    scanner.h
-    scanner.cpp
+    Chunk.h
+    Chunk.inl
+    Chunk.cpp
+    GasModel.h
+    GasModel.cpp
+    Scanner.h
+    Scanner.cpp
     )
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})

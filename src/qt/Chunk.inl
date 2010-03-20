@@ -15,8 +15,8 @@
  */
 
 /**
- * @file chunk.inl
- * @brief chunk inline implementation
+ * @file Chunk.inl
+ * @brief Chunk inline implementation
  */
 
 template <typename T>

@@ -1,12 +1,12 @@
 
 /**
- * @file gasmodel.cpp
- * @brief gasmodel implementation
+ * @file GasModel.cpp
+ * @brief GasModel implementation
  */
 
-#include "gasmodel.moc"
+#include "GasModel.moc"
 
-#include "chunk.h"
+#include "Chunk.h"
 
 using namespace Gas;
 

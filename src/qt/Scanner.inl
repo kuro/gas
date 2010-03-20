@@ -15,8 +15,8 @@
  */
 
 /**
- * @file scanner.inl
- * @brief scanner inline implementation
+ * @file Scanner.inl
+ * @brief Scanner inline implementation
  */
 
 /**

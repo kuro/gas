@@ -1,7 +1,7 @@
 
 /**
- * @file scanner.h
- * @brief scanner definition
+ * @file Scanner.h
+ * @brief Scanner definition
  */
 
 #pragma once
@@ -65,7 +65,7 @@ private:
     Q_DISABLE_COPY(Scanner);
 };
 
-#include "scanner.inl"
+#include "Scanner.inl"
 
 } // namespace Gas
 

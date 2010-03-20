@@ -1,7 +1,7 @@
 
 /**
- * @file gasmodel.h
- * @brief gasmodel definition
+ * @file GasModel.h
+ * @brief GasModel definition
  */
 
 #pragma once
