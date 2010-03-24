@@ -21,7 +21,7 @@
  * @brief xml2gas implementation
  */
 
-#include <gas/qt/chunk.h>
+#include <qt/chunk.h>
 
 #include <QXmlStreamReader>
 #include <QFile>
@@ -32,7 +32,7 @@
 #include <QUuid>
 #include <QDebug>
 
-using namespace Gas::Qt;
+using namespace Gas;
 
 static int verbose = 0;
 static int trim = 0;

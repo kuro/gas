@@ -36,7 +36,7 @@ create_test_sourcelist(driver_list driver.cpp ${driver_files})
 
 add_executable(driver ${driver_list})
 
-target_link_libraries(driver gas ${QT_LIBRARIES})
+target_link_libraries(driver gas GasQt ${QT_LIBRARIES})
 
 foreach(test ${tests})
     add_test(${test}

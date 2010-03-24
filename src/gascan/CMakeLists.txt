@@ -24,7 +24,7 @@ qt4_automoc(${sources})
 
 add_executable(gascan ${sources} ${ui_files})
 
-target_link_libraries(gascan gas ${QT_LIBRARIES})
+target_link_libraries(gascan gas GasQt ${QT_LIBRARIES})
 
 #install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/gascan${CMAKE_EXECUTABLE_SUFFIX} DESTINATION bin)
 install(TARGETS gascan RUNTIME DESTINATION bin)

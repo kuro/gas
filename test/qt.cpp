@@ -15,8 +15,8 @@
  */
 
 #include  <QtTest>
-#include  <gas/qt/chunk.h>
-#include  <gas/qt/scanner.h>
+#include  <qt/chunk.h>
+#include  <qt/scanner.h>
 #include  <gas/types.h>
 #include "qt.moc"
 
@@ -24,7 +24,7 @@
 
 #define showit(v) qDebug().nospace() << #v << ": " << v
 
-using namespace Gas::Qt;
+using namespace Gas;
 
 extern "C"
 {
