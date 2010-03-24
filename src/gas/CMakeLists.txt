@@ -23,7 +23,6 @@ set(headers
     ${CMAKE_CURRENT_BINARY_DIR}/gas.h
     bufio.h
     context.h
-    etc.c
     fdio.h
     io.h
     ntstring.h
@@ -37,6 +36,7 @@ set(headers
     )
 
 set(sources
+    etc.c
     bufio.c
     context.c
     fdio.c
