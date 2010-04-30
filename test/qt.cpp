@@ -15,8 +15,8 @@
  */
 
 #include  <QtTest>
-#include  <qt/chunk.h>
-#include  <qt/scanner.h>
+#include  <qt/Chunk.h>
+#include  <qt/Scanner.h>
 #include  <gas/types.h>
 #include "qt.moc"
 

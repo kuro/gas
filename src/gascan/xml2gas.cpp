@@ -21,7 +21,7 @@
  * @brief xml2gas implementation
  */
 
-#include <qt/chunk.h>
+#include <qt/Chunk.h>
 
 #include <QXmlStreamReader>
 #include <QFile>
