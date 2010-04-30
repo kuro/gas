@@ -32,7 +32,10 @@ using namespace std;
 int test_main (int argc, char **argv);
 
 int xml2gas_main (int argc, char **argv);
+
+#ifdef HAVE_QTGUI
 int qtedit_main (int argc, char **argv);
+#endif
 
 
 int bin2c (int argc, char** argv);
@@ -115,8 +118,10 @@ int main (int argc, char **argv)
         test_main(argc-1, &argv[1]);
     } else if (cmd == "xml2gas") {
         xml2gas_main(argc-1, &argv[1]);
+#ifdef HAVE_QTGUI
     } else if (cmd == "edit") {
         qtedit_main(argc-1, &argv[1]);
+#endif
     } else if (cmd == "bin2c") {
         bin2c(argc-1, &argv[1]);
     } else {

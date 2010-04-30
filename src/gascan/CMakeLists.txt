@@ -6,17 +6,24 @@ include_directories(
     ${CMAKE_CURRENT_BINARY_DIR}/../gas
     )
 
-qt4_wrap_ui(ui_files EditWindow.ui)
-
 set(sources
     test.cpp main.cpp
     xml2gas.cpp
     bin2c.cpp
-    qtedit.h qtedit.cpp
-    EditWindow.h EditWindow.cpp
-    GasTreeModel.h GasTreeModel.cpp
-    GasTableModel.h GasTableModel.cpp
     )
+
+if (QT_QTGUI_FOUND)
+    add_definitions(-DHAVE_QTGUI)
+    set(sources
+        ${sources}
+        qtedit.h qtedit.cpp
+        EditWindow.h EditWindow.cpp
+        GasTreeModel.h GasTreeModel.cpp
+        GasTableModel.h GasTableModel.cpp
+        )
+
+    qt4_wrap_ui(ui_files EditWindow.ui)
+endif()
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
