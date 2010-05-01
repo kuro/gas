@@ -13,7 +13,6 @@ set(sources
     )
 
 if (QT_QTGUI_FOUND)
-    add_definitions(-DHAVE_QTGUI)
     set(sources
         ${sources}
         qtedit.h qtedit.cpp
