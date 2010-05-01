@@ -59,6 +59,6 @@ if(GAS_ENABLE_INSTALLER)
     install(FILES ${CMAKE_CURRENT_BINARY_DIR}/gas.pc DESTINATION lib/pkgconfig)
 endif()
 
-
+configure_file(GasConfig.cmake.in GasConfig.cmake)
 
 # vim: fdm=marker
