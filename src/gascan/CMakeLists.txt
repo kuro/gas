@@ -24,8 +24,6 @@ if (QT_QTGUI_FOUND)
     qt4_wrap_ui(ui_files EditWindow.ui)
 endif()
 
-include_directories(${CMAKE_CURRENT_BINARY_DIR})
-
 qt4_automoc(${sources})
 
 add_executable(gascan ${sources} ${ui_files})

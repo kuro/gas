@@ -22,7 +22,6 @@ set(tests
 string(REGEX REPLACE "([-_a-z0-9]+)" "\\1.cpp" files "${tests}")
 
 include_directories(
-    ${CMAKE_CURRENT_BINARY_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/../src
     ${CMAKE_CURRENT_BINARY_DIR}/../src
     ${CMAKE_CURRENT_BINARY_DIR}/../src/gas

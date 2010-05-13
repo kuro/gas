@@ -64,7 +64,6 @@ if (QT4_FOUND)
         qt/qiodevice-context.cpp
         qt/qtcpsocket-context.cpp
         )
-    include_directories(${CMAKE_CURRENT_BINARY_DIR})
     qt4_automoc(${sources})
 endif ()
 

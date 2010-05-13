@@ -25,6 +25,8 @@ if ("${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL "${CMAKE_SOURCE_DIR}")
 
 endif ()
 
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
 subdirs(src doc)
 
 if (GAS_ENABLE_INSTALLER)
