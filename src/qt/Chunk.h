@@ -89,6 +89,12 @@ public:
 
     ChunkList& childChunks () const;
 
+    inline
+    ChunkList& children () const
+    {
+        return childChunks();
+    }
+
     Chunk* at (const QString& path) const;
 
     QHash<QString, QByteArray>& attributes ();
