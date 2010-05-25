@@ -118,7 +118,7 @@ module Gas
       Chunk.new.parse(io)
     end
 
-    def initialize (arg = nil)
+    def initialize (arg = nil, parent = nil)
       @parent = nil
       @size = 0
       @id = String.new
@@ -146,6 +146,10 @@ module Gas
         parse(arg)
       else
         raise Gas::Error, "invalid type: #{arg.class}", caller
+      end
+
+      unless parent.nil?
+        parent.add_child self
       end
     end
     def parse (io)
