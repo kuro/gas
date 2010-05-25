@@ -32,6 +32,7 @@ using namespace std;
 int test_main (int argc, char **argv);
 
 int xml2gas_main (int argc, char **argv);
+int gas2xml_main (int argc, char **argv);
 
 #ifdef QT_GUI_LIB
 int qtedit_main (int argc, char **argv);
@@ -118,6 +119,8 @@ int main (int argc, char **argv)
         test_main(argc-1, &argv[1]);
     } else if (cmd == "xml2gas") {
         xml2gas_main(argc-1, &argv[1]);
+    } else if (cmd == "gas2xml") {
+        gas2xml_main(argc-1, &argv[1]);
 #ifdef QT_GUI_LIB
     } else if (cmd == "edit") {
         qtedit_main(argc-1, &argv[1]);

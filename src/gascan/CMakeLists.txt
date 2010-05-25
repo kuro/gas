@@ -9,6 +9,7 @@ include_directories(
 set(sources
     test.cpp main.cpp
     xml2gas.cpp
+    gas2xml.cpp
     bin2c.cpp
     )
 
