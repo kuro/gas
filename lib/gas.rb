@@ -34,7 +34,7 @@ module Gas
   class Error < StandardError
   end
 
-  def encode_num (value)
+  def self.encode_num (value)
     buf = String.new
 
     coded_length = 1
@@ -75,7 +75,7 @@ module Gas
     return buf
   end
 
-  def decode_num (io)
+  def self.decode_num (io)
     byte = nil
 
     zero_byte_count = 0
@@ -107,6 +107,14 @@ module Gas
       retval = (retval << 8) | byte
     end
     return retval
+  end
+
+  def encode_num (value)
+    return Gas.encode_num(value)
+  end
+
+  def decode_num (io)
+    return Gas.decode_num(io)
   end
 
   class Chunk
