@@ -12,7 +12,7 @@ else ()
 endif ()
 
 execute_process(
-    COMMAND ./versionfilter.sh
+    COMMAND ./versionfilter.rb
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     OUTPUT_VARIABLE PROJECT_NUMBER
     )
