@@ -329,6 +329,7 @@ bool Chunk::write (QIODevice* dev, bool needsUpdate) const
 
     QStack<unsigned int> childrenRemaining;
     const Chunk* c = this;
+    int idx;
 
     childrenRemaining.push(c->childChunks().size());
     if (!writeChunk(dev, c)) {
@@ -343,10 +344,9 @@ bool Chunk::write (QIODevice* dev, bool needsUpdate) const
             }
             c = c->parentChunk();
         } else {
-            int idx = childrenRemaining.pop();
-            childrenRemaining.push(idx - 1);
+            idx = c->childChunks().size() - childrenRemaining.top()--;
 
-            c = c->childChunks()[c->childChunks().size() - idx];
+            c = c->childChunks()[idx];
             childrenRemaining.push(c->childChunks().size());
 
             if (!writeChunk(dev, c)) {
@@ -498,6 +498,7 @@ void Chunk::dump (const QString& prefix, QTextStream* s) const
 {
     QStack<unsigned int> childrenRemaining;
     const Chunk* c = this;
+    int idx;
 
     childrenRemaining.push(c->childChunks().size());
     dumpChunk(prefix, *s, c);
@@ -510,10 +511,9 @@ void Chunk::dump (const QString& prefix, QTextStream* s) const
             }
             c = c->parentChunk();
         } else {
-            int idx = childrenRemaining.pop();
-            childrenRemaining.push(idx - 1);
+            idx = c->childChunks().size() - childrenRemaining.top()--;
 
-            c = c->childChunks()[c->childChunks().size() - idx];
+            c = c->childChunks()[idx];
             childrenRemaining.push(c->childChunks().size());
 
             dumpChunk(
