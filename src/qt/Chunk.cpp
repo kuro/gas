@@ -222,49 +222,60 @@ int Chunk::size () const
     return d->size + encoded_size(d->size);
 }
 
+#define updateChunk(c)                                                      \
+    do {                                                                    \
+        c->d->size = 0;                                                     \
+        tmp = c->id().size();                                               \
+        c->d->size += encoded_size(tmp);                                    \
+        c->d->size += tmp;                                                  \
+        c->d->size += encoded_size(c->d->attributes.size());                \
+        QHashIterator<QString, QByteArray> it (c->d->attributes);           \
+        while (it.hasNext()) {                                              \
+            it.next();                                                      \
+            tmp = it.key().size();                                          \
+            c->d->size += encoded_size(tmp);                                \
+            c->d->size += tmp;                                              \
+            tmp = it.value().size();                                        \
+            c->d->size += encoded_size(tmp);                                \
+            c->d->size += tmp;                                              \
+        }                                                                   \
+        tmp = c->d->payload.size();                                         \
+        c->d->size += encoded_size(tmp);                                    \
+        c->d->size += tmp;                                                  \
+        c->d->size += encoded_size(c->d->children.size());                  \
+    } while (0)
+
 unsigned int Chunk::update () const
 {
-    const Chunk* child;
-    unsigned int& sum = d->size;
-    QHashIterator<QString, QByteArray> it (d->attributes);
+    QStack<unsigned int> childrenRemaining;
+    const Chunk* c = this;
+    unsigned int idx;
+    unsigned int tmp;
 
-    int tmp;
+    // process root
+    childrenRemaining.push(c->childChunks().size());
+    updateChunk(c);
 
-    sum = 0;
-    // id
-    tmp = id().size();
-    sum += encoded_size(tmp);
-    sum += tmp;
-    // attributes
-    sum += encoded_size(d->attributes.size());
-    while (it.hasNext()) {
-        it.next();
-        // key
-        tmp = it.key().size();
-        sum += encoded_size(tmp);
-        sum += tmp;
-        // value
-        tmp = it.value().size();
-        sum += encoded_size(tmp);
-        sum += tmp;
+    forever {
+        if (childrenRemaining.top() == 0) {
+            childrenRemaining.pop();
+            // see if we're done
+            if (childrenRemaining.isEmpty()) {
+                return d->size;
+            }
+            // going back up
+            c->parentChunk()->d->size += c->size();
+            c = c->parentChunk();
+        } else {
+            idx = c->childChunks().size() - childrenRemaining.top()--;
+
+            // going down to child at idx
+            c = c->childChunks()[idx];
+            childrenRemaining.push(c->childChunks().size());
+
+            updateChunk(c);
+        }
     }
-    // payload
-    tmp = d->payload.size();
-    sum += encoded_size(tmp);
-    sum += tmp;
-    // children
-    sum += encoded_size(d->children.size());
-
-    for (ChunkList::ConstIterator it=d->children.begin(), end=d->children.end();
-         it != end; ++it)
-    {
-        child = *it;
-        tmp = child->update();
-        sum += encoded_size(tmp);
-        sum += tmp;
-    }
-
-    return sum;
 }
 
 /**
