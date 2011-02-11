@@ -122,7 +122,7 @@ public:
     inline
     T dataValue (const QString& key) const;
 
-    inline quint32 encodedValue (const QString& key);
+    inline quint32 encodedValue (const QString& key) const;
     inline void encodedInsert (const QString& key, quint32 val);
 
     template <typename T>

@@ -209,7 +209,7 @@ T Chunk::textValue (const QString& key) const
  */
 //@{
 inline
-quint32 Chunk::encodedValue (const QString& key)
+quint32 Chunk::encodedValue (const QString& key) const
 {
     quint32 retval;
     QByteArray data = attributes().value(key);
