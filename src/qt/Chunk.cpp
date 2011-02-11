@@ -27,6 +27,7 @@
 #include <QReadWriteLock>
 #include <QStringList>
 #include <QFile>
+#include <QStack>
 
 static inline
 unsigned int encoded_size (unsigned int value)
@@ -323,70 +324,64 @@ QByteArray Chunk::serialize () const
     return byteArray;
 }
 
-bool Chunk::read (QIODevice* io)
+unsigned int Chunk::parseChunk (QIODevice* dev, Chunk* c)
 {
-    unsigned int tmp, attr_count, child_count;
-    QString key;
-    QByteArray val;
-    QByteArray buf;
-    Chunk* child;
+    unsigned int tmp;
+    unsigned int nbAttributes;
+    QByteArray key, value;
 
-    decode(io, d->size, true);
+    Q_ASSERT(dev);
+    Q_ASSERT(c);
 
-    while (io->bytesAvailable() < d->size) {
-        if (!io->waitForReadyRead(30000)) {
-            qWarning() << Q_FUNC_INFO << io->errorString();
-            return false;
-        }
+    Chunk::decode(dev, c->d->size);  // size
+
+    Chunk::decode(dev, tmp);  // id size
+    c->setId(dev->read(tmp));
+
+    Chunk::decode(dev, nbAttributes);  // # attributes
+    for (int i = 0; i < nbAttributes; i++) {
+        Chunk::decode(dev, tmp);  // key size
+        key = dev->read(tmp);
+        Chunk::decode(dev, tmp);  // value size
+        value = dev->read(tmp);
+        c->d->attributes.insert(key, value);
     }
 
-    decode(io, tmp);
-    buf = io->read(tmp);
-    if (tmp != (unsigned int)buf.size()) {
-        return false;
-    }
-    setId(buf);
-    decode(io, attr_count);
-    for (unsigned int i = 0; i < attr_count; i++) {
-        decode(io, tmp);
-        key = io->read(tmp);
-        if (tmp != (unsigned int)key.size()) {
-            return false;
-        }
-        decode(io, tmp);
-        val = io->read(tmp);
-        if (tmp != (unsigned int)val.size()) {
-            return false;
-        }
-        d->attributes.insert(key, val);
-    }
-    decode(io, tmp);
-    buf = io->read(tmp);
-    if (tmp != (unsigned int)buf.size()) {
-        return false;
-    }
-    setPayload(buf);
-    decode(io, child_count);
-    for (unsigned int i = 0; i < child_count; i++) {
-        child = new Chunk(QString(), this);
-        if (!child->read(io)) {
-            delete child;
-            return false;
-        }
-    }
-    return true;
+    Chunk::decode(dev, tmp);  // payload size
+    c->d->payload = dev->read(tmp);
+
+    Chunk::decode(dev, tmp);  // # of children
+
+    return tmp;
 }
 
-Chunk* Chunk::parse (QIODevice* io)
+Chunk* Chunk::parse (QIODevice* dev)
 {
-    Chunk* c = NULL;
-    c = new Chunk;
-    if (!c->read(io)) {
-        qWarning() << "Chunk::read() failed";
-        delete c;
-        return NULL;
+    QStack<unsigned int> childrenRemaining;
+    unsigned int nbChildren;
+
+    Chunk* c = new Chunk();
+    nbChildren = parseChunk(dev, c);
+    childrenRemaining.push(nbChildren);
+
+    forever {
+        if (childrenRemaining.top() == 0) {
+            childrenRemaining.pop();
+            if (c->parentChunk() == NULL) {
+                return c;
+            }
+            c = c->parentChunk();
+        } else {
+            nbChildren = childrenRemaining.pop();
+            childrenRemaining.push(nbChildren - 1);
+
+            Chunk* child = new Chunk(QString(), c);
+            c = child;
+
+            nbChildren = parseChunk(dev, c);
+            childrenRemaining.push(nbChildren);
+        }
     }
-    return c;
 }
 
 Chunk* Chunk::parse (const QByteArray& data)
@@ -429,11 +424,11 @@ QDataStream& operator<< (QDataStream& stream, const Gas::Chunk& c)
     return stream;
 }
 
-QDataStream& operator>> (QDataStream& stream, Gas::Chunk& c)
-{
-    c.read(stream.device());
-    return stream;
-}
+//QDataStream& operator>> (QDataStream& stream, Gas::Chunk& c)
+//{
+//    c.read(stream.device());
+//    return stream;
+//}
 
 void Chunk::dump (const QString& prefix, QTextStream* s) const
 {

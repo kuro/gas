@@ -156,20 +156,20 @@ void TestGasQt::mapped ()
 
 void TestGasQt::streams ()
 {
-    QFile file (TEST_FILE);
-    file.open(QIODevice::ReadOnly);
-    QDataStream stream (&file);
-    Chunk c;
-    stream >> c;
-    walk(&c);
-
-    QByteArray ba;
-    QBuffer buf (&ba);
-    buf.open(QIODevice::WriteOnly);
-    stream.setDevice(&buf);
-    stream << c;
-
-    QCOMPARE((int)ba.size(), (int)file.size());
+//    QFile file (TEST_FILE);
+//    file.open(QIODevice::ReadOnly);
+//    QDataStream stream (&file);
+//    Chunk c;
+//    stream >> c;
+//    walk(&c);
+//
+//    QByteArray ba;
+//    QBuffer buf (&ba);
+//    buf.open(QIODevice::WriteOnly);
+//    stream.setDevice(&buf);
+//    stream << c;
+//
+//    QCOMPARE((int)ba.size(), (int)file.size());
 }
 
 void TestGasQt::scanner ()

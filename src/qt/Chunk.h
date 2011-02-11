@@ -158,8 +158,6 @@ public:
 
     QByteArray serialize () const;
 
-    bool read (QIODevice* io);
-
     static Chunk* parse (QIODevice* io);
     static Chunk* parse (const QByteArray& data);
     static Chunk* parse (const QString& filename);
@@ -188,6 +186,8 @@ private:
     QScopedPointer<Private> d;
 
     Q_DISABLE_COPY(Chunk);
+
+    static unsigned int parseChunk (QIODevice* dev, Chunk* c);
 };
 
 void setDefaultByteOrder (QDataStream::ByteOrder);
@@ -204,7 +204,7 @@ void hexdump (const QByteArray& buf);
 } // namespace Gas
 
 QDataStream& operator<< (QDataStream& stream, const Gas::Chunk& c);
-QDataStream& operator>> (QDataStream& stream, Gas::Chunk& c);
+//QDataStream& operator>> (QDataStream& stream, Gas::Chunk& c);
 
 QDebug operator<< (QDebug stream, const Gas::Chunk& c);
 
