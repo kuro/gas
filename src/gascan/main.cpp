@@ -19,15 +19,8 @@
  * @brief main implementation
  */
 
-#include <gas/fsio.h>
-
-#include <stdio.h>
-#include <fcntl.h>
-
-#include <string>
-#include <iostream>
-
-using namespace std;
+#include <QCoreApplication>
+#include <QDebug>
 
 int test_main (int argc, char **argv);
 
@@ -38,70 +31,19 @@ int gas2xml_main (int argc, char **argv);
 int qtedit_main (int argc, char **argv);
 #endif
 
-
 int bin2c (int argc, char** argv);
 
-void print_gas_file (string fname)
-{
-    FILE* fs;
-    GASchunk *c = NULL;
-    GASresult result;
-
-    if (fname == "-") {
-        fs = stdin;
-    } else {
-        fs = fopen(fname.c_str(), "r");
-    }
-    if (fs == NULL) {
-        fprintf(stderr, "file not found\n");
-        return;
-    }
-    while (!feof(fs)) {
-        result = gas_read_fs(fs, &c);
-        if (result != GAS_OK) {
-            if (result != GAS_ERR_FILE_EOF) {
-                // only print error if not eof
-                fprintf(stderr, "gascan detected error while reading: %s\n",
-                        gas_error_string(result));
-            }
-            if (c != NULL) {
-                gas_destroy(c);
-            }
-            continue;
-        }
-
-        result = gas_print(c);
-        if (result != GAS_OK) {
-            fprintf(stderr, "gascan detected error while printing: %s\n",
-                    gas_error_string(result));
-        }
-
-        gas_destroy(c);
-        if (result != GAS_OK) {
-            fprintf(stderr, "gascan detected error while destroying: %s\n",
-                    gas_error_string(result));
-        }
-
-        c = NULL;
-    }
-
-    fclose(fs);
-}
-
-void die (string msg)
-{
-    cerr << msg << endl;
-    exit(1);
-}
+void print_gas_file (QString fname);
 
 int main (int argc, char **argv)
 {
     if (argc < 2) {
-        die("invalid usage: command not given");
+        qFatal("invalid usage: command not given");
     }
 
-    string cmd = argv[1];
+    QString cmd = argv[1];
     if (cmd == "print") {
+        QCoreApplication (argc, argv);
         if (argc == 2) {
             print_gas_file("-");
         } else {
@@ -128,7 +70,7 @@ int main (int argc, char **argv)
     } else if (cmd == "bin2c") {
         bin2c(argc-1, &argv[1]);
     } else {
-        die("invalid command");
+        qFatal("invalid command");
     }
     return 0;
 }

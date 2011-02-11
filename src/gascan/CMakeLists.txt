@@ -20,6 +20,7 @@ if (QT_QTGUI_FOUND)
         EditWindow.h EditWindow.cpp
         GasTreeModel.h GasTreeModel.cpp
         GasTableModel.h GasTableModel.cpp
+        print.cpp
         )
 
     qt4_wrap_ui(ui_files EditWindow.ui)
