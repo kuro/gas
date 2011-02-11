@@ -188,6 +188,7 @@ private:
     Q_DISABLE_COPY(Chunk);
 
     static unsigned int parseChunk (QIODevice* dev, Chunk* c);
+    static bool writeChunk (QIODevice* dev, const Chunk* c);
     static void dumpChunk (const QString& prefix, QTextStream& s,
                            const Chunk* c);
 };

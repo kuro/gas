@@ -272,47 +272,77 @@ unsigned int Chunk::update () const
  *
  * @todo check the encode calls
  */
-bool Chunk::write (QIODevice* io, bool needsUpdate) const
+bool Chunk::writeChunk (QIODevice* dev, const Chunk* c)
+{
+    Q_ASSERT(dev);
+    Q_ASSERT(c);
+
+    QHashIterator<QString, QByteArray> it (c->d->attributes);
+
+    encode(dev, c->d->size);
+    encode(dev, c->id().toUtf8().size());
+    if (!dev->write(c->id().toUtf8())) {
+        goto abort;
+    }
+    encode(dev, c->d->attributes.size());
+
+    while (it.hasNext()) {
+        it.next();
+        encode(dev, it.key().toUtf8().size());
+        if (!dev->write(it.key().toUtf8())) {
+            goto abort;
+        }
+        encode(dev, it.value().size());
+        if ((it.value().size() > 0) && !dev->write(it.value())) {
+            goto abort;
+        }
+    }
+    encode(dev, c->payload().size());
+    if ((c->payload().size() > 0) && !dev->write(c->payload())) {
+        goto abort;
+    }
+    encode(dev, c->d->children.size());
+
+    return true;
+
+abort:
+    qWarning() << dev->errorString();
+    return false;
+}
+
+bool Chunk::write (QIODevice* dev, bool needsUpdate) const
 {
     if (needsUpdate) {
         update();
     }
 
-    QHashIterator<QString, QByteArray> it (d->attributes);
+    QStack<unsigned int> childrenRemaining;
+    const Chunk* c = this;
 
-    encode(io, d->size);
-    encode(io, id().toUtf8().size());
-    if (!io->write(id().toUtf8())) {
-        goto abort;
-    }
-    encode(io, d->attributes.size());
-    while (it.hasNext()) {
-        it.next();
-        encode(io, it.key().toUtf8().size());
-        if (!io->write(it.key().toUtf8())) {
-            goto abort;
-        }
-        encode(io, it.value().size());
-        if ((it.value().size() > 0) && !io->write(it.value())) {
-            goto abort;
-        }
-    }
-    encode(io, payload().size());
-    if ((payload().size() > 0) && !io->write(payload())) {
-        goto abort;
-    }
-    encode(io, d->children.size());
-    foreach (Chunk* child, d->children) {
-        if (!child->write(io, false)) {
-            goto abort;
-        }
+    childrenRemaining.push(c->childChunks().size());
+    if (!writeChunk(dev, c)) {
+        return false;
     }
 
-    return true;
+    forever {
+        if (childrenRemaining.top() == 0) {
+            childrenRemaining.pop();
+            if (childrenRemaining.isEmpty()) {
+                return true;
+            }
+            c = c->parentChunk();
+        } else {
+            int idx = childrenRemaining.pop();
+            childrenRemaining.push(idx - 1);
 
-abort:
-    qWarning() << io->errorString();
-    return false;
+            c = c->childChunks()[c->childChunks().size() - idx];
+            childrenRemaining.push(c->childChunks().size());
+
+            if (!writeChunk(dev, c)) {
+                return false;
+            }
+        }
+    }
 }
 
 QByteArray Chunk::serialize () const
@@ -464,7 +494,7 @@ void Chunk::dump (const QString& prefix, QTextStream* s) const
     forever {
         if (childrenRemaining.top() == 0) {
             childrenRemaining.pop();
-            if (c->parentChunk() == NULL) {
+            if (childrenRemaining.isEmpty()) {
                 break;
             }
             c = c->parentChunk();
