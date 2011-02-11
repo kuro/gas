@@ -440,13 +440,20 @@ void Chunk::dump (const QString& prefix, QTextStream* s) const
     Q_ASSERT(s);
     QHashIterator<QString, QByteArray> it (d->attributes);
     *s << prefix << "---" << endl;
-    *s << prefix << "id: " << id() << endl;
+    //*s << prefix << "id: " << id() << endl;
+    QString idString = id();
+    if (idString.isEmpty()) {
+        *s << prefix << "\"\"[" << size() << "]" << endl;
+    } else {
+        *s << prefix << idString << "[" << size() << "]" << endl;
+    }
     while (it.hasNext()) {
         it.next();
-        *s << prefix << it.key() << ": " << it.value() << endl;
+        *s << prefix << it.key() << ": \"" << it.value() << "\"" << endl;
     }
     if (!d->payload.isEmpty()) {
-        *s << prefix << "payload: " << d->payload << endl;
+        *s << prefix << "payload[" << d->payload.size()
+           << "]: \"" << d->payload << "\"" << endl;
     }
     foreach (Chunk* child, d->children) {
         child->dump(prefix + "  ", s);
