@@ -84,7 +84,7 @@ public:
     void setPayload (const QByteArray& payload);
     void setPayload (const QVariant& payload);
 
-    Chunk* parentChunk ();
+    Chunk* parentChunk () const;
     void setParentChunk (Chunk* p);
 
     ChunkList& childChunks () const;
@@ -188,6 +188,8 @@ private:
     Q_DISABLE_COPY(Chunk);
 
     static unsigned int parseChunk (QIODevice* dev, Chunk* c);
+    static void dumpChunk (const QString& prefix, QTextStream& s,
+                           const Chunk* c);
 };
 
 void setDefaultByteOrder (QDataStream::ByteOrder);

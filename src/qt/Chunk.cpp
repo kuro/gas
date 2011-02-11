@@ -144,7 +144,7 @@ void Chunk::setPayload (const QVariant& payload)
     setPayload(payload.toString().toUtf8());
 }
 
-Chunk* Chunk::parentChunk ()
+Chunk* Chunk::parentChunk () const
 {
     return d->parent;
 }
@@ -430,28 +430,55 @@ QDataStream& operator<< (QDataStream& stream, const Gas::Chunk& c)
 //    return stream;
 //}
 
-void Chunk::dump (const QString& prefix, QTextStream* s) const
+void Chunk::dumpChunk (const QString& prefix, QTextStream& s, const Chunk* c)
 {
-    Q_ASSERT(s);
-    QHashIterator<QString, QByteArray> it (d->attributes);
-    *s << prefix << "---" << endl;
-    //*s << prefix << "id: " << id() << endl;
-    QString idString = id();
+    Q_ASSERT(c);
+
+    QHashIterator<QString, QByteArray> it (c->d->attributes);
+
+    s << prefix << "---" << endl;
+    QString idString = c->id();
     if (idString.isEmpty()) {
-        *s << prefix << "\"\"[" << size() << "]" << endl;
+        s << prefix << "\"\"[" << c->size() << "]" << endl;
     } else {
-        *s << prefix << idString << "[" << size() << "]" << endl;
+        s << prefix << idString << "[" << c->size() << "]" << endl;
     }
     while (it.hasNext()) {
         it.next();
-        *s << prefix << it.key() << ": \"" << it.value() << "\"" << endl;
+        s << prefix << it.key() << ": \"" << it.value() << "\"" << endl;
     }
-    if (!d->payload.isEmpty()) {
-        *s << prefix << "payload[" << d->payload.size()
-           << "]: \"" << d->payload << "\"" << endl;
+    if (!c->d->payload.isEmpty()) {
+        s << prefix << "payload[" << c->d->payload.size()
+          << "]: \"" << c->d->payload << "\"" << endl;
     }
-    foreach (Chunk* child, d->children) {
-        child->dump(prefix + "  ", s);
+}
+
+void Chunk::dump (const QString& prefix, QTextStream* s) const
+{
+    QStack<unsigned int> childrenRemaining;
+    const Chunk* c = this;
+
+    childrenRemaining.push(c->childChunks().size());
+    dumpChunk(prefix, *s, c);
+
+    forever {
+        if (childrenRemaining.top() == 0) {
+            childrenRemaining.pop();
+            if (c->parentChunk() == NULL) {
+                break;
+            }
+            c = c->parentChunk();
+        } else {
+            int idx = childrenRemaining.pop();
+            childrenRemaining.push(idx - 1);
+
+            c = c->childChunks()[c->childChunks().size() - idx];
+            childrenRemaining.push(c->childChunks().size());
+
+            dumpChunk(
+                prefix+QString("  ").repeated(childrenRemaining.size() - 1),
+                *s, c);
+        }
     }
 }
 
