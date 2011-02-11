@@ -414,6 +414,15 @@ Chunk* Chunk::parse (const QString& filename)
     }
 }
 
+Chunk* Chunk::parse (FILE* fs)
+{
+    QFile dev;
+    if (!dev.open(fs, QIODevice::ReadOnly)) {
+        return NULL;
+    }
+    return parse(&dev);
+}
+
 QDataStream& operator<< (QDataStream& stream, const Gas::Chunk& c)
 {
     c.write(stream.device(), true);

@@ -163,6 +163,7 @@ public:
     static Chunk* parse (QIODevice* io);
     static Chunk* parse (const QByteArray& data);
     static Chunk* parse (const QString& filename);
+    static Chunk* parse (FILE* fs);
 
     /// @brief dump to stderr (without prefix)
     void dump () const;
