@@ -30,10 +30,10 @@ unsigned int Chunk::encode (QIODevice* io, const T& value)
     unsigned int bytes_produced = 0;
 
     for (i = 1; 1; i++) {
-        if ((unsigned int)value < ((1UL << (7UL*i))-1UL)) {
+        if ((quint64)value < ((1UL << (7UL*i))-1UL)) {
             break;
         }
-        if ((i * 7UL) > (sizeof(unsigned int) << 3)) {
+        if ((i * 7UL) > (sizeof(T) << 3)) {
             break;
         }
     }
@@ -54,7 +54,7 @@ unsigned int Chunk::encode (QIODevice* io, const T& value)
     mask = 0x80;
     mask >>= zero_bits;
 
-    if (coded_length <= sizeof(unsigned int)) {
+    if (coded_length <= sizeof(T)) {
         byte = mask | ((value >> ((coded_length-zero_bytes-1)<<3)) & 0xff);
     } else {
         byte = mask;
@@ -75,13 +75,15 @@ unsigned int Chunk::encode (QIODevice* io, const T& value)
     return bytes_produced;
 }
 
-/// @returns number of bytes consumed
-/// @retval 0 error
+/**
+ * @returns number of bytes consumed
+ * @retval 0 error
+ */
 template <typename T>
 inline
 unsigned int Chunk::decode (QIODevice* io, T& value, bool block)
 {
-    unsigned int retval = 0x0;
+    quint64 retval = 0x0;
     unsigned int zero_byte_count;
     int i, first_bit_set, additional_bytes_to_read;
     quint8 byte, mask = 0x00;

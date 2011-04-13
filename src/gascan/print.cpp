@@ -26,6 +26,8 @@
 #include <QDebug>
 #include <QCoreApplication>
 
+#include <QTime>
+
 using namespace Gas;
 
 /**
@@ -67,9 +69,13 @@ void print_gas_file (QString fname)
 
     Q_ASSERT(input->isOpen());
 
+    QTime t;
+
     QTextStream output (stdout);
     while (!input->atEnd()) {
+        t.start();
         QScopedPointer<Chunk> chunk (Chunk::parse(input));
+        qDebug() << "parse time:" << (t.restart() * 0.001);
         chunk->dump(QString(), &output);
     }
 

@@ -365,7 +365,11 @@ QByteArray Chunk::serialize () const
     return byteArray;
 }
 
-unsigned int Chunk::parseChunk (QIODevice* dev, Chunk* c)
+/**
+ * @returns The number of children.
+ */
+bool Chunk::parseChunk (QIODevice* dev, Chunk* c,
+                        unsigned int& nbChildren)
 {
     unsigned int tmp;
     unsigned int nbAttributes;
@@ -391,9 +395,9 @@ unsigned int Chunk::parseChunk (QIODevice* dev, Chunk* c)
     Chunk::decode(dev, tmp);  // payload size
     c->d->payload = dev->read(tmp);
 
-    Chunk::decode(dev, tmp);  // # of children
+    Chunk::decode(dev, nbChildren);  // # of children
 
-    return tmp;
+    return true;
 }
 
 Chunk* Chunk::parse (QIODevice* dev)
@@ -402,7 +406,10 @@ Chunk* Chunk::parse (QIODevice* dev)
     unsigned int nbChildren;
 
     Chunk* c = new Chunk();
-    nbChildren = parseChunk(dev, c);
+    if (!parseChunk(dev, c, nbChildren)) {
+        qWarning() << Q_FUNC_INFO << "oops";
+        /// @todo handle
+    }
     childrenRemaining.push(nbChildren);
 
     forever {
@@ -419,7 +426,10 @@ Chunk* Chunk::parse (QIODevice* dev)
             Chunk* child = new Chunk(QString(), c);
             c = child;
 
-            nbChildren = parseChunk(dev, c);
+            if (!parseChunk(dev, c, nbChildren)) {
+                qWarning() << Q_FUNC_INFO << "oops";
+                /// @todo handle
+            }
             childrenRemaining.push(nbChildren);
         }
     }
